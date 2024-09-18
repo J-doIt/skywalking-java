@@ -57,15 +57,18 @@
     <build>
         <finalName>skywalking-agent</finalName>
         <plugins>
+            <!-- maven-shade-plugin：
+                关于Maven Shade插件的使用，主要用于创建一个“fat”（或者说“超集”、“可执行”）jar文件，
+                即将项目及其依赖项合并到一个单一的jar文件中，以便于分发和执行。 -->
             <plugin>
                 <artifactId>maven-shade-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <phase>package</phase>
-                        <goals>
+                <executions> <!-- 包含了插件执行的配置信息，定义了在构建生命周期的哪些阶段执行哪些任务。 -->
+                    <execution> <!-- 描述了插件执行的一个实例，定义了插件将在何时以及如何执行。 -->
+                        <phase>package</phase> <!-- 指定了执行此插件的目标（goal）在构建生命周期的哪个阶段发生。在这里，package 阶段意味着在项目打包之前执行Shade插件。 -->
+                        <goals> <!-- 列出了该执行实例中要调用的插件目标。此处只有一个目标 shade ，表示执行 Shade 插件 的核心功能，即创建一个包含所有依赖的jar文件。 -->
                             <goal>shade</goal>
                         </goals>
-                        <configuration>
+                        <configuration> <!-- 配置段，定义了插件执行时的具体设置。 -->
                             <shadedArtifactAttached>false</shadedArtifactAttached>
                             <createDependencyReducedPom>true</createDependencyReducedPom>
                             <createSourcesJar>true</createSourcesJar>
@@ -73,7 +76,7 @@
                             <transformers>
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                                     <manifestEntries>
-                                        <Premain-Class>${premain.class}</Premain-Class>
+                                        <Premain-Class>${premain.class}</Premain-Class> <!-- 指定一个主类，该类在JVM启动前会被执行（用于Java代理或instrumentation）。 -->
                                         <Can-Redefine-Classes>${can.redefine.classes}</Can-Redefine-Classes>
                                         <Can-Retransform-Classes>${can.retransform.classes}</Can-Retransform-Classes>
                                     </manifestEntries>

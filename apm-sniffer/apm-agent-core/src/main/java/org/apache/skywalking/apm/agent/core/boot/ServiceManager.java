@@ -31,18 +31,27 @@ import org.apache.skywalking.apm.agent.core.plugin.loader.AgentClassLoader;
 
 /**
  * The <code>ServiceManager</code> bases on {@link ServiceLoader}, load all {@link BootService} implementations.
+ *
+ * <pre>
+ * BootService 管理器。负责管理、初始化 BootService 实例们。
+ * </pre>
  */
 public enum ServiceManager {
     INSTANCE;
 
     private static final ILog LOGGER = LogManager.getLogger(ServiceManager.class);
+    /** BootService 实例映射 */
     private Map<Class, BootService> bootedServices = Collections.emptyMap();
 
     public void boot() {
+        // 加载所有 BootService 实现类的实例数组
         bootedServices = loadAllServices();
 
+        // 启动之前
         prepare();
+        // 启动
         startup();
+        // 启动之后
         onComplete();
     }
 
@@ -56,9 +65,14 @@ public enum ServiceManager {
         });
     }
 
+    /**
+     * 加载所有 BootService 实现类的实例数组
+     * @return BootService 实现类的实例数组
+     */
     private Map<Class, BootService> loadAllServices() {
         Map<Class, BootService> bootedServices = new LinkedHashMap<>();
         List<BootService> allServices = new LinkedList<>();
+        // 加载 BootService 实现类的实例的 ServiceLoader
         load(allServices);
         for (final BootService bootService : allServices) {
             Class<? extends BootService> bootServiceClass = bootService.getClass();
@@ -140,6 +154,9 @@ public enum ServiceManager {
         return (T) bootedServices.get(serviceClass);
     }
 
+    /**
+     * 基于 SPI 机制，加载 BootService 实现类的实例的 ServiceLoader
+     */
     void load(List<BootService> allServices) {
         for (final BootService bootService : ServiceLoader.load(BootService.class, AgentClassLoader.getDefault())) {
             allServices.add(bootService);

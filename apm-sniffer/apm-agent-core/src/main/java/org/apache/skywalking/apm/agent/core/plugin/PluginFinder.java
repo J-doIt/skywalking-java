@@ -38,6 +38,10 @@ import static net.bytebuddy.matcher.ElementMatchers.not;
 /**
  * The <code>PluginFinder</code> represents a finder , which assist to find the one from the given {@link
  * AbstractClassEnhancePluginDefine} list.
+ *
+ * <pre>
+ * 插件发现者
+ * </pre>
  */
 public class PluginFinder {
     private final Map<String, LinkedList<AbstractClassEnhancePluginDefine>> nameMatchDefine = new HashMap<String, LinkedList<AbstractClassEnhancePluginDefine>>();
@@ -53,6 +57,7 @@ public class PluginFinder {
                 continue;
             }
 
+            // 处理 NameMatch 为匹配的 AbstractClassEnhancePluginDefine 对象，添加到 nameMatchDefine 属性
             if (match instanceof NameMatch) {
                 NameMatch nameMatch = (NameMatch) match;
                 LinkedList<AbstractClassEnhancePluginDefine> pluginDefines = nameMatchDefine.get(nameMatch.getClassName());
@@ -62,6 +67,7 @@ public class PluginFinder {
                 }
                 pluginDefines.add(plugin);
             } else {
+                // 处理非 NameMatch 为匹配的 AbstractClassEnhancePluginDefine 对象，添加到 signatureMatchDefine 属性
                 signatureMatchDefine.add(plugin);
             }
 
@@ -71,13 +77,21 @@ public class PluginFinder {
         }
     }
 
+    /**
+     * 获得类增强插件定义( AbstractClassEnhancePluginDefine )对象。
+     *
+     * @param typeDescription
+     * @return
+     */
     public List<AbstractClassEnhancePluginDefine> find(TypeDescription typeDescription) {
         List<AbstractClassEnhancePluginDefine> matchedPlugins = new LinkedList<AbstractClassEnhancePluginDefine>();
+        // 以 nameMatchDefine 属性来匹配 AbstractClassEnhancePluginDefine 对象
         String typeName = typeDescription.getTypeName();
         if (nameMatchDefine.containsKey(typeName)) {
             matchedPlugins.addAll(nameMatchDefine.get(typeName));
         }
 
+        // 以 signatureMatchDefine 属性来匹配 AbstractClassEnhancePluginDefine 对象
         for (AbstractClassEnhancePluginDefine pluginDefine : signatureMatchDefine) {
             IndirectMatch match = (IndirectMatch) pluginDefine.enhanceClass();
             if (match.isMatch(typeDescription)) {

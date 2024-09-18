@@ -47,11 +47,20 @@ import static org.apache.skywalking.apm.agent.core.conf.Constants.SERVICE_NAME_P
 
 /**
  * The <code>SnifferConfigInitializer</code> initializes all configs in several way.
+ *
+ * <pre>
+ * Agent 配置初始化器
+ * </pre>
  */
 public class SnifferConfigInitializer {
     private static ILog LOGGER = LogManager.getLogger(SnifferConfigInitializer.class);
     private static final String SPECIFIED_CONFIG_PATH = "skywalking_config";
+    /**
+     * 配置文件所在固定路径为 ${AGENT_PACKAGE_PATH}/config/agent.config。
+     * ${AGENT_PACKAGE_PATH} 通过 org.skywalking.apm.agent.core.boot.AgentPackagePath 初始化。
+     */
     private static final String DEFAULT_CONFIG_FILE_NAME = "/config/agent.config";
+    /** 环境变量 Key 需以 "skywalking." 开头。 */
     private static final String ENV_KEY_PREFIX = "skywalking.";
     private static Properties AGENT_SETTINGS;
     private static boolean IS_INIT_COMPLETED = false;
@@ -69,6 +78,7 @@ public class SnifferConfigInitializer {
      */
     public static void initializeCoreConfig(String agentOptions) {
         AGENT_SETTINGS = new Properties();
+        // 从配置文件加载配置
         try (final InputStreamReader configFileStream = loadConfig()) {
             AGENT_SETTINGS.load(configFileStream);
             for (String key : AGENT_SETTINGS.stringPropertyNames()) {
@@ -81,12 +91,14 @@ public class SnifferConfigInitializer {
         }
 
         try {
+            // 从环境变量覆盖配置
             overrideConfigBySystemProp();
         } catch (Exception e) {
             LOGGER.error(e, "Failed to read the system properties.");
         }
 
         agentOptions = StringUtil.trim(agentOptions, ',');
+        // 校验配置是否正确
         if (!StringUtil.isEmpty(agentOptions)) {
             try {
                 agentOptions = agentOptions.trim();
@@ -98,8 +110,10 @@ public class SnifferConfigInitializer {
             }
         }
 
+        //
         initializeConfig(Config.class);
         // reconfigure logger after config initialization
+        // （在 Config 初始化后重新配置 Logger）
         configureLogger();
         LOGGER = LogManager.getLogger(SnifferConfigInitializer.class);
 
@@ -133,6 +147,9 @@ public class SnifferConfigInitializer {
 
     /**
      * Initialize field values of any given config class.
+     * <pre>
+     * (初始化任何给定 config 类的字段值。)
+     * </pre>
      *
      * @param configClass to host the settings for code access.
      */
@@ -142,6 +159,7 @@ public class SnifferConfigInitializer {
             return;
         }
         try {
+            //
             ConfigInitializer.initialize(AGENT_SETTINGS, configClass);
         } catch (IllegalAccessException e) {
             LOGGER.error(e,

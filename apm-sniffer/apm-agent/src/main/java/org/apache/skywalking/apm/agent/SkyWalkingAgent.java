@@ -65,6 +65,9 @@ import static org.apache.skywalking.apm.agent.core.conf.Constants.NAME_TRAIT;
 
 /**
  * The main entrance of sky-walking agent, based on javaagent mechanism.
+ * <pre>
+ * (SkyWalking Agent 启动入口，基于 JavaAgent 机制。)
+ * </pre>
  */
 public class SkyWalkingAgent {
     private static ILog LOGGER = LogManager.getLogger(SkyWalkingAgent.class);
@@ -75,6 +78,7 @@ public class SkyWalkingAgent {
     public static void premain(String agentArgs, Instrumentation instrumentation) throws PluginException {
         final PluginFinder pluginFinder;
         try {
+            /* 初始化 配置 */
             SnifferConfigInitializer.initializeCoreConfig(agentArgs);
         } catch (Exception e) {
             // try to resolve a new logger, and use the new logger to write the error log here
@@ -92,6 +96,7 @@ public class SkyWalkingAgent {
         }
 
         try {
+            /* 初始化 插件 */
             pluginFinder = new PluginFinder(new PluginBootstrap().loadPlugins());
         } catch (AgentPackageNotFoundException ape) {
             LOGGER.error(ape, "Locate agent.jar failure. Shutting down.");
@@ -102,19 +107,22 @@ public class SkyWalkingAgent {
         }
 
         try {
+            /* 基于 byte-buddy ，初始化 Instrumentation 的 java.lang.instrument.ClassFileTransformer */
             installClassTransformer(instrumentation, pluginFinder);
         } catch (Exception e) {
             LOGGER.error(e, "Skywalking agent installed class transformer failure.");
         }
 
         try {
+            /* 初始化 Agent 服务管理 */
             ServiceManager.INSTANCE.boot();
         } catch (Exception e) {
             LOGGER.error(e, "Skywalking agent boot failure.");
         }
 
+        /* 初始化 ShutdownHook */
         Runtime.getRuntime()
-               .addShutdownHook(new Thread(ServiceManager.INSTANCE::shutdown, "skywalking service shutdown thread"));
+               .addShutdownHook(new Thread(ServiceManager.INSTANCE::shutdown/* 关闭 服务管理 */, "skywalking service shutdown thread"));
     }
 
     static void installClassTransformer(Instrumentation instrumentation, PluginFinder pluginFinder) throws Exception {
@@ -171,6 +179,9 @@ public class SkyWalkingAgent {
                 .with(new SWDescriptionStrategy(NAME_TRAIT));
     }
 
+    /**
+     *
+     */
     private static class Transformer implements AgentBuilder.Transformer {
         private PluginFinder pluginFinder;
 
@@ -185,6 +196,7 @@ public class SkyWalkingAgent {
                                                 final JavaModule javaModule,
                                                 final ProtectionDomain protectionDomain) {
             LoadedLibraryCollector.registerURLClassLoader(classLoader);
+            //
             List<AbstractClassEnhancePluginDefine> pluginDefines = pluginFinder.find(typeDescription);
             if (pluginDefines.size() > 0) {
                 DynamicType.Builder<?> newBuilder = builder;
