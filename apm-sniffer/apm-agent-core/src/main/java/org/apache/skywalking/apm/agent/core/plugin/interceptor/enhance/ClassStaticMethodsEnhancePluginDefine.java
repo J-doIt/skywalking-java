@@ -26,6 +26,12 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterc
  * ClassStaticMethodsEnhancePluginDefine} has no differences with inherit from {@link ClassEnhancePluginDefine}. Just
  * override {@link ClassEnhancePluginDefine#getConstructorsInterceptPoints} and {@link
  * ClassEnhancePluginDefine#getInstanceMethodsInterceptPoints}, and return NULL, which means nothing to enhance.
+ *
+ * <pre>
+ * 类增强静态方法的插件定义抽象类。
+ *
+ * 实现 #getConstructorsInterceptPoints() / #getInstanceMethodsInterceptPoints() 抽象方法，返回空，表示不增强构造方法和实例方法。即只增强静态方法。
+ * </pre>
  */
 public abstract class ClassStaticMethodsEnhancePluginDefine extends ClassEnhancePluginDefine {
 

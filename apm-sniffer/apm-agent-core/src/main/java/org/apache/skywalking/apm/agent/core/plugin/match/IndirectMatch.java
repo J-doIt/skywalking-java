@@ -23,6 +23,10 @@ import net.bytebuddy.matcher.ElementMatcher;
 
 /**
  * All implementations can't direct match the class like {@link NameMatch} did.
+ *
+ * <pre>
+ * (所有实现都不能像 NameMatch 那样直接匹配类。)
+ * </pre>
  */
 public interface IndirectMatch extends ClassMatch {
     ElementMatcher.Junction buildJunction();

@@ -26,6 +26,12 @@ import java.lang.reflect.Method;
  * (org.apache.skywalking.apm.agent.core.plugin.interceptor.EnhancedClassInstanceContext, has this as a method argument,
  * the interceptor can manipulate the method's return value. <p> The new value set to this object, by {@link
  * MethodInterceptResult#defineReturnValue(Object)}, will override the origin return value.
+ *
+ * <pre>
+ * ()
+ * 方法拦截器执行结果。
+ * 当调用 MethodInterceptResult#defineReturnValue(Object) 方法，设置执行结果，并标记不再继续执行。
+ * </pre>
  */
 public class MethodInterceptResult {
     private boolean isContinue = true;

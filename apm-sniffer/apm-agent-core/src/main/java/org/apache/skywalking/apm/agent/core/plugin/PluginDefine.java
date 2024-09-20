@@ -29,6 +29,9 @@ public class PluginDefine {
 
     /**
      * The class name of plugin defined.
+     * <pre>
+     * 对应不同插件对 AbstractClassEnhancePluginDefine 的实现类
+     * </pre>
      */
     private String defineClass;
 

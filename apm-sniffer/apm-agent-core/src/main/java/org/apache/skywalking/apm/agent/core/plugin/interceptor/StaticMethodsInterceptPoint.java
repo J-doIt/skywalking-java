@@ -33,12 +33,15 @@ import java.util.Objects;
 public interface StaticMethodsInterceptPoint {
     /**
      * static methods matcher.
+     * 静态方法匹配器
      *
      * @return matcher instance.
      */
     ElementMatcher<MethodDescription> getMethodsMatcher();
 
     /**
+     * 静态方法拦截器类名
+     *
      * @return represents a class name, the class instance must instanceof StaticMethodsAroundInterceptor.
      */
     String getMethodsInterceptor();

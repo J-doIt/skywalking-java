@@ -33,12 +33,15 @@ import java.util.Objects;
 public interface ConstructorInterceptPoint {
     /**
      * Constructor matcher
+     * 构造函数匹配器
      *
      * @return matcher instance.
      */
     ElementMatcher<MethodDescription> getConstructorMatcher();
 
     /**
+     * 构造方法拦截器类名
+     *
      * @return represents a class name, the class instance must be a instance of {@link
      * org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstructorInterceptor}
      */
@@ -47,6 +50,11 @@ public interface ConstructorInterceptPoint {
     /**
      * To ensure that the hashCode for recreating the XxxInterceptPoint instance is the same as the previous instance,
      * each ElementMatcher implementation class needs to implement toString() method.
+     *
+     * <pre>
+     * (为了确保用于重新创建XxxInterceptPoint实例的hashCode与前一个实例相同，每个ElementMatcher实现类都需要实现toString()方法。)
+     * </pre>
+     *
      * @return hashCode of this intercept point
      */
     default int computeHashCode() {

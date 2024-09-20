@@ -18,6 +18,15 @@
 
 package org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance;
 
+/**
+ * 覆写参数 Callable
+ */
 public interface OverrideCallable {
+
+    /**
+     * 执行
+     * @param args 方法参数
+     * @return 返回
+     */
     Object call(Object[] args);
 }

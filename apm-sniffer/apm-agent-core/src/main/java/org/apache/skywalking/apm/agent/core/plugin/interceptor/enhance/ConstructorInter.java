@@ -29,6 +29,12 @@ import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 /**
  * The actual byte-buddy's interceptor to intercept constructor methods. In this class, it provides a bridge between
  * byte-buddy and sky-walking plugin.
+ *
+ * <pre>
+ * (实际的 byte-buddy 的拦截器 拦截类 构造方法。在这个类中，它提供了 byte-buddy 和 sky-walking plugin 之间的桥梁。)
+ *
+ * 构造方法 Inter
+ * </pre>
  */
 public class ConstructorInter {
     private static final ILog LOGGER = LogManager.getLogger(ConstructorInter.class);
@@ -37,6 +43,12 @@ public class ConstructorInter {
      * An {@link InstanceConstructorInterceptor} This name should only stay in {@link String}, the real {@link Class}
      * type will trigger classloader failure. If you want to know more, please check on books about Classloader or
      * Classloader appointment mechanism.
+     *
+     * <pre>
+     * (这个名字应该只保留在String中，真正的Class类型会触发类加载器失败。
+     * 如果您想了解更多，请查阅有关Classloader或Classloader委托机制的书籍。)
+     * 构造方法拦截器
+     * </pre>
      */
     private InstanceConstructorInterceptor interceptor;
 
@@ -45,6 +57,7 @@ public class ConstructorInter {
      */
     public ConstructorInter(String constructorInterceptorClassName, ClassLoader classLoader) throws PluginException {
         try {
+            // 加载构造方法拦截器
             interceptor = InterceptorInstanceLoader.load(constructorInterceptorClassName, classLoader);
         } catch (Throwable t) {
             throw new PluginException("Can't create InstanceConstructorInterceptorV2.", t);
@@ -53,6 +66,10 @@ public class ConstructorInter {
 
     /**
      * Intercept the target constructor.
+     * <pre>
+     * (拦截目标构造函数。)
+     * 在构造方法执行完成后进行拦截。
+     * </pre>
      *
      * @param obj          target class instance.
      * @param allArguments all constructor arguments
@@ -62,6 +79,7 @@ public class ConstructorInter {
         try {
             EnhancedInstance targetObject = (EnhancedInstance) obj;
 
+            // interceptor.onConstruct
             interceptor.onConstruct(targetObject, allArguments);
         } catch (Throwable t) {
             LOGGER.error("ConstructorInter failure.", t);

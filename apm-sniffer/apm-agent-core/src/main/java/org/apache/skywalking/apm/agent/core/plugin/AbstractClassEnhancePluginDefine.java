@@ -39,6 +39,11 @@ import java.util.List;
  * <p>
  * It provides the outline of enhancing the target class. If you want to know more about enhancing, you should go to see
  * {@link ClassEnhancePluginDefine}
+ *
+ * <pre>
+ * 类增强插件定义抽象基类。
+ * 不同插件通过实现 AbstractClassEnhancePluginDefine 抽象类，定义不同框架的切面，记录调用链路。
+ * </pre>
  */
 public abstract class AbstractClassEnhancePluginDefine {
     private static final ILog LOGGER = LogManager.getLogger(AbstractClassEnhancePluginDefine.class);
@@ -50,6 +55,11 @@ public abstract class AbstractClassEnhancePluginDefine {
 
     /**
      * Main entrance of enhancing the class.
+     *
+     * <pre>
+     * 设置 net.bytebuddy.dynamic.DynamicType.Builder 对象。
+     * 通过该对象，定义如何拦截需要修改的目标 Java 类(方法的 transformClassName 参数)。
+     * </pre>
      *
      * @param typeDescription target class description.
      * @param builder         byte-buddy's builder to manipulate target class's bytecode.
@@ -68,6 +78,8 @@ public abstract class AbstractClassEnhancePluginDefine {
 
         LOGGER.debug("prepare to enhance class {} by {}.", transformClassName, interceptorDefineClassName);
         WitnessFinder finder = WitnessFinder.INSTANCE;
+
+        /* 判断见证类列表是否都存在。若不存在，则插件不生效 */
         /**
          * find witness classes for enhance class
          */
@@ -90,11 +102,13 @@ public abstract class AbstractClassEnhancePluginDefine {
             }
         }
 
+        /* 使用拦截器增强目标类 */
         /**
          * find origin class source code for interceptor
          */
         DynamicType.Builder<?> newClassBuilder = this.enhance(typeDescription, builder, classLoader, context);
 
+        /* 标记完成增强 */
         context.initializationStageCompleted();
         LOGGER.debug("enhance class {} by {} completely.", transformClassName, interceptorDefineClassName);
 
@@ -110,8 +124,10 @@ public abstract class AbstractClassEnhancePluginDefine {
      */
     protected DynamicType.Builder<?> enhance(TypeDescription typeDescription, DynamicType.Builder<?> newClassBuilder,
                                              ClassLoader classLoader, EnhanceContext context) throws PluginException {
+        /* 增强类以拦截类静态方法 */
         newClassBuilder = this.enhanceClass(typeDescription, newClassBuilder, classLoader);
 
+        /* 增强类以拦截构造函数和类实例方法 */
         newClassBuilder = this.enhanceInstance(typeDescription, newClassBuilder, classLoader, context);
 
         return newClassBuilder;
@@ -119,6 +135,10 @@ public abstract class AbstractClassEnhancePluginDefine {
 
     /**
      * Enhance a class to intercept constructors and class instance methods.
+     *
+     * <pre>
+     * (增强类以拦截构造函数和类实例方法。)
+     * </pre>
      *
      * @param typeDescription target class description
      * @param newClassBuilder byte-buddy's builder to manipulate class bytecode.
@@ -131,6 +151,10 @@ public abstract class AbstractClassEnhancePluginDefine {
     /**
      * Enhance a class to intercept class static methods.
      *
+     * <pre>
+     * (增强类以拦截类静态方法。)
+     * </pre>
+     *
      * @param typeDescription target class description
      * @param newClassBuilder byte-buddy's builder to manipulate class bytecode.
      * @return new byte-buddy's builder for further manipulation.
@@ -140,6 +164,9 @@ public abstract class AbstractClassEnhancePluginDefine {
 
     /**
      * Define the {@link ClassMatch} for filtering class.
+     * <pre>
+     * (定义了 类匹配( ClassMatch ) ，为了过滤类。)
+     * </pre>
      *
      * @return {@link ClassMatch}
      */
@@ -152,6 +179,20 @@ public abstract class AbstractClassEnhancePluginDefine {
      * (let's say 1.0 for example), version number is obvious not an option, this is the moment you need "Witness
      * classes". You can add any classes only in this particular release version ( something like class
      * com.company.1.x.A, only in 1.0 ), and you can achieve the goal.
+     *
+     * <pre>
+     * ()
+     *
+     * 见证类列表。当且仅当应用存在见证类列表，插件才生效。
+     * 另外，该方法返回空数组。即默认情况，插件生效，无需见证类列表。
+     *
+     * 什么意思？比如：一个类库存在两个发布的版本( 如 1.0 和 2.0 )，其中包括相同的目标类，但不同的方法或不同的方法参数列表。
+     *      所以我们需要根据库的不同版本使用插件的不同版本。然而版本显然不是一个选项，这时需要使用见证类列表，判断出当前引用类库的发布版本。
+     *
+     * 举个实际的例子，SpringMVC 3 和 SpringMVC 4 ，都有 @RequestMapping 注解定义 URL 。
+     *      通过判断存在 org.springframework.web.servlet.view.xslt.AbstractXsltView 类，应用使用 SpringMVC 3 ，使用 apm-springmvc-annotation-3.x-plugin.jar 。
+     *      通过判断存在 org.springframework.web.servlet.tags.ArgumentTag 类，应用使用 SpringMVC 4 ，使用 apm-springmvc-annotation-4.x-plugin.jar 。
+     * </pre>
      */
     protected String[] witnessClasses() {
         return new String[] {};
@@ -167,6 +208,10 @@ public abstract class AbstractClassEnhancePluginDefine {
 
     /**
      * Constructor methods intercept point. See {@link ConstructorInterceptPoint}
+     *
+     * <pre>
+     * (构造函数方法的切点。见 ConstructorInterceptPoint)
+     * </pre>
      *
      * @return collections of {@link ConstructorInterceptPoint}
      */

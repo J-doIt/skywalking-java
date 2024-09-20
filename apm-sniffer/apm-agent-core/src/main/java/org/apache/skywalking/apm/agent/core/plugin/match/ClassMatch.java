@@ -18,5 +18,8 @@
 
 package org.apache.skywalking.apm.agent.core.plugin.match;
 
+/**
+ * 类匹配接口
+ */
 public interface ClassMatch {
 }

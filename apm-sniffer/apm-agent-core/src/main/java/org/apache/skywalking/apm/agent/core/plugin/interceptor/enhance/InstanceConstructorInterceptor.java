@@ -22,10 +22,17 @@ package org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance;
  * The instance constructor's interceptor interface. Any plugin, which wants to intercept constructor, must implement
  * this interface.
  * <p>
+ *
+ * <pre>
+ * 构造方法拦截器
+ * </pre>
  */
 public interface InstanceConstructorInterceptor {
     /**
      * Called after the origin constructor invocation.
+     * <pre>
+     * (在源构造函数调用后调用。)
+     * </pre>
      */
     void onConstruct(EnhancedInstance objInst, Object[] allArguments) throws Throwable;
 }

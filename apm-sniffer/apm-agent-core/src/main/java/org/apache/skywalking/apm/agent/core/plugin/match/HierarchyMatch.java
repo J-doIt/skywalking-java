@@ -33,6 +33,10 @@ import static net.bytebuddy.matcher.ElementMatchers.not;
 
 /**
  * Match the class by the given super class or interfaces.
+ *
+ * <pre>
+ * 基于父类 / 接口进行匹配，可设置同时匹配多个。
+ * </pre>
  */
 public class HierarchyMatch implements IndirectMatch {
     private String[] parentTypes;

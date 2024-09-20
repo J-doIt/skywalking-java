@@ -30,6 +30,10 @@ import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 /**
  * The manipulated class output. Write the dynamic classes to the `debugging` folder, when we need to do some debug and
  * recheck.
+ *
+ * <pre>
+ * Instrument 调试类，用于将被 JavaAgent 修改的所有类存储到 ${JAVA_AGENT_PACKAGE}/debugger 目录下。需要配置 agent.is_open_debugging_class = true。
+ * </pre>
  */
 public enum InstrumentDebuggingClass {
     INSTANCE;

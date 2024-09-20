@@ -20,6 +20,10 @@ package org.apache.skywalking.apm.agent.core.plugin.match;
 
 /**
  * Match the class with an explicit class name.
+ *
+ * <pre>
+ * 基于完整的类名进行匹配，例如："com.alibaba.dubbo.monitor.support.MonitorFilter" 。
+ * </pre>
  */
 public class NameMatch implements ClassMatch {
     private String className;

@@ -43,6 +43,10 @@ import org.apache.skywalking.apm.agent.core.plugin.PluginBootstrap;
 
 /**
  * The <code>AgentClassLoader</code> represents a classloader, which is in charge of finding plugins and interceptors.
+ *
+ * <pre>
+ * 继承 java.lang.ClassLoader ，Agent 类加载器。
+ * </pre>
  */
 public class AgentClassLoader extends ClassLoader {
 
@@ -59,8 +63,11 @@ public class AgentClassLoader extends ClassLoader {
      */
     private static AgentClassLoader DEFAULT_LOADER;
 
+    /** classpath，Java 类所在的目录 */
     private List<File> classpath;
+    /** Jar 数组 */
     private List<Jar> allJars;
+    /** Jar 读取时的锁 */
     private ReentrantLock jarScanLock = new ReentrantLock();
 
     public static AgentClassLoader getDefault() {
@@ -70,12 +77,17 @@ public class AgentClassLoader extends ClassLoader {
     /**
      * Init the default class loader.
      *
+     * <pre>
+     * 初始化默认的 AgentClassLoader
+     * </pre>
+     *
      * @throws AgentPackageNotFoundException if agent package is not found.
      */
     public static void initDefaultLoader() throws AgentPackageNotFoundException {
         if (DEFAULT_LOADER == null) {
             synchronized (AgentClassLoader.class) {
                 if (DEFAULT_LOADER == null) {
+                    // 使用 PluginBootstrap 的类加载器作为 AgentClassLoader 的父类加载器。
                     DEFAULT_LOADER = new AgentClassLoader(PluginBootstrap.class.getClassLoader());
                 }
             }
@@ -86,6 +98,7 @@ public class AgentClassLoader extends ClassLoader {
         super(parent);
         File agentDictionary = AgentPackagePath.getPath();
         classpath = new LinkedList<>();
+        //  ${AGENT_PACKAGE_PATH}/plugins，${AGENT_PACKAGE_PATH}/activations 添加到 classpath
         Config.Plugin.MOUNT.forEach(mountFolder -> classpath.add(new File(agentDictionary, mountFolder)));
     }
 
@@ -101,14 +114,16 @@ public class AgentClassLoader extends ClassLoader {
             try {
                 URL classFileUrl = new URL("jar:file:" + jar.sourceFile.getAbsolutePath() + "!/" + path);
                 byte[] data;
-                try (final BufferedInputStream is = new BufferedInputStream(
-                    classFileUrl.openStream()); final ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+                try (final BufferedInputStream is = new BufferedInputStream(classFileUrl.openStream());
+                     final ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
                     int ch;
                     while ((ch = is.read()) != -1) {
                         baos.write(ch);
                     }
                     data = baos.toByteArray();
                 }
+                // defineClass()
+                // processLoadedClass()
                 return processLoadedClass(defineClass(name, data, 0, data.length));
             } catch (IOException e) {
                 LOGGER.error(e, "find class fail.");
@@ -119,7 +134,9 @@ public class AgentClassLoader extends ClassLoader {
 
     @Override
     protected URL findResource(String name) {
+        // 获得 Jar 信息数组
         List<Jar> allJars = getAllJars();
+        // 遍历 Jar 信息数组，获得资源( 例如，Class )的路径
         for (Jar jar : allJars) {
             JarEntry entry = jar.jarFile.getJarEntry(name);
             if (entry != null) {
@@ -135,7 +152,9 @@ public class AgentClassLoader extends ClassLoader {
     @Override
     protected Enumeration<URL> findResources(String name) throws IOException {
         List<URL> allResources = new LinkedList<>();
+        // 获得 Jar 信息数组
         List<Jar> allJars = getAllJars();
+        // 遍历 Jar 信息数组，获得资源( 例如，Class )的路径
         for (Jar jar : allJars) {
             JarEntry entry = jar.jarFile.getJarEntry(name);
             if (entry != null) {
@@ -143,6 +162,7 @@ public class AgentClassLoader extends ClassLoader {
             }
         }
 
+        // 返回迭代器
         final Iterator<URL> iterator = allResources.iterator();
         return new Enumeration<URL>() {
             @Override
@@ -157,6 +177,11 @@ public class AgentClassLoader extends ClassLoader {
         };
     }
 
+    /**
+     *
+     * @param loadedClass
+     * @return
+     */
     private Class<?> processLoadedClass(Class<?> loadedClass) {
         final PluginConfig pluginConfig = loadedClass.getAnnotation(PluginConfig.class);
         if (pluginConfig != null) {
@@ -169,6 +194,9 @@ public class AgentClassLoader extends ClassLoader {
         return loadedClass;
     }
 
+    /**
+     * 加载 classpath 目录下的 Jar 中的 Class 文件。
+     */
     private List<Jar> getAllJars() {
         if (allJars == null) {
             jarScanLock.lock();
@@ -206,7 +234,9 @@ public class AgentClassLoader extends ClassLoader {
 
     @RequiredArgsConstructor
     private static class Jar {
+        /** Jar 文件，用于查找 Jar 里的类 */
         private final JarFile jarFile;
+        /** Jar 文件 */
         private final File sourceFile;
     }
 }

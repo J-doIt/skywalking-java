@@ -33,6 +33,12 @@ import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 /**
  * The actual byte-buddy's interceptor to intercept class instance methods. In this class, it provides a bridge between
  * byte-buddy and sky-walking plugin.
+ *
+ * <pre>
+ * (实际的 byte-buddy 的拦截器 拦截类 实例方法。在这个类中，它提供了 byte-buddy 和 sky-walking plugin 之间的桥梁。)
+ *
+ * 实例方法 Inter。
+ * </pre>
  */
 public class InstMethodsInter {
     private static final ILog LOGGER = LogManager.getLogger(InstMethodsInter.class);
@@ -49,6 +55,7 @@ public class InstMethodsInter {
      */
     public InstMethodsInter(String instanceMethodsAroundInterceptorClassName, ClassLoader classLoader) {
         try {
+            // 加载实例方法拦截器。
             interceptor = InterceptorInstanceLoader.load(instanceMethodsAroundInterceptorClassName, classLoader);
         } catch (Throwable t) {
             throw new PluginException("Can't create InstanceMethodsAroundInterceptor.", t);
@@ -71,8 +78,11 @@ public class InstMethodsInter {
         @Origin Method method) throws Throwable {
         EnhancedInstance targetObject = (EnhancedInstance) obj;
 
+        // new 方法拦截器执行结果
         MethodInterceptResult result = new MethodInterceptResult();
         try {
+            // 前置方法
+            // 执行在实例方法之前的逻辑。
             interceptor.beforeMethod(targetObject, method, allArguments, method.getParameterTypes(), result);
         } catch (Throwable t) {
             LOGGER.error(t, "class[{}] before method[{}] intercept failure", obj.getClass(), method.getName());
@@ -80,12 +90,15 @@ public class InstMethodsInter {
 
         Object ret = null;
         try {
+            // 已经有执行结果，不再执行原有方法，直接返回结果。
             if (!result.isContinue()) {
                 ret = result._ret();
             } else {
+                // 执行原有实例方法。
                 ret = zuper.call();
             }
         } catch (Throwable t) {
+            // 处理异常方法
             try {
                 interceptor.handleMethodException(targetObject, method, allArguments, method.getParameterTypes(), t);
             } catch (Throwable t2) {
@@ -93,6 +106,7 @@ public class InstMethodsInter {
             }
             throw t;
         } finally {
+            // 后置方法
             try {
                 ret = interceptor.afterMethod(targetObject, method, allArguments, method.getParameterTypes(), ret);
             } catch (Throwable t) {

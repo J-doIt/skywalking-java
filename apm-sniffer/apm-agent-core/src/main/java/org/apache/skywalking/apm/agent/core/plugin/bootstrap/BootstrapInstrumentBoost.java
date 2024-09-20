@@ -53,6 +53,10 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
 /**
  * If there is Bootstrap instrumentation plugin declared in plugin list, BootstrapInstrumentBoost inject the necessary
  * classes into bootstrap class loader, including generated dynamic delegate classes.
+ *
+ * <pre>
+ * (如果在插件列表中声明了 Bootstrap 插桩插件，则 BootstrapInstrumentBoost 会将必要的类注入到 bootstrap 类加载器中，包括生成的动态委托类。)
+ * </pre>
  */
 public class BootstrapInstrumentBoost {
     private static final ILog LOGGER = LogManager.getLogger(BootstrapInstrumentBoost.class);

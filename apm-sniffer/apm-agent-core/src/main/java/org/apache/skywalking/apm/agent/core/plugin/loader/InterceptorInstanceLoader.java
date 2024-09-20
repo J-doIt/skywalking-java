@@ -31,6 +31,12 @@ import java.util.concurrent.locks.ReentrantLock;
  * This is a very important class in sky-walking's auto-instrumentation mechanism. If you want to fully understand why
  * need this, and how it works, you need have knowledge about Classloader appointment mechanism.
  * <p>
+ *
+ * <pre>
+ * (InterceptorInstanceLoader 是一个类查找器和容器。
+ * 这是一个非常重要的类在 sky-walking 的 【auto-instrumentation 机制】。
+ * 如果您想完全理解为什么需要它，以及它是如何工作的，您需要了解 【Classloader委托机制】。)
+ * </pre>
  */
 public class InterceptorInstanceLoader {
 

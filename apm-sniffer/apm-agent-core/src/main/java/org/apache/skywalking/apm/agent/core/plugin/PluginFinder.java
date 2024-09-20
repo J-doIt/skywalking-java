@@ -50,6 +50,9 @@ public class PluginFinder {
     private static boolean IS_PLUGIN_INIT_COMPLETED = false;
 
     public PluginFinder(List<AbstractClassEnhancePluginDefine> plugins) {
+
+        // 循环 AbstractClassEnhancePluginDefine 对象数组，添加到 nameMatchDefine / signatureMatchDefine 属性，
+        //      方便 #find(...) 方法查找 AbstractClassEnhancePluginDefine 对象。
         for (AbstractClassEnhancePluginDefine plugin : plugins) {
             ClassMatch match = plugin.enhanceClass();
 
@@ -102,6 +105,9 @@ public class PluginFinder {
         return matchedPlugins;
     }
 
+    /**
+     * 获得全部插件的类匹配，多个插件的类匹配条件以 or 分隔
+     */
     public ElementMatcher<? super TypeDescription> buildMatch() {
         ElementMatcher.Junction judge = new AbstractJunction<NamedElement>() {
             @Override

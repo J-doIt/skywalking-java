@@ -29,25 +29,42 @@ import java.util.Objects;
  * <p>
  * ref to two others: {@link ConstructorInterceptPoint} and {@link StaticMethodsInterceptPoint}
  * <p>
+ *
+ * <pre>
+ * (三个“拦截点”之一。
+ * “拦截点”是一个关于拦截发生的地点和方式的定义。
+ * 在这个“拦截点”中，定义的目标是类的实例方法和拦截器。引用另外两个:ConstructorInterceptPoint和StaticMethodsInterceptPoint)
+ * </pre>
  */
 public interface InstanceMethodsInterceptPoint {
     /**
      * class instance methods matcher.
+     * 类实例方法匹配器
      *
      * @return methods matcher
      */
     ElementMatcher<MethodDescription> getMethodsMatcher();
 
     /**
+     * 实例方法拦截器类名
+     *
      * @return represents a class name, the class instance must instanceof InstanceMethodsAroundInterceptor.
      */
     String getMethodsInterceptor();
 
+    /**
+     * @return 需要重写 方法参数类时，返回 true。
+     */
     boolean isOverrideArgs();
 
     /**
      * To ensure that the hashCode for recreating the XxxInterceptPoint instance is the same as the previous instance,
      * each ElementMatcher implementation class needs to implement toString() method.
+     *
+     * <pre>
+     * (为了确保用于重新创建XxxInterceptPoint实例的hashCode与前一个实例相同，每个ElementMatcher实现类都需要实现toString()方法。)
+     * </pre>
+     *
      * @return hashCode of this intercept point
      */
     default int computeHashCode() {

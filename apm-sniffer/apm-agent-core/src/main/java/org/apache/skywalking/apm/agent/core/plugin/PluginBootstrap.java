@@ -40,6 +40,10 @@ public class PluginBootstrap {
     /**
      * load all plugins.
      *
+     * <pre>
+     * (加载所有插件。)
+     * </pre>
+     *
      * @return plugin definition list.
      */
     public List<AbstractClassEnhancePluginDefine> loadPlugins() throws AgentPackageNotFoundException {
@@ -64,7 +68,6 @@ public class PluginBootstrap {
                 LOGGER.error(t, "plugin file [{}] init failure.", pluginUrl);
             }
         }
-
         List<PluginDefine> pluginClassList = PluginCfg.INSTANCE.getPluginClassList();
 
         // 创建 类增强插件定义( AbstractClassEnhancePluginDefine )对象数组
@@ -72,6 +75,7 @@ public class PluginBootstrap {
         for (PluginDefine pluginDefine : pluginClassList) {
             try {
                 LOGGER.debug("loading plugin class {}.", pluginDefine.getDefineClass());
+                // 通过 PluginDefine.defineClass，创建'类增强插件定义'对象
                 AbstractClassEnhancePluginDefine plugin = (AbstractClassEnhancePluginDefine) Class.forName(pluginDefine.getDefineClass(), true, AgentClassLoader
                     .getDefault()).newInstance();
                 plugins.add(plugin);

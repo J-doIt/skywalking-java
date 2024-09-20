@@ -33,6 +33,10 @@ import static net.bytebuddy.matcher.ElementMatchers.not;
 
 /**
  * Match the class by the given annotations in class.
+ *
+ * <pre>
+ * 基于类注解进行匹配，可设置同时匹配多个。例如："@RequestMapping"。
+ * </pre>
  */
 public class ClassAnnotationMatch implements IndirectMatch {
     private String[] annotations;

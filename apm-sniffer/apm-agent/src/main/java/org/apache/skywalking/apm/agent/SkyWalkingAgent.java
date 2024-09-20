@@ -128,6 +128,7 @@ public class SkyWalkingAgent {
     static void installClassTransformer(Instrumentation instrumentation, PluginFinder pluginFinder) throws Exception {
         LOGGER.info("Skywalking agent begin to install transformer ...");
 
+        // 创建 AgentBuilder 对象，并设置相关属性。
         AgentBuilder agentBuilder = newAgentBuilder().ignore(
             nameStartsWith("net.bytebuddy.")
                 .or(nameStartsWith("org.slf4j."))
@@ -141,24 +142,36 @@ public class SkyWalkingAgent {
 
         JDK9ModuleExporter.EdgeClasses edgeClasses = new JDK9ModuleExporter.EdgeClasses();
         try {
+            // 将必要的类注入到 bootstrap 类加载器中
             agentBuilder = BootstrapInstrumentBoost.inject(pluginFinder, instrumentation, agentBuilder, edgeClasses);
         } catch (Exception e) {
             throw new Exception("SkyWalking agent inject bootstrap instrumentation failure. Shutting down.", e);
         }
 
         try {
+            // 从 JDK 9 开始，引入了模块概念。通过支持这一点，代理核心需要打开读取边缘
             agentBuilder = JDK9ModuleExporter.openReadEdge(instrumentation, agentBuilder, edgeClasses);
         } catch (Exception e) {
             throw new Exception("SkyWalking agent open read edge in JDK 9+ failure. Shutting down.", e);
         }
 
+        // 设置需要拦截的类：
+            // 使用已配置好的 AgentBuilder 实例，根据 插件查找器(pluginFinder) 构建的 匹配规则 来定位目标类型
         agentBuilder.type(pluginFinder.buildMatch())
+                    // 设置 Java 类的修改逻辑：
+                        // 对 匹配到的类型 应用 转换操作（这里使用自定义的Transformer类，它继承或实现了相关的转换逻辑）
                     .transform(new Transformer(pluginFinder))
+                    // 设置 重定义策略 为 RETRANSFORMATION，允许在类已被加载后重新定义其结构，适用于运行时修改类的行为
                     .with(AgentBuilder.RedefinitionStrategy.RETRANSFORMATION)
+                    // 添加一个自定义的类重定义监听器，用于监听类重定义过程中的事件，如成功、失败等
                     .with(new RedefinitionListener())
+                    // 添加一个通用的监听器，可能用于记录日志、统计信息或其他自定义行为
                     .with(new Listener())
+                    // 创建 net.bytebuddy.agent.builder.ResettableClassFileTransformer 对象，配置到 Instrumentation 对象上。
+                        // 完成配置并安装到当前的Java Instrumentation 对象上，使得字节码操作生效。
                     .installOn(instrumentation);
 
+        // 通知插件初始化完成，这个方法可能用于清理、记录状态或其他收尾工作
         PluginFinder.pluginInitCompleted();
 
         LOGGER.info("Skywalking agent transformer has installed.");
@@ -196,12 +209,14 @@ public class SkyWalkingAgent {
                                                 final JavaModule javaModule,
                                                 final ProtectionDomain protectionDomain) {
             LoadedLibraryCollector.registerURLClassLoader(classLoader);
-            //
+            /* 获得匹配的 AbstractClassEnhancePluginDefine 数组。 */
             List<AbstractClassEnhancePluginDefine> pluginDefines = pluginFinder.find(typeDescription);
             if (pluginDefines.size() > 0) {
                 DynamicType.Builder<?> newBuilder = builder;
                 EnhanceContext context = new EnhanceContext();
+                /* 循环 AbstractClassEnhancePluginDefine */
                 for (AbstractClassEnhancePluginDefine define : pluginDefines) {
+                    /* 设置 net.bytebuddy.dynamic.DynamicType.Builder 对象。通过该对象，定义如何拦截需要修改的 Java 类。 */
                     DynamicType.Builder<?> possibleNewBuilder = define.define(
                         typeDescription, newBuilder, classLoader, context);
                     if (possibleNewBuilder != null) {
@@ -230,6 +245,9 @@ public class SkyWalkingAgent {
 
         }
 
+        /**
+         * 当 Java 类的修改成功，进行调用
+         */
         @Override
         public void onTransformation(final TypeDescription typeDescription,
                                      final ClassLoader classLoader,
@@ -251,6 +269,9 @@ public class SkyWalkingAgent {
 
         }
 
+        /**
+         * 当 Java 类的修改失败，进行调用
+         */
         @Override
         public void onError(final String typeName,
                             final ClassLoader classLoader,

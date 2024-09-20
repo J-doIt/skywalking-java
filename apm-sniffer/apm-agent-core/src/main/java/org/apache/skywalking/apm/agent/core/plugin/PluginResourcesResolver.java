@@ -29,14 +29,23 @@ import org.apache.skywalking.apm.agent.core.plugin.loader.AgentClassLoader;
 
 /**
  * Use the current classloader to read all plugin define file. The file must be named 'skywalking-plugin.def'
+ *
+ * <pre>
+ * 插件资源解析器，读取所有插件的定义文件。插件定义文件必须以 skywalking-plugin.def 命名。
+ * </pre>
  */
 public class PluginResourcesResolver {
     private static final ILog LOGGER = LogManager.getLogger(PluginResourcesResolver.class);
 
+    /**
+     * 获得插件定义路径数组
+     * @return skywalking-plugin.def 路径数组
+     */
     public List<URL> getResources() {
         List<URL> cfgUrlPaths = new ArrayList<URL>();
         Enumeration<URL> urls;
         try {
+            // 使用 AgentClassLoader 获得所有 skywalking-plugin.def 的路径
             urls = AgentClassLoader.getDefault().getResources("skywalking-plugin.def");
 
             while (urls.hasMoreElements()) {
