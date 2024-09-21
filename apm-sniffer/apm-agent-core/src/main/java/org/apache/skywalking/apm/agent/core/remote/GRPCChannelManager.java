@@ -124,7 +124,9 @@ public class GRPCChannelManager implements BootService, Runnable {
     @Override
     public void run() {
         LOGGER.debug("Selected collector grpc service running, reconnect:{}.", reconnect);
+        // 已启用定期解析 DNS 以更新接收方服务地址 && reconnect
         if (IS_RESOLVE_DNS_PERIODICALLY && reconnect) {
+            // 获取 Collector skywalking 追踪接收器服务地址。（）
             grpcServers = Arrays.stream(Config.Collector.BACKEND_SERVICE.split(","))
                     .filter(StringUtil::isNotBlank)
                     .map(eachBackendService -> eachBackendService.split(":"))

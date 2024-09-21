@@ -199,6 +199,11 @@ public class Config {
         public static int PROPERTIES_REPORT_PERIOD_FACTOR = 10;
         /**
          * Collector skywalking trace receiver service addresses.
+         * <pre>
+         * (Collector skywalking 追踪接收器服务地址。)
+         *
+         * 配置文件所在固定路径为 ${AGENT_PACKAGE_PATH}/config/agent.config 中的 collector.backend_service=${SW_AGENT_COLLECTOR_BACKEND_SERVICES:127.0.0.1:11800}
+         * </pre>
          */
         public static String BACKEND_SERVICE = "";
         /**
@@ -215,6 +220,9 @@ public class Config {
         public static int GET_AGENT_DYNAMIC_CONFIG_INTERVAL = 20;
         /**
          * If true, skywalking agent will enable periodically resolving DNS to update receiver service addresses.
+         * <pre>
+         * (如果为 true，skywalking agent 将启用定期解析 DNS 以更新接收方服务地址。)
+         * </pre>
          */
         public static boolean IS_RESOLVE_DNS_PERIODICALLY = false;
     }
