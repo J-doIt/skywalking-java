@@ -18,6 +18,9 @@
 
 package org.apache.skywalking.apm.agent.core.remote;
 
+/**
+ * gRPC Channel 的监听器接口，定义了 #statusChanged(GRPCChannelStatus) ，通知 gRPC Channel 状态变更。
+ */
 public interface GRPCChannelListener {
     void statusChanged(GRPCChannelStatus status);
 }
