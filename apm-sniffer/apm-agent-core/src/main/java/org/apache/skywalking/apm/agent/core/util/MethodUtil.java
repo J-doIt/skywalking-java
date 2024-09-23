@@ -26,6 +26,9 @@ import java.lang.reflect.Method;
 
 public class MethodUtil {
 
+    /**
+     * 生成方法签名
+     */
     public static String generateOperationName(Method method) {
         StringBuilder operationName = new StringBuilder(method.getDeclaringClass()
                                                               .getName() + "." + method.getName() + "(");

@@ -32,6 +32,11 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
  * "skywalking-toolkit-trace-context" module. Activation's classloader is diff from "TraceContext", using direct will
  * trigger classloader issue.
  * <p>
+ *
+ * <pre>
+ * (激活 工具包（toolkit） 类 “TraceContext”。
+ * 不应该依赖或导入“skywalking-toolkit-trace-context”模块中的任何类。Activation 的类加载器与“TraceContext”不同，使用 direct 会触发类加载器问题。)
+ * </pre>
  */
 public class TraceContextActivation extends ClassStaticMethodsEnhancePluginDefine {
 

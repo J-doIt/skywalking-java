@@ -27,6 +27,11 @@ import java.lang.annotation.Target;
  * The agent create local span if the method that annotation with {@link Trace}. The value of span operation name will
  * fetch by {@link #operationName()}.  if the value of {@link #operationName()} is blank string. the operation name will
  * be set the class name + method name.
+ *
+ * <pre>
+ * (agent 创建 localSpan 的方法是用 @Trace 进行注释。
+ * span 操作名称的值将通过 operationName() 获取。如果 operationName() 的值为空字符串。操作名将设置为类名+方法名。)
+ * </pre>
  */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)

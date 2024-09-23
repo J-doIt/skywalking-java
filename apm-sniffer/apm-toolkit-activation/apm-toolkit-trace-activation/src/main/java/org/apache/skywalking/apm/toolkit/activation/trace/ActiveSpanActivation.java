@@ -33,6 +33,10 @@ import static org.apache.skywalking.apm.agent.core.plugin.bytebuddy.ArgumentType
 /**
  * {@link TraceAnnotationActivation} enhance the <code>tag</code> method of <code>ActiveSpan</code> by
  * <code>ActiveSpanTagInterceptor</code>.
+ *
+ * <pre>
+ * (TraceAnnotationActivation 通过 ActiveSpanTagInterceptor 增强了 ActiveSpan 的 tag 方法。)
+ * </pre>
  */
 public class ActiveSpanActivation extends ClassStaticMethodsEnhancePluginDefine {
 
@@ -66,7 +70,7 @@ public class ActiveSpanActivation extends ClassStaticMethodsEnhancePluginDefine 
             new StaticMethodsInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named(TAG_INTERCEPTOR_METHOD_NAME);
+                    return named(TAG_INTERCEPTOR_METHOD_NAME); // 方法名 tag
                 }
 
                 @Override
@@ -82,6 +86,7 @@ public class ActiveSpanActivation extends ClassStaticMethodsEnhancePluginDefine 
             new StaticMethodsInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                    // 方法名为 debug，并且其参数列表中的第一个参数类型必须是 java.lang.String
                     return named(DEBUG_INTERCEPTOR_METHOD_NAME).and(takesArgumentWithType(0, "java.lang.String"));
                 }
 
@@ -98,6 +103,7 @@ public class ActiveSpanActivation extends ClassStaticMethodsEnhancePluginDefine 
             new StaticMethodsInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                    // 方法名为 info，并且其参数列表中的第一个参数类型必须是 java.lang.String
                     return named(INFO_INTERCEPTOR_METHOD_NAME).and(takesArgumentWithType(0, "java.lang.String"));
                 }
 
@@ -114,6 +120,7 @@ public class ActiveSpanActivation extends ClassStaticMethodsEnhancePluginDefine 
             new StaticMethodsInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                    // 方法名为 error，并且其参数列表中的第一个参数类型必须是 java.lang.Throwable
                     return named(ERROR_INTERCEPTOR_METHOD_NAME).and(takesArgumentWithType(0, "java.lang.Throwable"));
                 }
 
@@ -130,6 +137,7 @@ public class ActiveSpanActivation extends ClassStaticMethodsEnhancePluginDefine 
             new StaticMethodsInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                    // 方法名为 error，并且其参数列表中的第一个参数类型必须是 java.lang.String
                     return named(ERROR_INTERCEPTOR_METHOD_NAME).and(takesArgumentWithType(0, "java.lang.String"));
                 }
 
@@ -146,6 +154,7 @@ public class ActiveSpanActivation extends ClassStaticMethodsEnhancePluginDefine 
             new StaticMethodsInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                    // 方法名为 error，并且其参数列表为空
                     return named(ERROR_INTERCEPTOR_METHOD_NAME).and(takesArguments(0));
                 }
 
@@ -162,6 +171,7 @@ public class ActiveSpanActivation extends ClassStaticMethodsEnhancePluginDefine 
             new StaticMethodsInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                    // 方法名为 setOperationName，并且其参数列表中的第一个参数类型必须是 java.lang.String
                     return named(SET_OPERATION_NAME_METHOD_NAME).and(takesArgumentWithType(0, "java.lang.String"));
                 }
 

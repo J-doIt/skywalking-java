@@ -34,6 +34,10 @@ import java.lang.annotation.Target;
  * }
  * </pre>
  *
+ * <pre>
+ * (Tag 的包装器注释，允许将多个 Tag 应用于单个方法span;)
+ * </pre>
+ *
  * @see Tag
  */
 @Target(ElementType.METHOD)

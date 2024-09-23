@@ -31,6 +31,7 @@ public class ActiveSpanTagInterceptor implements StaticMethodsAroundInterceptor 
         MethodInterceptResult result) {
         try {
             AbstractSpan activeSpan = ContextManager.activeSpan();
+            // 添加标签键值对
             activeSpan.tag(Tags.ofKey(String.valueOf(allArguments[0])), String.valueOf(allArguments[1]));
         } catch (NullPointerException ignored) {
         }

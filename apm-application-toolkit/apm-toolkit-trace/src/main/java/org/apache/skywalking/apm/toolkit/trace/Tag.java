@@ -28,6 +28,10 @@ import java.lang.annotation.Target;
  * Tag the current active span with key {@link #key()} and value {@link #value()}, if there is no active span, this
  * annotation takes no effect.
  *
+ * <pre>
+ * (用 key() 和 value value() 标记 当前的 active span，如果没有 active span，则此注释不起作用。)
+ * </pre>
+ *
  * @see Tags
  */
 @Target(ElementType.METHOD)
@@ -35,11 +39,13 @@ import java.lang.annotation.Target;
 @Repeatable(Tags.class)
 public @interface Tag {
     /**
+     * 返回：要注入当前 active span 的 Tag 的 key
      * @return the key of the tag to be injected into the current active span
      */
     String key();
 
     /**
+     * 返回：要以自定义增强规则的形式注入当前 active span 的 Tag 的值
      * @return the value of the tag to be injected into the current active span, in the form of the customized
      * enhancement rules, for more information, refer to <a href="https://github.com/apache/skywalking-java/blob/master/docs/en/setup/service-agent/java-agent/Customize-enhance-trace.md#how-to-configure">Customize-enhance-trace.md#how-to-configure</a>
      */

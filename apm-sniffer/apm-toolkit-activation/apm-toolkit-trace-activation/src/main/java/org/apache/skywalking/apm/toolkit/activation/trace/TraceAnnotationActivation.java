@@ -34,6 +34,11 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
 /**
  * {@link TraceAnnotationActivation} enhance all method that annotated with <code>org.apache.skywalking.apm.toolkit.trace.annotation.Trace</code>
  * by <code>TraceAnnotationMethodInterceptor</code>.
+ *
+ * <pre>
+ * (TraceAnnotationActivation 通过 TraceAnnotationMethodInterceptor， 增强了所有用 org.apache.skywalking.apm.toolkit.trace.annotation.Trace 注释的方法。)
+ * 定义了方法切面
+ * </pre>
  */
 public class TraceAnnotationActivation extends ClassEnhancePluginDefine {
 
@@ -52,12 +57,12 @@ public class TraceAnnotationActivation extends ClassEnhancePluginDefine {
             new DeclaredInstanceMethodsInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return isAnnotatedWith(named(TRACE_ANNOTATION));
+                    return isAnnotatedWith(named(TRACE_ANNOTATION)); // @Trace 注解的方法
                 }
 
                 @Override
                 public String getMethodsInterceptor() {
-                    return TRACE_ANNOTATION_METHOD_INTERCEPTOR;
+                    return TRACE_ANNOTATION_METHOD_INTERCEPTOR; // 拦截器
                 }
 
                 @Override
@@ -74,12 +79,12 @@ public class TraceAnnotationActivation extends ClassEnhancePluginDefine {
                 new StaticMethodsInterceptPoint() {
                     @Override
                     public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                        return isAnnotatedWith(named(TRACE_ANNOTATION));
+                        return isAnnotatedWith(named(TRACE_ANNOTATION)); // @Trace 注解的方法
                     }
 
                     @Override
                     public String getMethodsInterceptor() {
-                        return TRACE_ANNOTATION_STATIC_METHOD_INTERCEPTOR;
+                        return TRACE_ANNOTATION_STATIC_METHOD_INTERCEPTOR;  // 拦截器
                     }
 
                     @Override
@@ -92,6 +97,7 @@ public class TraceAnnotationActivation extends ClassEnhancePluginDefine {
 
     @Override
     protected ClassMatch enhanceClass() {
+        // 存在 @Trace 注解方法的类
         return MethodAnnotationMatch.byMethodAnnotationMatch(TRACE_ANNOTATION);
     }
 }

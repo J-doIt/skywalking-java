@@ -28,6 +28,7 @@ import org.apache.skywalking.apm.toolkit.trace.Tag;
 public class TagUtil {
     public static void tagSpan(final AbstractSpan span, final Map<String, Object> context,
                                      final Tag tag) {
+        // 给 span 设置 tag
         new StringTag(tag.key()).set(span, CustomizeExpression.parseExpression(tag.value(), context));
     }
 
