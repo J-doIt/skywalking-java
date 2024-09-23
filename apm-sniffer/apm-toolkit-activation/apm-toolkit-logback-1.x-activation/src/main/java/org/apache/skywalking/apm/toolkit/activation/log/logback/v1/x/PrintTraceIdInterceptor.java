@@ -34,17 +34,24 @@ public class PrintTraceIdInterceptor implements InstanceMethodsAroundInterceptor
 
     }
 
+    /**
+     * 使用全局链路追踪编号，而不是原有结果。
+     */
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         Object ret) throws Throwable {
+        // 如果 当前 AbstractTracerContext 没有 active 的 span
         if (!ContextManager.isActive()) {
+            // 如果方法的第一个参数是 增强过的，则通过这个增强的参数获取 traceId
             if (allArguments[0] instanceof EnhancedInstance) {
                 SkyWalkingContext skyWalkingContext = (SkyWalkingContext) ((EnhancedInstance) allArguments[0]).getSkyWalkingDynamicField();
                 if (skyWalkingContext != null) {
+                    // 返回 全局链路追踪编号
                     return "TID:" + skyWalkingContext.getTraceId();
                 }
             }
         }
+        // 返回 全局链路追踪编号
         return "TID:" + ContextManager.getGlobalTraceId();
     }
 

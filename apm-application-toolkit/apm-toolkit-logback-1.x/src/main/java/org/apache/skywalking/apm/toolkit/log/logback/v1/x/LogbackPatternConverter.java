@@ -26,6 +26,10 @@ public class LogbackPatternConverter extends ClassicConverter {
      * As default, return "TID: N/A" to the output message, if SkyWalking agent in active mode, return the real traceId
      * in the recent Context, if existed.
      *
+     * <pre>
+     * (默认情况下，向输出消息返回 "TID: N/A"，如果SkyWalking代理处于活动模式，则返回最近上下文中真实的traceId(如果存在)。)
+     * </pre>
+     *
      * @param iLoggingEvent the event
      * @return the traceId: N/A, empty String, or the real traceId.
      */

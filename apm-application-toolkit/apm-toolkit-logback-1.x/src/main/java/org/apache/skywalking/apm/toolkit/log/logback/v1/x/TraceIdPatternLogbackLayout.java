@@ -24,6 +24,11 @@ import ch.qos.logback.classic.PatternLayout;
  * Based on the logback-component convert register mechanism, register {@link LogbackPatternConverter} as a new
  * convert, match to "tid" and "sw_ctx". You can use "%tid" or "sw_ctx" in logback config file, "Pattern" section.
  * <p>
+ *
+ * <pre>
+ * (基于 logback-component 转换寄存器机制，将 LogbackPatternConverter 注册为一个新的转换，匹配 “tid” 和 “sw_ctx”。
+ * 您可以在 logback 配置文件的 “Pattern” 部分使用 “%tid” 或 “sw_ctx”。)
+ * </pre>
  */
 public class TraceIdPatternLogbackLayout extends PatternLayout {
     static {

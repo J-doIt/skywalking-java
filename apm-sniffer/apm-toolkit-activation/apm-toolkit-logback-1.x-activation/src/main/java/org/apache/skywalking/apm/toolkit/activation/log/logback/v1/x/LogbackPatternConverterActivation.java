@@ -36,6 +36,12 @@ import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName
  * "org.apache.skywalking.apm.toolkit.log.logback.v1.x.LogbackPatternConverter", using direct will trigger classloader
  * issue.
  * <p>
+ *
+ * <pre>
+ * (激活工具包类"org.apache.skywalk.apm.toolkit.log.logback.v1.x.LogbackPatternConverter"。
+ * 不应该依赖或导入“skywalking-toolkit-logback-1.x”模块中的任何类。
+ * Activation 的类加载器与“org.apache.skywalking.apm.toolkit.log.logback.v1.x.LogbackPatternConverter”不同，使用direct会触发类加载器问题。)
+ * </pre>
  */
 public class LogbackPatternConverterActivation extends ClassInstanceMethodsEnhancePluginDefine {
 

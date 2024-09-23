@@ -26,6 +26,10 @@ public class LogbackSkyWalkingContextPatternConverter extends ClassicConverter {
      * As default, return "SW_CTX: N/A" to the output message, if SkyWalking agent in active mode, return the real SkyWalking context
      * in the recent Context, if existed.
      *
+     * <pre>
+     * (默认情况下，向输出消息返回 "SW_CTX: N/A"，如果SkyWalking代理处于激活模式，则返回最近上下文中真实的SkyWalking上下文(如果存在)。)
+     * </pre>
+     *
      * @param iLoggingEvent the event
      * @return the SkyWalking context: N/A, or the real SkyWalking context.
      */
