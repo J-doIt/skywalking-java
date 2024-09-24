@@ -23,6 +23,10 @@ import java.util.List;
 import org.apache.skywalking.apm.network.language.agent.v3.GC;
 import org.apache.skywalking.apm.network.language.agent.v3.GCPhase;
 
+/**
+ * 未知的 GC 指标访问器实现类。
+ * 每次 #getGCList() 方法，返回 GC 指标数组，但是每个指标元素是无具体数据的。
+ */
 public class UnknowGC implements GCMetricAccessor {
     @Override
     public List<GC> getGCList() {

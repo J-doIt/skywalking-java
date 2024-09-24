@@ -25,6 +25,10 @@ import java.lang.management.GarbageCollectorMXBean;
 import java.util.LinkedList;
 import java.util.List;
 
+/**
+ * GC 指标访问器抽象类。
+ * 不同 GC 算法之间，生代命名不同，通过如下两个方法抽象，分别对应两个生代，形成映射关系，屏蔽差异。
+ */
 public abstract class GCModule implements GCMetricAccessor {
     private List<GarbageCollectorMXBean> beans;
 
@@ -40,6 +44,7 @@ public abstract class GCModule implements GCMetricAccessor {
     @Override
     public List<GC> getGCList() {
         List<GC> gcList = new LinkedList<GC>();
+        // 循环 GarbageCollectorMXBean 数组，收集每个 GC 指标
         for (GarbageCollectorMXBean bean : beans) {
             String name = bean.getName();
             GCPhase phase;
@@ -67,6 +72,7 @@ public abstract class GCModule implements GCMetricAccessor {
                 continue;
             }
 
+            // 创建 GC 对象
             gcList.add(GC.newBuilder().setPhase(phase).setCount(gcCount).setTime(gcTime).build());
         }
 

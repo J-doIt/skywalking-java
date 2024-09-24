@@ -23,6 +23,14 @@ import java.lang.management.ManagementFactory;
 import java.util.List;
 import org.apache.skywalking.apm.network.language.agent.v3.GC;
 
+/**
+ * <pre>
+ * GC 提供者，
+ * 提供 #getGCList() 方法，采集 GC 指标数组。
+ *
+ * language-agent/JVMMetric.proto 的 message GC
+ * </pre>
+ */
 public enum GCProvider {
     INSTANCE;
 
@@ -30,9 +38,12 @@ public enum GCProvider {
     private List<GarbageCollectorMXBean> beans;
 
     GCProvider() {
+        // 获得 GarbageCollectorMXBean 数组。
         beans = ManagementFactory.getGarbageCollectorMXBeans();
+        // 找到 GC 算法，创建对应的 GCMetricAccessor 对象。
         for (GarbageCollectorMXBean bean : beans) {
             String name = bean.getName();
+            // 找到对应的 GC 算法，创建对应的 GCMetricAccessor 对象。
             GCMetricAccessor accessor = findByBeanName(name);
             if (accessor != null) {
                 metricAccessor = accessor;
@@ -40,11 +51,15 @@ public enum GCProvider {
             }
         }
 
+        // 找不到 GC 算法，创建 UnknowGC 对象。
         if (metricAccessor == null) {
             this.metricAccessor = new UnknowGC();
         }
     }
 
+    /**
+     * 获得 GC 指标数组
+     */
     public List<GC> getGCList() {
         return metricAccessor.getGCList();
     }

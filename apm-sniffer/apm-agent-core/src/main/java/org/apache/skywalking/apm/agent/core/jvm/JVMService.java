@@ -41,22 +41,31 @@ import org.apache.skywalking.apm.util.RunnableWithExceptionProtection;
 /**
  * The <code>JVMService</code> represents a timer, which collectors JVM cpu, memory, memorypool, gc, thread and class info,
  * and send the collected info to Collector through the channel provided by {@link GRPCChannelManager}
+ *
+ * <pre>
+ * JVM 指标服务，负责将 JVM 指标收集并发送给 Collector。
+ * </pre>
  */
 @DefaultImplementor
 public class JVMService implements BootService, Runnable {
     private static final ILog LOGGER = LogManager.getLogger(JVMService.class);
+    /** 收集指标定时任务 */
     private volatile ScheduledFuture<?> collectMetricFuture;
+    /** 发送指标定时任务 */
     private volatile ScheduledFuture<?> sendMetricFuture;
+    /** JVM指标发送器 */
     private JVMMetricsSender sender;
     private volatile double cpuUsagePercent;
 
     @Override
     public void prepare() throws Throwable {
+        // 在 BootService 的 prepare 阶段，设置 sender
         sender = ServiceManager.INSTANCE.findService(JVMMetricsSender.class);
     }
 
     @Override
     public void boot() throws Throwable {
+        // 创建 收集指标定时任务
         collectMetricFuture = Executors.newSingleThreadScheduledExecutor(
             new DefaultNamedThreadFactory("JVMService-produce"))
                                        .scheduleAtFixedRate(new RunnableWithExceptionProtection(
@@ -68,6 +77,7 @@ public class JVMService implements BootService, Runnable {
                                                }
                                            }
                                        ), 0, Config.Jvm.METRICS_COLLECT_PERIOD, TimeUnit.SECONDS);
+        // 创建 发送指标定时任务
         sendMetricFuture = Executors.newSingleThreadScheduledExecutor(
             new DefaultNamedThreadFactory("JVMService-consume"))
                                     .scheduleAtFixedRate(new RunnableWithExceptionProtection(
@@ -92,23 +102,29 @@ public class JVMService implements BootService, Runnable {
         sendMetricFuture.cancel(true);
     }
 
+    /**
+     * 收集指标
+     */
     @Override
     public void run() {
         long currentTimeMillis = System.currentTimeMillis();
         try {
+            // 创建 JVMMetric
             JVMMetric.Builder jvmBuilder = JVMMetric.newBuilder();
             jvmBuilder.setTime(currentTimeMillis);
-            jvmBuilder.setCpu(CPUProvider.INSTANCE.getCpuMetric());
-            jvmBuilder.addAllMemory(MemoryProvider.INSTANCE.getMemoryMetricList());
-            jvmBuilder.addAllMemoryPool(MemoryPoolProvider.INSTANCE.getMemoryPoolMetricsList());
-            jvmBuilder.addAllGc(GCProvider.INSTANCE.getGCList());
-            jvmBuilder.setThread(ThreadProvider.INSTANCE.getThreadMetrics());
-            jvmBuilder.setClazz(ClassProvider.INSTANCE.getClassMetrics());
+            jvmBuilder.setCpu(CPUProvider.INSTANCE.getCpuMetric()); // 获得 CPU 指标
+            jvmBuilder.addAllMemory(MemoryProvider.INSTANCE.getMemoryMetricList()); // 获得 Memory 指标
+            jvmBuilder.addAllMemoryPool(MemoryPoolProvider.INSTANCE.getMemoryPoolMetricsList()); // 获得 MemoryPool 指标
+            jvmBuilder.addAllGc(GCProvider.INSTANCE.getGCList()); // 获得 GC 指标
+            jvmBuilder.setThread(ThreadProvider.INSTANCE.getThreadMetrics()); // 获得 线程 指标
+            jvmBuilder.setClazz(ClassProvider.INSTANCE.getClassMetrics()); //  获得 class 指标
 
             JVMMetric jvmMetric = jvmBuilder.build();
+            // 提交 JVMMetric
             sender.offer(jvmMetric);
 
             // refresh cpu usage percent
+            // （刷新 CPU 使用率百分比）
             cpuUsagePercent = jvmMetric.getCpu().getUsagePercent();
         } catch (Exception e) {
             LOGGER.error(e, "Collect JVM info fail.");

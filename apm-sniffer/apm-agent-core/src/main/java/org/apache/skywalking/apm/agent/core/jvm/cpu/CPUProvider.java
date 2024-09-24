@@ -23,18 +23,30 @@ import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import org.apache.skywalking.apm.agent.core.os.ProcessorUtil;
 import org.apache.skywalking.apm.network.common.v3.CPU;
 
+/**
+ * <pre>
+ * CPU 提供者，提供 #getCpuMetric() 方法，采集 CPU 指标。
+ *
+ * 为什么需要使用 ClassLoader#loadClass(className) 方法来加载 SunCpuAccessor 呢？
+ *      因为 SkyWalking Agent 是通过 JavaAgent 机制，实际未引入，所以通过该方式加载类。
+ * </pre>
+ */
 public enum CPUProvider {
     INSTANCE;
     private CPUMetricsAccessor cpuMetricsAccessor;
 
     CPUProvider() {
+        // 获得 CPU 数量
         int processorNum = ProcessorUtil.getNumberOfProcessors();
+        // 获得 CPU 指标访问器
         try {
+            // 创建 SunCpuAccessor 对象
             this.cpuMetricsAccessor = (CPUMetricsAccessor) CPUProvider.class.getClassLoader()
                                                                             .loadClass("org.apache.skywalking.apm.agent.core.jvm.cpu.SunCpuAccessor")
                                                                             .getConstructor(int.class)
                                                                             .newInstance(processorNum);
         } catch (Exception e) {
+            // 发生异常，说明不支持，创建 NoSupportedCPUAccessor 对象。
             this.cpuMetricsAccessor = new NoSupportedCPUAccessor(processorNum);
             ILog logger = LogManager.getLogger(CPUProvider.class);
             logger.error(e, "Only support accessing CPU metrics in SUN JVM platform.");
@@ -42,6 +54,7 @@ public enum CPUProvider {
     }
 
     public CPU getCpuMetric() {
+        // 获得 CPU 指标
         return cpuMetricsAccessor.getCPUMetrics();
     }
 }

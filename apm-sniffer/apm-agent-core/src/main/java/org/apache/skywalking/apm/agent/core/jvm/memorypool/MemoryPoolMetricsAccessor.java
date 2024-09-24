@@ -21,6 +21,12 @@ package org.apache.skywalking.apm.agent.core.jvm.memorypool;
 import java.util.List;
 import org.apache.skywalking.apm.network.language.agent.v3.MemoryPool;
 
+/**
+ * MemoryPool 指标访问器接口。
+ */
 public interface MemoryPoolMetricsAccessor {
+    /**
+     * 获得 MemoryPool 指标数组
+     */
     List<MemoryPool> getMemoryPoolMetricsList();
 }

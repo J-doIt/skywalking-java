@@ -21,6 +21,12 @@ package org.apache.skywalking.apm.agent.core.jvm.gc;
 import java.util.List;
 import org.apache.skywalking.apm.network.language.agent.v3.GC;
 
+/**
+ * GC 指标访问器接口
+ */
 public interface GCMetricAccessor {
+    /**
+     * 获得 GC 指标数组
+     */
     List<GC> getGCList();
 }

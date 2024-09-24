@@ -25,6 +25,10 @@ import java.util.List;
 import org.apache.skywalking.apm.network.language.agent.v3.MemoryPool;
 import org.apache.skywalking.apm.network.language.agent.v3.PoolType;
 
+/**
+ * MemoryPool 指标访问器抽象类。
+ * 不同 GC 算法之间，内存区域命名不同，通过如下六个方法抽象，分别对应不同内存区域，形成映射关系，屏蔽差异：
+ */
 public abstract class MemoryPoolModule implements MemoryPoolMetricsAccessor {
     private List<MemoryPoolMXBean> beans;
 
@@ -35,8 +39,10 @@ public abstract class MemoryPoolModule implements MemoryPoolMetricsAccessor {
     @Override
     public List<MemoryPool> getMemoryPoolMetricsList() {
         List<MemoryPool> poolList = new LinkedList<MemoryPool>();
+        // 循环每个内存区域，收集每个 MemoryPool 指标
         for (MemoryPoolMXBean bean : beans) {
             String name = bean.getName();
+            // 逐个内存区域名字判断，获得对应的内存区域类型。
             PoolType type;
             if (contains(getCodeCacheNames(), name)) {
                 type = PoolType.CODE_CACHE_USAGE;
@@ -54,6 +60,7 @@ public abstract class MemoryPoolModule implements MemoryPoolMetricsAccessor {
                 continue;
             }
 
+            // 创建 MemoryUsage 对象，并添加到结果数组。
             MemoryUsage usage = bean.getUsage();
             poolList.add(MemoryPool.newBuilder()
                                    .setType(type)

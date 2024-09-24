@@ -21,17 +21,23 @@ package org.apache.skywalking.apm.agent.core.jvm.cpu;
 import com.sun.management.OperatingSystemMXBean;
 import java.lang.management.ManagementFactory;
 
+/**
+ * 基于 SUN 提供的方法，获取 CPU 指标访问器
+ */
 public class SunCpuAccessor extends CPUMetricsAccessor {
     private final OperatingSystemMXBean osMBean;
 
     public SunCpuAccessor(int cpuCoreNum) {
+        // 设置 CPU 数量
         super(cpuCoreNum);
+        // 获得 OperatingSystemMXBean 对象
         this.osMBean = (OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean();
         this.init();
     }
 
     @Override
     protected long getCpuTime() {
+        // 获得 JVM 进程占用 CPU 总时长
         return osMBean.getProcessCpuTime();
     }
 }

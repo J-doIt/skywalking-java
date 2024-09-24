@@ -23,6 +23,23 @@ import java.lang.management.MemoryPoolMXBean;
 import java.util.List;
 import org.apache.skywalking.apm.network.language.agent.v3.MemoryPool;
 
+/**
+ * <pre>
+ * MemoryPool 提供者，
+ * 提供 #getMemoryPoolMetricList() 方法，采集 MemoryPool 指标数组。
+ *
+ * MemoryPool 和 Memory 的差别在于拆分的维度不同：
+ *   Heap memory
+ *      Code Cache
+ *      Eden Space
+ *      Survivor Space
+ *      Tenured Gen
+ *   non-heap memory
+ *      Perm Gen
+ *      native heap?(I guess)
+ *
+ * </pre>
+ */
 public enum MemoryPoolProvider {
     INSTANCE;
 
@@ -30,15 +47,20 @@ public enum MemoryPoolProvider {
     private List<MemoryPoolMXBean> beans;
 
     MemoryPoolProvider() {
+        // 创建 JVM GC 方式对应的 MemoryPoolMetricAccessor 对象
+
+        // 获得 MemoryPoolMXBean 数组。每个 MemoryPoolMXBean 对象，代表一个区域类型
         beans = ManagementFactory.getMemoryPoolMXBeans();
         for (MemoryPoolMXBean bean : beans) {
             String name = bean.getName();
+            // 找到对应的 GC 算法，创建对应的 MemoryPoolMetricAccessor 对象。
             MemoryPoolMetricsAccessor accessor = findByBeanName(name);
             if (accessor != null) {
                 metricAccessor = accessor;
                 break;
             }
         }
+        // 未找到匹配的 GC 算法，创建 UnknownMemoryPool 对象
         if (metricAccessor == null) {
             metricAccessor = new UnknownMemoryPool();
         }

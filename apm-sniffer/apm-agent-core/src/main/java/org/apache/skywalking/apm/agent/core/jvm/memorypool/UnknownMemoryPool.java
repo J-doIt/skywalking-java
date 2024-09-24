@@ -23,6 +23,12 @@ import java.util.List;
 import org.apache.skywalking.apm.network.language.agent.v3.MemoryPool;
 import org.apache.skywalking.apm.network.language.agent.v3.PoolType;
 
+/**
+ * <pre>
+ * 未知的 MemoryPool 指标访问器实现类。
+ * 每次 #getMemoryPoolMetricList() 方法，返回 MemoryPool 指标数组，但是每个指标元素是无具体数据的。
+ * </pre>
+ */
 public class UnknownMemoryPool implements MemoryPoolMetricsAccessor {
     @Override
     public List<MemoryPool> getMemoryPoolMetricsList() {

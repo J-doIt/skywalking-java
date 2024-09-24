@@ -25,6 +25,10 @@ import java.util.LinkedList;
 import java.util.List;
 import org.apache.skywalking.apm.network.language.agent.v3.Memory;
 
+/**
+ * Memory 提供者，
+ * 提供 #getMemoryMetricList() 方法，采集 Memory 指标。
+ */
 public enum MemoryProvider {
     INSTANCE;
     private final MemoryMXBean memoryMXBean;
@@ -36,15 +40,17 @@ public enum MemoryProvider {
     public List<Memory> getMemoryMetricList() {
         List<Memory> memoryList = new LinkedList<Memory>();
 
+        // 堆内存
         MemoryUsage heapMemoryUsage = memoryMXBean.getHeapMemoryUsage();
         Memory.Builder heapMemoryBuilder = Memory.newBuilder();
         heapMemoryBuilder.setIsHeap(true);
-        heapMemoryBuilder.setInit(heapMemoryUsage.getInit());
-        heapMemoryBuilder.setUsed(heapMemoryUsage.getUsed());
-        heapMemoryBuilder.setCommitted(heapMemoryUsage.getCommitted());
-        heapMemoryBuilder.setMax(heapMemoryUsage.getMax());
+        heapMemoryBuilder.setInit(heapMemoryUsage.getInit()); // java虚拟机在启动的时候向操作系统请求的初始内存容量，java虚拟机在运行的过程中可能向操作系统请求更多的内存或将内存释放给操作系统，所以init的值是不确定的。
+        heapMemoryBuilder.setUsed(heapMemoryUsage.getUsed()); // 当前已经使用的内存量。
+        heapMemoryBuilder.setCommitted(heapMemoryUsage.getCommitted()); // 表示保证 Java 虚拟机能使用的内存量，已提交的内存量可以随时间而变化
+        heapMemoryBuilder.setMax(heapMemoryUsage.getMax()); // 最大内存容量
         memoryList.add(heapMemoryBuilder.build());
 
+        // 非堆内存
         MemoryUsage nonHeapMemoryUsage = memoryMXBean.getNonHeapMemoryUsage();
         Memory.Builder nonHeapMemoryBuilder = Memory.newBuilder();
         nonHeapMemoryBuilder.setIsHeap(false);

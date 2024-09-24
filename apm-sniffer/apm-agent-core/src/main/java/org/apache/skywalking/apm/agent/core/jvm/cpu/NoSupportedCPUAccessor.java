@@ -18,6 +18,9 @@
 
 package org.apache.skywalking.apm.agent.core.jvm.cpu;
 
+/**
+ * 不支持的 CPU 指标访问器。因此，使用该类的情况下，获取不到具体的进程 CPU 占用率。
+ */
 public class NoSupportedCPUAccessor extends CPUMetricsAccessor {
     public NoSupportedCPUAccessor(int cpuCoreNum) {
         super(cpuCoreNum);

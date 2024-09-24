@@ -43,14 +43,19 @@ import static org.apache.skywalking.apm.agent.core.conf.Config.Collector.GRPC_UP
 public class JVMMetricsSender implements BootService, Runnable, GRPCChannelListener {
     private static final ILog LOGGER = LogManager.getLogger(JVMMetricsSender.class);
 
+    /** 连接状态 */
     private volatile GRPCChannelStatus status = GRPCChannelStatus.DISCONNECT;
+    /** Stub */
     private volatile JVMMetricReportServiceGrpc.JVMMetricReportServiceBlockingStub stub = null;
 
+    /** 收集指标队列 */
     private LinkedBlockingQueue<JVMMetric> queue;
 
     @Override
     public void prepare() {
+        // 创建阻塞队列
         queue = new LinkedBlockingQueue<>(Config.Jvm.BUFFER_SIZE);
+        // 将 this 加入到 GRPCChannelManager 的 GRPCChannelListener 中
         ServiceManager.INSTANCE.findService(GRPCChannelManager.class).addChannelListener(this);
     }
 
@@ -67,19 +72,27 @@ public class JVMMetricsSender implements BootService, Runnable, GRPCChannelListe
         }
     }
 
+    /**
+     * 发送指标
+     */
     @Override
     public void run() {
+        // 连接中，才发送 JVM 指标
         if (status == GRPCChannelStatus.CONNECTED) {
             try {
                 JVMMetricCollection.Builder builder = JVMMetricCollection.newBuilder();
                 LinkedList<JVMMetric> buffer = new LinkedList<>();
+                // 从队列移除所有 JVMMetric 到 buffer 数组
                 queue.drainTo(buffer);
+                // 使用 Stub ，批量发送到 Collector
                 if (buffer.size() > 0) {
                     builder.addAllMetrics(buffer);
                     builder.setService(Config.Agent.SERVICE_NAME);
                     builder.setServiceInstance(Config.Agent.INSTANCE_NAME);
+                    //
                     Commands commands = stub.withDeadlineAfter(GRPC_UPSTREAM_TIMEOUT, TimeUnit.SECONDS)
                                             .collect(builder.build());
+                    //
                     ServiceManager.INSTANCE.findService(CommandService.class).receiveCommand(commands);
                 }
             } catch (Throwable t) {
@@ -91,6 +104,7 @@ public class JVMMetricsSender implements BootService, Runnable, GRPCChannelListe
 
     @Override
     public void statusChanged(GRPCChannelStatus status) {
+        // 当连接成功时，创建阻塞 Stub
         if (GRPCChannelStatus.CONNECTED.equals(status)) {
             Channel channel = ServiceManager.INSTANCE.findService(GRPCChannelManager.class).getChannel();
             stub = JVMMetricReportServiceGrpc.newBlockingStub(channel);
