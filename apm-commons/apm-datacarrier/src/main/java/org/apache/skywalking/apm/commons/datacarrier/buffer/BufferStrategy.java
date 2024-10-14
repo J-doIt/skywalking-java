@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.apm.commons.datacarrier.buffer;
 
+/** 队列策略 */
 public enum BufferStrategy {
     BLOCKING, IF_POSSIBLE
 }

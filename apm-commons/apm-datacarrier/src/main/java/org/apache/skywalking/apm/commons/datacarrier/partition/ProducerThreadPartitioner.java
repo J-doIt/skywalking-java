@@ -20,6 +20,9 @@ package org.apache.skywalking.apm.commons.datacarrier.partition;
 
 /**
  * use threadid % total to partition
+ * <pre>
+ * (使用 threadid % total 进行分区)
+ * </pre>
  */
 public class ProducerThreadPartitioner<T> implements IDataPartitioner<T> {
     public ProducerThreadPartitioner() {

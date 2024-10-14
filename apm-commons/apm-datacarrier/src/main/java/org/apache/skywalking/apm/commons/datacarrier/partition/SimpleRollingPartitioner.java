@@ -20,6 +20,9 @@ package org.apache.skywalking.apm.commons.datacarrier.partition;
 
 /**
  * use normal int to rolling.
+ * <pre>
+ * (使用 normal int 进行滚动。)
+ * </pre>
  */
 public class SimpleRollingPartitioner<T> implements IDataPartitioner<T> {
     @SuppressWarnings("NonAtomicVolatileUpdate")

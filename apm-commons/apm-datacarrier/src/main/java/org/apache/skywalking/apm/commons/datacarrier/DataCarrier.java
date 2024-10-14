@@ -30,6 +30,11 @@ import org.apache.skywalking.apm.commons.datacarrier.partition.SimpleRollingPart
 
 /**
  * DataCarrier main class. use this instance to set Producer/Consumer Model.
+ * <pre>
+ * (DataCarrier 主类。使用此实例设置 Producer/Consumer 模块。)
+ *
+ * 轻量级队列内核的门户，队列内核通过 DataCarrier 与 SkyWalking 的 其他模块 进行交互与合作。
+ * </pre>
  */
 public class DataCarrier<T> {
     private Channels<T> channels;
@@ -48,6 +53,13 @@ public class DataCarrier<T> {
         this(name, envPrefix, channelSize, bufferSize, BufferStrategy.BLOCKING);
     }
 
+    /**
+     * @param name DataCarrier 名
+     * @param envPrefix 系统环境变量的前缀
+     * @param channelSize 默认的 channelSize
+     * @param bufferSize 默认的 bufferSize
+     * @param strategy 队列策略
+     */
     public DataCarrier(String name, String envPrefix, int channelSize, int bufferSize, BufferStrategy strategy) {
         this.name = name;
         bufferSize = EnvUtil.getInt(envPrefix + "_BUFFER_SIZE", bufferSize);
@@ -83,6 +95,7 @@ public class DataCarrier<T> {
             }
         }
 
+        // 保存到 channels 的 bufferChannels 中
         return this.channels.save(data);
     }
 
@@ -100,6 +113,7 @@ public class DataCarrier<T> {
         if (driver != null) {
             driver.close(channels);
         }
+        // 创建 ConsumeDriver，由 ConsumeDriver 内部的 thread 消费
         driver = new ConsumeDriver<T>(this.name, this.channels, consumerClass, num, consumeCycle, properties);
         driver.begin(channels);
         return this;
@@ -126,6 +140,7 @@ public class DataCarrier<T> {
         if (driver != null) {
             driver.close(channels);
         }
+        // 创建 ConsumeDriver，让 ConsumeDriver 中的 thread 消费
         driver = new ConsumeDriver<T>(this.name, this.channels, consumer, num, consumeCycle);
         driver.begin(channels);
         return this;

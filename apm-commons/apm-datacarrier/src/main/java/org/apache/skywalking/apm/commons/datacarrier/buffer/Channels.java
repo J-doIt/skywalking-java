@@ -23,13 +23,29 @@ import org.apache.skywalking.apm.commons.datacarrier.partition.IDataPartitioner;
 /**
  * Channels of Buffer It contains all buffer data which belongs to this channel. It supports several strategy when
  * buffer is full. The Default is BLOCKING <p> Created by wusheng on 2016/10/25.
+ *
+ * <pre>
+ * (Buffer 的 Channels，它包含属于该 channel 的所有 buffer 数据。当 buffer 已满时，它支持多种策略。默认是 BLOCKING)
+ *
+ * 管理 QueueBuffer 的载体
+ * </pre>
  */
 public class Channels<T> {
+    /** 存放 QueueBuffer≤T≥ 的数组 */
     private final QueueBuffer<T>[] bufferChannels;
+    /** 数据分区器 */
     private IDataPartitioner<T> dataPartitioner;
+    /** 队列策略 */
     private final BufferStrategy strategy;
+    /** channel 存放 T 的总容量 */
     private final long size;
 
+    /**
+     * @param channelSize channel 的大小（存放 QueueBuffer≤T≥ 的数组的大小）
+     * @param bufferSize QueueBuffer≤T≥ 的大小
+     * @param partitioner 数据分区器
+     * @param strategy 队列策略
+     */
     public Channels(int channelSize, int bufferSize, IDataPartitioner<T> partitioner, BufferStrategy strategy) {
         this.dataPartitioner = partitioner;
         this.strategy = strategy;

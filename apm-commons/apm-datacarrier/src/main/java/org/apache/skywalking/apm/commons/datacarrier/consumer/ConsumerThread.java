@@ -23,8 +23,13 @@ import java.util.List;
 import org.apache.skywalking.apm.commons.datacarrier.buffer.Buffer;
 import org.apache.skywalking.apm.commons.datacarrier.buffer.QueueBuffer;
 
+/**
+ * 消费线程
+ * @param <T>
+ */
 public class ConsumerThread<T> extends Thread {
     private volatile boolean running;
+    /** 消费者 */
     private IConsumer<T> consumer;
     private List<DataSource> dataSources;
     private long consumeCycle;
@@ -49,6 +54,7 @@ public class ConsumerThread<T> extends Thread {
         running = true;
 
         final List<T> consumeList = new ArrayList<T>(1500);
+        // running 时，不断消费
         while (running) {
             if (!consume(consumeList)) {
                 try {
@@ -72,6 +78,7 @@ public class ConsumerThread<T> extends Thread {
 
         if (!consumeList.isEmpty()) {
             try {
+                //
                 consumer.consume(consumeList);
             } catch (Throwable t) {
                 consumer.onError(consumeList, t);
@@ -90,6 +97,10 @@ public class ConsumerThread<T> extends Thread {
 
     /**
      * DataSource is a reference to {@link Buffer}.
+     *
+     * <pre>
+     * (数据源是对 QueueBuffer 的引用。)
+     * </pre>
      */
     class DataSource {
         private QueueBuffer<T> sourceBuffer;

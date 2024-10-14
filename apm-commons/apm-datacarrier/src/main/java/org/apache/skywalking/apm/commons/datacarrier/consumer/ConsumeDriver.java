@@ -25,6 +25,9 @@ import org.apache.skywalking.apm.commons.datacarrier.buffer.Channels;
 
 /**
  * Pool of consumers <p> Created by wusheng on 2016/10/25.
+ * <pre>
+ * (消费池)
+ * </pre>
  */
 public class ConsumeDriver<T> implements IDriver {
     private boolean running;
@@ -40,7 +43,8 @@ public class ConsumeDriver<T> implements IDriver {
         this(channels, num);
         for (int i = 0; i < num; i++) {
             consumerThreads[i] = new ConsumerThread(
-                "DataCarrier." + name + ".Consumer." + i + ".Thread", getNewConsumerInstance(consumerClass, properties),
+                "DataCarrier." + name + ".Consumer." + i + ".Thread",
+                getNewConsumerInstance(consumerClass, properties), // 消费者
                 consumeCycle
             );
             consumerThreads[i].setDaemon(true);
@@ -49,10 +53,13 @@ public class ConsumeDriver<T> implements IDriver {
 
     public ConsumeDriver(String name, Channels<T> channels, IConsumer<T> prototype, int num, long consumeCycle) {
         this(channels, num);
+        //
         prototype.init(new Properties());
         for (int i = 0; i < num; i++) {
             consumerThreads[i] = new ConsumerThread(
-                "DataCarrier." + name + ".Consumer." + i + ".Thread", prototype, consumeCycle);
+                "DataCarrier." + name + ".Consumer." + i + ".Thread",
+                    prototype, // 消费者
+                    consumeCycle);
             consumerThreads[i].setDaemon(true);
         }
 

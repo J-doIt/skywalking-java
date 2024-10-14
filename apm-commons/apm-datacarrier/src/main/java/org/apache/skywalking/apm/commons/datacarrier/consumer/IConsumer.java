@@ -24,6 +24,9 @@ import java.util.Properties;
 public interface IConsumer<T> {
     void init(final Properties properties);
 
+    /**
+     * 消费
+     */
     void consume(List<T> data);
 
     void onError(List<T> data, Throwable t);

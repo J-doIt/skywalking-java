@@ -34,6 +34,12 @@ public class BulkConsumePool implements ConsumerPool {
     private List<MultipleChannelsConsumer> allConsumers;
     private volatile boolean isStarted = false;
 
+    /**
+     *
+     * @param name
+     * @param size
+     * @param consumeCycle
+     */
     public BulkConsumePool(String name, int size, long consumeCycle) {
         size = EnvUtil.getInt(name + "_THREAD", size);
         allConsumers = new ArrayList<MultipleChannelsConsumer>(size);

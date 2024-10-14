@@ -57,6 +57,7 @@ public class TraceSegmentServiceClient implements BootService, IConsumer<TraceSe
 
     @Override
     public void prepare() {
+        // 将 this（GRPC Channel Listener） 加入到 GRPCChannelManager
         ServiceManager.INSTANCE.findService(GRPCChannelManager.class).addChannelListener(this);
     }
 
@@ -65,12 +66,17 @@ public class TraceSegmentServiceClient implements BootService, IConsumer<TraceSe
         lastLogTime = System.currentTimeMillis();
         segmentUplinkedCounter = 0;
         segmentAbandonedCounter = 0;
+        // 创建 DataCarrier
+        // 设置 DataCarrier 的 Channel 中 Buffer 队列的数量和每一个 Buffer 队列的长度，将 BufferStrategy 策略设置为 IF_POSSIBLE
         carrier = new DataCarrier<>(CHANNEL_SIZE, BUFFER_SIZE, BufferStrategy.IF_POSSIBLE);
+        // 设置当前 DataCarrier 的消费者
+        // 将 this（消费者） 传入，并在 new IDiver 时 执行 this.init()，DataCarrier 开始消费
         carrier.consume(this, 1);
     }
 
     @Override
     public void onComplete() {
+        // 将 this（TracingContext Listener） 加入到 TracingContext.ListenerManager
         TracingContext.ListenerManager.add(this);
     }
 
@@ -88,20 +94,32 @@ public class TraceSegmentServiceClient implements BootService, IConsumer<TraceSe
     @Override
     public void consume(List<TraceSegment> data) {
         if (CONNECTED.equals(status)) {
+            // 初始化GRPC流服务状态为未完成
             final GRPCStreamServiceStatus status = new GRPCStreamServiceStatus(false);
+            // 创建一个具有超时时间的 StreamObserver，用于发送 SegmentObject 到 Collector
             StreamObserver<SegmentObject> upstreamSegmentStreamObserver = serviceStub.withDeadlineAfter(
                 Config.Collector.GRPC_UPSTREAM_TIMEOUT, TimeUnit.SECONDS
             ).collect(new StreamObserver<Commands>() {
+                /**
+                 * 当收到 Collector 响应的命令时调用此方法。
+                 * 将收到的 Commands 传递给 CommandService 进行处理。
+                 * @param commands 收到的命令集合
+                 */
                 @Override
                 public void onNext(Commands commands) {
                     ServiceManager.INSTANCE.findService(CommandService.class)
-                                           .receiveCommand(commands);
+                                           .receiveCommand(commands); // 将收到的 Commands 传递给 CommandService 进行处理
                 }
 
+                /**
+                 * 当发生错误时调用此方法，标记流为已完成，并记录错误日志。
+                 * 同时，通过 GRPCChannelManager 报告该错误。
+                 * @param throwable 发生的错误
+                 */
                 @Override
                 public void onError(
                     Throwable throwable) {
-                    status.finished();
+                    status.finished(); // 标记流为已完成
                     if (LOGGER.isErrorEnable()) {
                         LOGGER.error(
                             throwable,
@@ -110,27 +128,36 @@ public class TraceSegmentServiceClient implements BootService, IConsumer<TraceSe
                     }
                     ServiceManager.INSTANCE
                         .findService(GRPCChannelManager.class)
-                        .reportError(throwable);
+                        .reportError(throwable); // 通过 GRPCChannelManager 报告该错误
                 }
 
+                /**
+                 * 当数据传输完成时调用此方法，标记流为已完成。
+                 */
                 @Override
                 public void onCompleted() {
-                    status.finished();
+                    status.finished(); // 标记流为已完成
                 }
             });
 
             try {
+                // 遍历待发送的 TraceSegment 列表
                 for (TraceSegment segment : data) {
+                    // 将每个 TraceSegment 转换为 SegmentObject，准备发送
                     SegmentObject upstreamSegment = segment.transform();
+                    // 使用 StreamObserver 发送转换后的 SegmentObject 到 Collector
                     upstreamSegmentStreamObserver.onNext(upstreamSegment);
                 }
             } catch (Throwable t) {
                 LOGGER.error(t, "Transform and send UpstreamSegment to collector fail.");
             }
 
+            // 所有 SegmentObject 发送完毕后，通知 Collector 数据传输已完成
             upstreamSegmentStreamObserver.onCompleted();
 
+            // 等待直到所有发送操作确认完成
             status.wait4Finish();
+            // 更新已上传的Segment计数器，增加本次成功发送的Segment数量
             segmentUplinkedCounter += data.size();
         } else {
             segmentAbandonedCounter += data.size();
@@ -170,6 +197,7 @@ public class TraceSegmentServiceClient implements BootService, IConsumer<TraceSe
         if (traceSegment.isIgnore()) {
             return;
         }
+        // 生产消息
         if (!carrier.produce(traceSegment)) {
             if (LOGGER.isDebugEnable()) {
                 LOGGER.debug("One trace segment has been abandoned, cause by buffer is full.");
@@ -181,6 +209,7 @@ public class TraceSegmentServiceClient implements BootService, IConsumer<TraceSe
     public void statusChanged(GRPCChannelStatus status) {
         if (CONNECTED.equals(status)) {
             Channel channel = ServiceManager.INSTANCE.findService(GRPCChannelManager.class).getChannel();
+            //
             serviceStub = TraceSegmentReportServiceGrpc.newStub(channel);
         }
         this.status = status;

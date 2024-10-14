@@ -23,10 +23,19 @@ import org.apache.skywalking.apm.commons.datacarrier.common.AtomicRangeInteger;
 
 /**
  * Self implementation ring queue.
+ *
+ * <pre>
+ * (自实现 ring（AtomicRangeInteger） 队列。)
+ *
+ * Buffer 是 SkyWalking 队列内核中数据的载体，队列之中的数据都存储在 Buffer 中。
+ * </pre>
  */
 public class Buffer<T> implements QueueBuffer<T> {
+    /** 用于存储数据的队列 */
     private final Object[] buffer;
+    /** 队列策略 */
     private BufferStrategy strategy;
+    /** 一个原子的循环索引，与Buffer一起实现环状队列。 */
     private AtomicRangeInteger index;
 
     Buffer(int bufferSize, BufferStrategy strategy) {

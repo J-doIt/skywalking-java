@@ -22,6 +22,9 @@ import java.util.List;
 
 /**
  * Queue buffer interface.
+ * <pre>
+ * (队列缓冲区接口。)
+ * </pre>
  */
 public interface QueueBuffer<T> {
     /**
