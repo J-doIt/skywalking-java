@@ -16,23 +16,37 @@
 #
 #
 
+# 也是 IConsumer 的实现类，TraceSegment服务客户端
 org.apache.skywalking.apm.agent.core.remote.TraceSegmentServiceClient
+# 控制 TraceSegment 的整个上下文，上下文管理扩展服务
 org.apache.skywalking.apm.agent.core.context.ContextManager
+org.apache.skywalking.apm.agent.core.context.ContextManagerExtendService
+# 采样服务
 org.apache.skywalking.apm.agent.core.sampling.SamplingService
+# gRPC Channel 管理器
 org.apache.skywalking.apm.agent.core.remote.GRPCChannelManager
+# JVM 指标发送者，JVM 指标服务
 org.apache.skywalking.apm.agent.core.jvm.JVMMetricsSender
 org.apache.skywalking.apm.agent.core.jvm.JVMService
+# 服务管理客户端（报告服务实例属性到OAP）
 org.apache.skywalking.apm.agent.core.remote.ServiceManagementClient
-org.apache.skywalking.apm.agent.core.context.ContextManagerExtendService
+# 命令服务，命名执行服务
 org.apache.skywalking.apm.agent.core.commands.CommandService
 org.apache.skywalking.apm.agent.core.commands.CommandExecutorService
+# 分析任务通道服务，分析快照发送者，分析任务执行服务
 org.apache.skywalking.apm.agent.core.profile.ProfileTaskChannelService
 org.apache.skywalking.apm.agent.core.profile.ProfileSnapshotSender
 org.apache.skywalking.apm.agent.core.profile.ProfileTaskExecutionService
+# 度量服务，指标发送者
 org.apache.skywalking.apm.agent.core.meter.MeterService
 org.apache.skywalking.apm.agent.core.meter.MeterSender
+# （如果在范围中捕获异常，则StatusCheckService确定是否应该将span标记为错误状态。）
 org.apache.skywalking.apm.agent.core.context.status.StatusCheckService
+# 也是 IConsumer 的实现类，日志报告服务客户端
 org.apache.skywalking.apm.agent.core.remote.LogReportServiceClient
+# 配置发现服务（获取服务的最新动态配置）
 org.apache.skywalking.apm.agent.core.conf.dynamic.ConfigurationDiscoveryService
+# 事件报告服务客户端
 org.apache.skywalking.apm.agent.core.remote.EventReportServiceClient
+# 服务实例名生成器
 org.apache.skywalking.apm.agent.core.ServiceInstanceGenerator

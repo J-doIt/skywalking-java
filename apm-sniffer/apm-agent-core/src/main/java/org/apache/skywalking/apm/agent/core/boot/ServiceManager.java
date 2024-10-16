@@ -44,7 +44,7 @@ public enum ServiceManager {
     private Map<Class, BootService> bootedServices = Collections.emptyMap();
 
     public void boot() {
-        // 加载所有 BootService 实现类的实例数组
+        // 加载所有 BootService 实现类的实例数组（基于 SPI 机制，eg：apm-sniffer/apm-agent-core/src/main/resources/META-INF/services/org.apache.skywalking.apm.agent.core.boot.BootService）
         bootedServices = loadAllServices();
 
         // 启动之前
@@ -56,6 +56,7 @@ public enum ServiceManager {
     }
 
     public void shutdown() {
+        // 根据 bootService 的优先级，倒序 执行 shutdown
         bootedServices.values().stream().sorted(Comparator.comparingInt(BootService::priority).reversed()).forEach(service -> {
             try {
                 service.shutdown();
@@ -114,6 +115,7 @@ public enum ServiceManager {
     }
 
     private void prepare() {
+        // 根据 bootService 的优先级执行 prepare
         bootedServices.values().stream().sorted(Comparator.comparingInt(BootService::priority)).forEach(service -> {
             try {
                 service.prepare();
@@ -124,6 +126,7 @@ public enum ServiceManager {
     }
 
     private void startup() {
+        // 根据 bootService 的优先级执行 boot
         bootedServices.values().stream().sorted(Comparator.comparingInt(BootService::priority)).forEach(service -> {
             try {
                 service.boot();

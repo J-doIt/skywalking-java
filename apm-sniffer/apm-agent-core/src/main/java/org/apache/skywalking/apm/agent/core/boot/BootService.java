@@ -37,6 +37,9 @@ public interface BootService {
 
     /**
      * {@code BootService}s with higher priorities will be started earlier, and shut down later than those {@code BootService}s with lower priorities.
+     * <pre>
+     * (具有较高优先级的 BootService 将比 具有较低优先级的 BootService 更早启动，并更晚关闭。)
+     * </pre>
      *
      * @return the priority of this {@code BootService}.
      */
