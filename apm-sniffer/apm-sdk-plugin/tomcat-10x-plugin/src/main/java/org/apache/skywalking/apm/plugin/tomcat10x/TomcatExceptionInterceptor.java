@@ -26,6 +26,14 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInt
 import java.lang.reflect.Method;
 
 public class TomcatExceptionInterceptor implements InstanceMethodsAroundInterceptor {
+    /**
+     * @param objInst 被增强了的 StandardHostValve 类
+     * @param method StandardHostValve 的 throwable 方法（{@code throwable(Request request, Response response, Throwable throwable)}）
+     * @param allArguments
+     * @param argumentsTypes
+     * @param result change this result, if you want to truncate the method.
+     * @throws Throwable
+     */
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         MethodInterceptResult result) throws Throwable {

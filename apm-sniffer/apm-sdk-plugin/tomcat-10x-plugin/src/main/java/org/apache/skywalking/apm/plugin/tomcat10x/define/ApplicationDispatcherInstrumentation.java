@@ -29,6 +29,19 @@ import static net.bytebuddy.matcher.ElementMatchers.any;
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
+/**
+ * <pre>
+ * 应用调度器 的 增强插件定义类
+ *
+ * 增强类：ApplicationDispatcher
+ * 增强方法：forward，拦截器类：ForwardInterceptor
+ *
+ * 声明：
+ *      见证类：jakarta.servlet.http.HttpServletResponse
+ *      增强构造方法：ApplicationDispatcher(Wrapper wrapper, String requestURI, String servletPath, String pathInfo, String queryString, HttpServletMapping mapping, String name)
+ *      增强实例方法：void forward(ServletRequest request, ServletResponse response)
+ * </pre>
+ */
 public class ApplicationDispatcherInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
     private static final String ENHANCE_CLASS = "org.apache.catalina.core.ApplicationDispatcher";

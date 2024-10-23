@@ -14,5 +14,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# SPI
 tomcat-10.x=org.apache.skywalking.apm.plugin.tomcat10x.define.TomcatInstrumentation
 tomcat-10.x=org.apache.skywalking.apm.plugin.tomcat10x.define.ApplicationDispatcherInstrumentation

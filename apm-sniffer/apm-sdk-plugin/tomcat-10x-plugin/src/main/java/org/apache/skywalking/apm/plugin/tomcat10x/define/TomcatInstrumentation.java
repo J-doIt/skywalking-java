@@ -28,6 +28,21 @@ import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
+/**
+ * <pre>
+ * 标准 Host（主机，运行多个应用）Valve  的 增强插件定义类
+ *
+ * 增强类：StandardHostValve
+ * 增强方法：invoke，拦截器类：TomcatInvokeInterceptor
+ * 增强方法：throwable，拦截器类：TomcatExceptionInterceptor
+ *
+ *
+ * 声明：
+ *      见证类：jakarta.servlet.http.HttpServletResponse
+ *      增强实例方法：void invoke(Request request, Response response)
+ *      增强实例方法：void throwable(Request request, Response response, Throwable throwable)
+ * </pre>
+ */
 public class TomcatInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
     /**

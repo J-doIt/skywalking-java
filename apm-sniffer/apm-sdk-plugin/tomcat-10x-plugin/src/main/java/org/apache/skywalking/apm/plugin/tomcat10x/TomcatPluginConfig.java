@@ -26,6 +26,7 @@ public class TomcatPluginConfig {
         public static class Tomcat {
             /**
              * This config item controls that whether the Tomcat plugin should collect the parameters of the request.
+             * （此配置项控制 Tomcat 插件是否应收集请求的参数。）
              */
             public static boolean COLLECT_HTTP_PARAMS = false;
         }
@@ -36,6 +37,7 @@ public class TomcatPluginConfig {
              * When either {@link Tomcat#COLLECT_HTTP_PARAMS} is enabled, how many characters to keep and send to the
              * OAP backend, use negative values to keep and send the complete parameters, NB. this config item is added
              * for the sake of performance
+             * （启用任一 TomcatPluginConfig.Plugin.Tomcat.COLLECT_HTTP_PARAMS 配置项后，保留多少个字符并发送到 OAP 后端，使用负值保留并发送完整参数，注意。添加此配置项是为了性能）
              */
             public static int HTTP_PARAMS_LENGTH_THRESHOLD = 1024;
         }

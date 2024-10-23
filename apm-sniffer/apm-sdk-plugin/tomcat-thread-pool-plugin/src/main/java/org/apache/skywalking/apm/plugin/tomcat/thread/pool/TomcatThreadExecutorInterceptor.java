@@ -30,25 +30,35 @@ public class TomcatThreadExecutorInterceptor implements InstanceConstructorInter
     private static final String THREAD_POOL_NAME = "tomcat_execute_pool";
     private static final String METRIC_TYPE_TAG_NAME = "metric_type";
 
+    /**
+     * @param objInst 被增强了的 tomcat 的 ThreadPoolExecutor
+     * @param allArguments
+     * @throws Throwable
+     */
     @Override
     public void onConstruct(EnhancedInstance objInst, Object[] allArguments) throws Throwable {
         ThreadPoolExecutor threadPoolExecutor = (ThreadPoolExecutor) objInst;
+        // 创建一个 Gauge 指标 来监控 核心线程池大小
         MeterFactory.gauge(METER_NAME, () -> (double) threadPoolExecutor.getCorePoolSize())
                     .tag(METRIC_POOL_NAME_TAG_NAME, THREAD_POOL_NAME)
                     .tag(METRIC_TYPE_TAG_NAME, "core_pool_size")
                     .build();
+        // 创建一个 Gauge 指标 来监控 最大线程池大小
         MeterFactory.gauge(METER_NAME, () -> (double) threadPoolExecutor.getMaximumPoolSize())
                     .tag(METRIC_POOL_NAME_TAG_NAME, THREAD_POOL_NAME)
                     .tag(METRIC_TYPE_TAG_NAME, "max_pool_size")
                     .build();
+        // 创建一个 Gauge 指标 来监控 当前线程池大小
         MeterFactory.gauge(METER_NAME, () -> (double) threadPoolExecutor.getPoolSize())
                     .tag(METRIC_POOL_NAME_TAG_NAME, THREAD_POOL_NAME)
                     .tag(METRIC_TYPE_TAG_NAME, "pool_size")
                     .build();
+        // 创建一个 Gauge 指标 来监控 任务队列大小
         MeterFactory.gauge(METER_NAME, () -> (double) threadPoolExecutor.getQueue().size())
                     .tag(METRIC_POOL_NAME_TAG_NAME, THREAD_POOL_NAME)
                     .tag(METRIC_TYPE_TAG_NAME, "queue_size")
                     .build();
+        // 创建一个 Gauge 指标 来监控 活跃线程数
         MeterFactory.gauge(METER_NAME, () -> (double) threadPoolExecutor.getActiveCount())
                     .tag(METRIC_POOL_NAME_TAG_NAME, THREAD_POOL_NAME)
                     .tag(METRIC_TYPE_TAG_NAME, "active_size")
