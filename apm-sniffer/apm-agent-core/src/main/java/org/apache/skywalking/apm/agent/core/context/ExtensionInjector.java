@@ -20,6 +20,10 @@ package org.apache.skywalking.apm.agent.core.context;
 
 /**
  * Inject or read the extension protocol fields,such as {@link ExtensionContext#sendingTimestamp}.
+ *
+ * <pre>
+ * (注入或读取扩展协议字段，如 ExtensionContext#sendingTimestamp。)
+ * </pre>
  */
 public class ExtensionInjector {
 
@@ -31,6 +35,9 @@ public class ExtensionInjector {
 
     /**
      * Inject the current time in milliseconds to the {@link ExtensionContext}.
+     * <pre>
+     * (将 当前时间（以毫秒为单位）注入 ExtensionContext。)
+     * </pre>
      */
     public void injectSendingTimestamp() {
         extensionContext.setSendingTimestamp(System.currentTimeMillis());

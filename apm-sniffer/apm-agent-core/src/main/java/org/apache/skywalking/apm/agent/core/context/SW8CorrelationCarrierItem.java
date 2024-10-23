@@ -22,12 +22,14 @@ public class SW8CorrelationCarrierItem extends CarrierItem {
     private final CorrelationContext correlationContext;
 
     public SW8CorrelationCarrierItem(CorrelationContext correlationContext, CarrierItem next) {
+        // 设置 该 item 的 key、value（序列化后的）、next
         super(HEADER_NAME, correlationContext.serialize(), next);
         this.correlationContext = correlationContext;
     }
 
     @Override
     public void setHeadValue(String headValue) {
+        // 反序列化
         this.correlationContext.deserialize(headValue);
     }
 }

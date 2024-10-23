@@ -23,12 +23,14 @@ public class SW8CarrierItem extends CarrierItem {
     private ContextCarrier carrier;
 
     public SW8CarrierItem(ContextCarrier carrier, CarrierItem next) {
+        // 设置 该 item 的 key、value（序列化后的）、next
         super(HEADER_NAME, carrier.serialize(ContextCarrier.HeaderVersion.v3), next);
         this.carrier = carrier;
     }
 
     @Override
     public void setHeadValue(String headValue) {
+        // 反序列化
         carrier.deserialize(headValue, ContextCarrier.HeaderVersion.v3);
     }
 }

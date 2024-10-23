@@ -23,12 +23,14 @@ public class SW8ExtensionCarrierItem extends CarrierItem {
     private final ExtensionContext extensionContext;
 
     public SW8ExtensionCarrierItem(ExtensionContext extensionContext, CarrierItem next) {
+        // 设置 该 item 的 key、value（序列化后的）、next
         super(HEADER_NAME, extensionContext.serialize(), next);
         this.extensionContext = extensionContext;
     }
 
     @Override
     public void setHeadValue(String headValue) {
+        // 反序列化
         this.extensionContext.deserialize(headValue);
     }
 

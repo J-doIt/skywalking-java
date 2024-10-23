@@ -30,25 +30,29 @@ import org.apache.skywalking.apm.util.StringUtil;
 /**
  * Extension context, It provides the interaction capabilities between the agents deployed in upstream and downstream
  * services.
+ * <pre>
+ * (扩展上下文，它提供了部署在上下游服务中的 Agent 之间的交互能力。)
+ * </pre>
  */
 public class ExtensionContext {
 
     private static final ILog LOGGER = LogManager.getLogger(ExtensionContext.class);
     /**
-     * The separator of extendable fields.
+     * 可扩展字段的分隔符。
      */
     private static final String SEPARATOR = "-";
     /**
-     * The default value of extendable fields.
+     * 可扩展字段的默认值。
      */
     private static final String PLACEHOLDER = " ";
     /**
-     * Tracing Mode. If true means represents all spans generated in this context should skip analysis.
+     * 跟踪模式。true 表示在此上下文中生成的所有span，应该跳过分析。
      */
     private boolean skipAnalysis;
 
     /**
      * The sending timestamp of the exit span.
+     * exit span 的 发送时间戳。
      */
     @Getter
     @Setter
@@ -114,6 +118,12 @@ public class ExtensionContext {
      * 1. Set the `skipAnalysis` flag.
      * 2. Tag the {@link Tags#TRANSMISSION_LATENCY} if the context includes `sendingTimestamp`,
      *    which is set by the client side.
+     *
+     * <pre>
+     * (处理active span
+     *  1. 设置‘ skipAnalysis ’标志。
+     *  2. 标记 Tags#TRANSMISSION_LATENCY（传输延迟？：如果上下文包含由客户端设置的‘ sendingTimestamp ’）。)
+     * </pre>
      */
     void handle(AbstractSpan span) {
         if (this.skipAnalysis) {

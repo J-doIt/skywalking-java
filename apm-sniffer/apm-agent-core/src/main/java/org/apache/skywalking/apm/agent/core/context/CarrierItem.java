@@ -21,7 +21,9 @@ package org.apache.skywalking.apm.agent.core.context;
 import java.util.Iterator;
 
 public class CarrierItem implements Iterator<CarrierItem> {
+    /** 跨进程传输协议 key：sw8、sw8-x、sw8-correlation */
     private String headKey;
+    /** 序列化后的字符串 */
     private String headValue;
     private CarrierItem next;
 

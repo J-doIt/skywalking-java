@@ -33,6 +33,9 @@ import org.apache.skywalking.apm.util.StringUtil;
 
 /**
  * Correlation context, use to propagation user custom data.
+ * <pre>
+ * (关联上下文，用于传播用户自定义数据。)
+ * </pre>
  */
 public class CorrelationContext {
 
@@ -41,6 +44,7 @@ public class CorrelationContext {
     private static final List<String> AUTO_TAG_KEYS;
 
     static {
+        // 当 AUTO_TAG_KEYS 的键存在时，在相关上下文中按 键/值 标记 span。
         if (StringUtil.isNotEmpty(Config.Correlation.AUTO_TAG_KEYS)) {
             AUTO_TAG_KEYS = Arrays.asList(Config.Correlation.AUTO_TAG_KEYS.split(","));
         } else {
@@ -168,6 +172,11 @@ public class CorrelationContext {
      * Process the active span
      *
      * 1. Inject the tags with auto-tag flag into the span
+     *
+     * <pre>
+     * (处理active span
+     *  1. 将带有 AUTO_TAG_KEYS 的 标记 注入到 span 中)
+     * </pre>
      */
     void handle(AbstractSpan span) {
         AUTO_TAG_KEYS.forEach(key -> this.get(key).ifPresent(val -> span.tag(new StringTag(key), val)));
