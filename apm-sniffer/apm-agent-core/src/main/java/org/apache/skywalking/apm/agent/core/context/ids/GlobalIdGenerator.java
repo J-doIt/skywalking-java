@@ -22,6 +22,7 @@ import java.util.UUID;
 
 import org.apache.skywalking.apm.util.StringUtil;
 
+/** 全局 ID 生成器 */
 public final class GlobalIdGenerator {
     private static final String PROCESS_ID = UUID.randomUUID().toString().replaceAll("-", "");
     private static final ThreadLocal<IDContext> THREAD_ID_SEQUENCE = ThreadLocal.withInitial(
@@ -40,6 +41,17 @@ public final class GlobalIdGenerator {
      * The third one also has two parts, 1) a timestamp, measured in milliseconds 2) a seq, in current thread, between
      * 0(included) and 9999(included)
      *
+     * <pre>
+     * (生成一个新 ID，由三个部分组合。
+     *      第一个 ID 表示：应用程序实例 ID。
+     *      第二个 ID 表示：线程 ID。
+     *      第三个也包含两个部分，
+     *          1） 时间戳，以毫秒为单位
+     *          2） 一个 seq，在当前线程中，介于 0（包含）和 9999（包含）之间
+     * 返回：
+     * 用于表示跟踪或区段的唯一 ID)
+     * </pre>
+     *
      * @return unique id to represent a trace or segment
      */
     public static String generate() {
@@ -55,7 +67,7 @@ public final class GlobalIdGenerator {
         private long lastTimestamp;
         private short threadSeq;
 
-        // Just for considering time-shift-back only.
+        // Just for considering time-shift-back only.（仅用于考虑时间倒移。）
         private long lastShiftTimestamp;
         private int lastShiftValue;
 

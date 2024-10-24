@@ -38,6 +38,7 @@ import org.apache.skywalking.apm.util.StringUtil;
 @DefaultImplementor
 public class ContextManagerExtendService implements BootService, GRPCChannelListener {
 
+    /** 如果第一个span的操作名称包含在此集合中，则该 span 应被忽略。 */
     private volatile Set ignoreSuffixSet;
 
     private volatile GRPCChannelStatus status = GRPCChannelStatus.DISCONNECT;
@@ -48,6 +49,8 @@ public class ContextManagerExtendService implements BootService, GRPCChannelList
 
     @Override
     public void prepare() {
+        // 将 this 加入到 GRPCChannelManager 的 GRPCChannelListener 中，
+             // 方便 this.statusChanged 收到通知后更新 this.status
         ServiceManager.INSTANCE.findService(GRPCChannelManager.class).addChannelListener(this);
     }
 
@@ -79,19 +82,24 @@ public class ContextManagerExtendService implements BootService, GRPCChannelList
         AbstractTracerContext context;
         /*
          * Don't trace anything if the backend is not available.
+         * (如果后端不可用（status 为 DISCONNECT），则不要跟踪任何内容。)
          */
         if (!Config.Agent.KEEP_TRACING && GRPCChannelStatus.DISCONNECT.equals(status)) {
             return new IgnoredTracerContext();
         }
 
+        // 根据操作名后缀判断是否是忽略的操作，创建 IgnoredTracerContext 对象
         int suffixIdx = operationName.lastIndexOf(".");
         if (suffixIdx > -1 && ignoreSuffixSet.contains(operationName.substring(suffixIdx))) {
             context = new IgnoredTracerContext();
         } else {
             SamplingService samplingService = ServiceManager.INSTANCE.findService(SamplingService.class);
+            // 强制收集 || 者需要收集
             if (forceSampling || samplingService.trySampling(operationName)) {
+                // 创建 TracingContext 对象
                 context = new TracingContext(operationName, spanLimitWatcher);
             } else {
+                // 无需收集，创建 IgnoredTracerContext
                 context = new IgnoredTracerContext();
             }
         }

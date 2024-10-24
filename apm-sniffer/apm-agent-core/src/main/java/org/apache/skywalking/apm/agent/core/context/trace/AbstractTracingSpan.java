@@ -147,10 +147,15 @@ public abstract class AbstractTracingSpan implements AbstractSpan {
      * Finish the active Span. When it is finished, it will be archived by the given {@link TraceSegment}, which owners
      * it.
      *
+     * <pre>
+     * (完成 active Span。当它完成时，它将被给定的 TraceSegment（它的所有者）存档。)
+     * </pre>
+     *
      * @param owner of the Span.
      */
     public boolean finish(TraceSegment owner) {
         this.endTime = System.currentTimeMillis();
+        // 完成 该 span 后，将 该 span 归档到 所属的 TraceSegment 的 队列中。（方便后续 TraceSegment 转换为 protobuf 进行传播）
         owner.archive(this);
         return true;
     }

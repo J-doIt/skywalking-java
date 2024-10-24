@@ -73,12 +73,13 @@ public class ConsumerThread<T> extends Thread {
 
     private boolean consume(List<T> consumeList) {
         for (DataSource dataSource : dataSources) {
+            // 将 this.dataSources 中的 data 都加入到 consumeList
             dataSource.obtain(consumeList);
         }
 
         if (!consumeList.isEmpty()) {
             try {
-                //
+                // 消费
                 consumer.consume(consumeList);
             } catch (Throwable t) {
                 consumer.onError(consumeList, t);

@@ -26,6 +26,9 @@ import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 public interface AbstractTracerContext {
     /**
      * Prepare for the cross-process propagation. How to initialize the carrier, depends on the implementation.
+     * <pre>
+     * (准备跨进程传播 。)
+     * </pre>
      *
      * @param carrier to carry the context for crossing process.
      */
@@ -34,6 +37,9 @@ public interface AbstractTracerContext {
     /**
      * Build the reference between this segment and a cross-process segment. How to build, depends on the
      * implementation.
+     * <pre>
+     * (在 此segment 和 跨进程segment 之间构建 reference 。)
+     * </pre>
      *
      * @param carrier carried the context from a cross-process segment.
      */
@@ -42,6 +48,9 @@ public interface AbstractTracerContext {
     /**
      * Capture a snapshot for cross-thread propagation. It's a similar concept with ActiveSpan.Continuation in
      * OpenTracing-java How to build, depends on the implementation.
+     * <pre>
+     * (捕获用于跨线程传播的 snapshot 。这与 OpenTracing-java 中的 ActiveSpan.Continuation 的概念类似。)
+     * </pre>
      *
      * @return the {@link ContextSnapshot} , which includes the reference context.
      */
@@ -51,12 +60,20 @@ public interface AbstractTracerContext {
      * Build the reference between this segment and a cross-thread segment. How to build, depends on the
      * implementation.
      *
+     * <pre>
+     * (构建 引用（reference），在 该 segment 和 一个 跨线程segment 之间。)
+     * 在子线程中关联父进程快照需要使用该方法。
+     * </pre>
+     *
      * @param snapshot from {@link #capture()} in the parent thread.
      */
     void continued(ContextSnapshot snapshot);
 
     /**
      * Get the global trace id, if needEnhance. How to build, depends on the implementation.
+     * <pre>
+     * (如果需要增强，获取全局跟踪id。)
+     * </pre>
      *
      * @return the string represents the id.
      */
@@ -110,6 +127,10 @@ public interface AbstractTracerContext {
     /**
      * Finish the given span, and the given span should be the active span of current tracing context(stack)
      *
+     * <pre>
+     * (完成给定的 span ，并且给定的 span 应该是当前跟踪上下文（stack）的 active span 。)
+     * </pre>
+     *
      * @param span to finish
      * @return true when context should be clear.
      */
@@ -117,6 +138,9 @@ public interface AbstractTracerContext {
 
     /**
      * Notify this context, current span is going to be finished async in another thread.
+     * <pre>
+     * (通知此上下文，当前 span 将在另一个线程中异步完成。)
+     * </pre>
      *
      * @return The current context
      */
@@ -124,6 +148,9 @@ public interface AbstractTracerContext {
 
     /**
      * The given span could be stopped officially.
+     * <pre>
+     * (给定的 span 可以正式停止。)
+     * </pre>
      *
      * @param span to be stopped.
      */

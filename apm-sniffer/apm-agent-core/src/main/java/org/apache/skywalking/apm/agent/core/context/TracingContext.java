@@ -69,6 +69,9 @@ public class TracingContext implements AbstractTracerContext {
 
     /**
      * The final {@link TraceSegment}, which includes all finished spans.
+     * <pre>
+     * (最后的 TraceSegment，其中包括所有已完成的 span。)
+     * </pre>
      */
     private TraceSegment segment;
 
@@ -76,6 +79,11 @@ public class TracingContext implements AbstractTracerContext {
      * Active spans stored in a Stack, usually called 'ActiveSpanStack'. This {@link LinkedList} is the in-memory
      * storage-structure. <p> I use {@link LinkedList#removeLast()}, {@link LinkedList#addLast(Object)} and {@link
      * LinkedList#getLast()} instead of {@link #pop()}, {@link #push(AbstractSpan)}, {@link #peek()}
+     *
+     * <pre>
+     * (活动的spans 存储在堆栈中，通常称为“ActiveSpanStack”。这个 LinkedList 是内存中的存储结构。
+     * 我用 LinkedList.removeLast()、LinkedList.addLast(Object) 和 LinkedList.getLast() 代替 pop(), push(AbstractSpan), peek() )
+     * </pre>
      */
     private LinkedList<AbstractSpan> activeSpanStack = new LinkedList<>();
 
@@ -86,6 +94,9 @@ public class TracingContext implements AbstractTracerContext {
 
     /**
      * A counter for the next span.
+     * <pre>
+     * (下一个 span 的计数器。)
+     * </pre>
      */
     private int spanIdGenerator;
 
@@ -107,8 +118,10 @@ public class TracingContext implements AbstractTracerContext {
      * profile status
      */
     private final ProfileStatusContext profileStatus;
+    /** 关联上下文 */
     @Getter(AccessLevel.PACKAGE)
     private final CorrelationContext correlationContext;
+    /** 扩展上下文 */
     @Getter(AccessLevel.PACKAGE)
     private final ExtensionContext extensionContext;
 
@@ -117,6 +130,11 @@ public class TracingContext implements AbstractTracerContext {
 
     /**
      * Initialize all fields with default value.
+     * <pre>
+     * (使用默认值初始化所有字段。)
+     * </pre>
+     *
+     * @param spanLimitWatcher Span数目限制观察者
      */
     TracingContext(String firstOPName, SpanLimitWatcher spanLimitWatcher) {
         this.segment = new TraceSegment();
@@ -126,9 +144,11 @@ public class TracingContext implements AbstractTracerContext {
         running = true;
 
         // profiling status
+        // 性能分析执行器服务
         if (PROFILE_TASK_EXECUTION_SERVICE == null) {
             PROFILE_TASK_EXECUTION_SERVICE = ServiceManager.INSTANCE.findService(ProfileTaskExecutionService.class);
         }
+        // 开始 当前TracingContext 的性能分析？
         this.profileStatus = PROFILE_TASK_EXECUTION_SERVICE.addProfiling(
             this, segment.getTraceSegmentId(), firstOPName);
 
@@ -139,6 +159,9 @@ public class TracingContext implements AbstractTracerContext {
 
     /**
      * Inject the context into the given carrier, only when the active span is an exit one.
+     * <pre>
+     * (仅当 active span 是 exit 时，才将 context 注入 给定的 carrier。)
+     * </pre>
      *
      * @param carrier to carry the context for crossing process.
      * @throws IllegalStateException if (1) the active span isn't an exit one. (2) doesn't include peer. Ref to {@link
@@ -146,6 +169,7 @@ public class TracingContext implements AbstractTracerContext {
      */
     @Override
     public void inject(ContextCarrier carrier) {
+        // 将当前 active span 注入到 carrier
         this.inject(this.activeSpan(), carrier);
     }
 
@@ -154,67 +178,93 @@ public class TracingContext implements AbstractTracerContext {
      * wouldn't be opened in {@link ContextManager} like {@link #inject(ContextCarrier)}, it is only supported to be
      * called inside the {@link ExitTypeSpan#inject(ContextCarrier)}
      *
+     * <pre>
+     * (将 上下文 注入到 给定的载体 和 给定的Span 中，仅当活动的 Span 是出口 Span 时才执行此操作。
+     *  这个方法不会在 {@link ContextManager} 中开放，类似于 {@link #inject(ContextCarrier)}，
+     *  它只支持在 {@link ExitTypeSpan#inject(ContextCarrier)} 内部调用。)
+     * </pre>
+     *
      * @param carrier  to carry the context for crossing process.
      * @param exitSpan to represent the scope of current injection.
      * @throws IllegalStateException if (1) the span isn't an exit one. (2) doesn't include peer.
      */
     public void inject(AbstractSpan exitSpan, ContextCarrier carrier) {
+        // 检查给定的 Span 是否是出口 Span
         if (!exitSpan.isExit()) {
             throw new IllegalStateException("Inject can be done only in Exit Span");
         }
 
+        // 将给定的 Span 转换为 ExitTypeSpan
         ExitTypeSpan spanWithPeer = (ExitTypeSpan) exitSpan;
+        // 检查 对端信息 是否为空
         String peer = spanWithPeer.getPeer();
         if (StringUtil.isEmpty(peer)) {
             throw new IllegalStateException("Exit span doesn't include meaningful peer information.");
         }
 
+        // 为 carrier 的属性设置值（方便后续 carrier 的序列化（carrier.item 中进行））
         carrier.setTraceId(getReadablePrimaryTraceId());
         carrier.setTraceSegmentId(this.segment.getTraceSegmentId());
         carrier.setSpanId(exitSpan.getSpanId());
         carrier.setParentService(Config.Agent.SERVICE_NAME);
         carrier.setParentServiceInstance(Config.Agent.INSTANCE_NAME);
         carrier.setParentEndpoint(primaryEndpoint.getName());
-        carrier.setAddressUsedAtClient(peer);
+        carrier.setAddressUsedAtClient(peer); // 设置客户端使用的地址
 
+        // 将 关联上下文 注入到 载体 中
         this.correlationContext.inject(carrier);
+        // 将 扩展上下文 注入到 载体 中
         this.extensionContext.inject(carrier);
     }
 
     /**
      * Extract the carrier to build the reference for the pre segment.
+     * <pre>
+     * (提取 carrier 以构建 pre segment 的引用。)
+     * </pre>
      *
      * @param carrier carried the context from a cross-process segment. Ref to {@link AbstractTracerContext#extract(ContextCarrier)}
      */
     @Override
     public void extract(ContextCarrier carrier) {
+        // 从 ContextCarrier 中提取追踪信息，并创建一个 TraceSegmentRef 对象
         TraceSegmentRef ref = new TraceSegmentRef(carrier);
+        // 将提取的 引用信息 添加到当前的 TraceSegment 中
         this.segment.ref(ref);
+        // 将全局追踪 ID 添加到当前的 TraceSegment 中
         this.segment.relatedGlobalTrace(new PropagatedTraceId(carrier.getTraceId()));
+        // 获取当前活动的 Span
         AbstractSpan span = this.activeSpan();
+        // 如果当前活动的 Span 是 EntrySpan，则将提取的引用信息添加到该 Span 中
         if (span instanceof EntrySpan) {
             span.ref(ref);
         }
 
+        // 从 ContextCarrier 中提取 扩展信息 并添加到当前 TracingContext 中
         carrier.extractExtensionTo(this);
+        // 从 ContextCarrier 中提取 关联信息 并添加到当前 TracingContext 中
         carrier.extractCorrelationTo(this);
     }
 
     /**
      * Capture the snapshot of current context.
+     * <pre>
+     * (捕获当前上下文的快照。)
+     * </pre>
      *
      * @return the snapshot of context for cross-thread propagation Ref to {@link AbstractTracerContext#capture()}
      */
     @Override
     public ContextSnapshot capture() {
+        // 创建一个 ContextSnapshot 对象
         ContextSnapshot snapshot = new ContextSnapshot(
-            segment.getTraceSegmentId(),
-            activeSpan().getSpanId(),
-            getPrimaryTraceId(),
-            primaryEndpoint.getName(),
-            this.correlationContext,
-            this.extensionContext,
-            this.profileStatus
+            segment.getTraceSegmentId(),  // 当前 TraceSegment 的 ID
+            activeSpan().getSpanId(),     // 当前活动 Span 的 ID
+            getPrimaryTraceId(),          // 主 Trace ID
+            primaryEndpoint.getName(),    // 主端点名称
+            this.correlationContext,      // 关联上下文
+            this.extensionContext,        // 扩展上下文
+            this.profileStatus            // 采样状态
         );
 
         return snapshot;
@@ -222,20 +272,33 @@ public class TracingContext implements AbstractTracerContext {
 
     /**
      * Continue the context from the given snapshot of parent thread.
+     * <pre>
+     * (从给定的 父线程快照 中 继续 上下文。)
+     * </pre>
      *
      * @param snapshot from {@link #capture()} in the parent thread. Ref to {@link AbstractTracerContext#continued(ContextSnapshot)}
      */
     @Override
     public void continued(ContextSnapshot snapshot) {
+        // 检查快照是否有效
         if (snapshot.isValid()) {
+            // 从快照中创建一个 TraceSegmentRef 对象
             TraceSegmentRef segmentRef = new TraceSegmentRef(snapshot);
+            // 将 引用信息 添加到 当前的 TraceSegment 中
             this.segment.ref(segmentRef);
+            // 将 引用信息 添加到 当前活动的 Span 中
             this.activeSpan().ref(segmentRef);
+            // 将 全局追踪ID 添加到当前的 TraceSegment 中
             this.segment.relatedGlobalTrace(snapshot.getTraceId());
+            // 从 快照 中 继续 关联上下文
             this.correlationContext.continued(snapshot);
+            // 从 快照 中 继续 扩展上下文
             this.extensionContext.continued(snapshot);
+            // 处理 当前活动的 Span
             this.extensionContext.handle(this.activeSpan());
+            // 如果 采样状态 可以从快照中继续
             if (this.profileStatus.continued(snapshot)) {
+                // 继续采样任务
                 PROFILE_TASK_EXECUTION_SERVICE.continueProfiling(this, this.segment.getTraceSegmentId());
             }
         }
@@ -271,29 +334,44 @@ public class TracingContext implements AbstractTracerContext {
      */
     @Override
     public AbstractSpan createEntrySpan(final String operationName) {
+        // 如果限流机制正在工作，则创建一个 NoopSpan 并返回 QFTODO
         if (isLimitMechanismWorking()) {
             NoopSpan span = new NoopSpan();
             return push(span);
         }
         AbstractSpan entrySpan;
         TracingContext owner = this;
+
+        // 获取当前栈顶的 Span
         final AbstractSpan parentSpan = peek();
         final int parentSpanId = parentSpan == null ? -1 : parentSpan.getSpanId();
+
+        // 如果父 Span 存在，且是入口 Span
         if (parentSpan != null && parentSpan.isEntry()) {
-            /*
+            /**
              * Only add the profiling recheck on creating entry span,
              * as the operation name could be overrided.
+             * （仅在创建入口 Span 时添加性能分析重新检查，因为操作名称可能会被覆盖。）
              */
+            // 性能分析重新检查
             profilingRecheck(parentSpan, operationName);
+            // 设置操作名称
             parentSpan.setOperationName(operationName);
+            // 使用父 Span 作为入口 Span
             entrySpan = parentSpan;
+            // 启动并返回入口 Span
             return entrySpan.start();
         } else {
+            // 创建一个新的 EntrySpan
             entrySpan = new EntrySpan(
-                spanIdGenerator++, parentSpanId,
-                operationName, owner
+                spanIdGenerator++, // 生成新的 Span ID
+                parentSpanId, // 父 Span ID
+                operationName, // 操作名称
+                owner // 当前 TracingContext
             );
+            // 启动新创建的 EntrySpan
             entrySpan.start();
+            // 将新创建的 EntrySpan 推入栈中并返回
             return push(entrySpan);
         }
     }
@@ -373,16 +451,19 @@ public class TracingContext implements AbstractTracerContext {
         if (lastSpan == span) {
             if (lastSpan instanceof AbstractTracingSpan) {
                 AbstractTracingSpan toFinishSpan = (AbstractTracingSpan) lastSpan;
+                // 结束 last span，将 该 span 加入到 当前的 TraceSegment，并从 TracingContext 的栈中弹出
                 if (toFinishSpan.finish(segment)) {
                     pop();
                 }
             } else {
+                // 如果不是 AbstractTracingSpan 类型的 span，则直接弹出
                 pop();
             }
         } else {
             throw new IllegalStateException("Stopping the unexpected span = " + span);
         }
 
+        // 结束 segment（segment#finish），并通知 TracingThreadListener 和 TracingContextListener，当前上下文结束。
         finish();
 
         return activeSpanStack.isEmpty();
@@ -445,6 +526,9 @@ public class TracingContext implements AbstractTracerContext {
     /**
      * Finish this context, and notify all {@link TracingContextListener}s, managed by {@link
      * TracingContext.ListenerManager} and {@link TracingContext.TracingThreadListenerManager}
+     * <pre>
+     * (完成此上下文，并通知所有由 ListenerManager 和 TracingThreadListenerManager 管理的 TracingContextListeners)
+     * </pre>
      */
     private void finish() {
         if (isRunningInAsyncMode) {
@@ -453,14 +537,15 @@ public class TracingContext implements AbstractTracerContext {
         try {
             boolean isFinishedInMainThread = activeSpanStack.isEmpty() && running;
             if (isFinishedInMainThread) {
-                /*
-                 * Notify after tracing finished in the main thread.
-                 */
+                // Notify after tracing finished in the main thread.
+                // 通知 TracingThreadListener
                 TracingThreadListenerManager.notifyFinish(this);
             }
 
             if (isFinishedInMainThread && (!isRunningInAsyncMode || asyncSpanCounter == 0)) {
+                // 结束 segment
                 TraceSegment finishedSegment = segment.finish(isLimitMechanismWorking());
+                // 通知 TracingContextListener（方便 TraceSegmentServiceClient.afterFinished 发送 TraceSegment 到 OAP）
                 TracingContext.ListenerManager.notifyFinish(finishedSegment);
                 running = false;
             }
@@ -474,6 +559,9 @@ public class TracingContext implements AbstractTracerContext {
     /**
      * The <code>ListenerManager</code> represents an event notify for every registered listener, which are notified
      * when the <code>TracingContext</code> finished, and {@link #segment} is ready for further process.
+     * <pre>
+     * (ListenerManager 表示每个注册侦听器的事件通知，当 TracingContext 完成并且segment准备好进行进一步处理时，将通知侦听器。)
+     * </pre>
      */
     public static class ListenerManager {
         private static List<TracingContextListener> LISTENERS = new LinkedList<>();

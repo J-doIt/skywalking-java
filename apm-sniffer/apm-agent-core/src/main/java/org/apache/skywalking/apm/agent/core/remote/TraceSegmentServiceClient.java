@@ -143,7 +143,7 @@ public class TraceSegmentServiceClient implements BootService, IConsumer<TraceSe
             try {
                 // 遍历待发送的 TraceSegment 列表
                 for (TraceSegment segment : data) {
-                    // 将每个 TraceSegment 转换为 SegmentObject，准备发送
+                    // transform()：将每个 TraceSegment 转换为 SegmentObject，准备发送
                     SegmentObject upstreamSegment = segment.transform();
                     // 使用 StreamObserver 发送转换后的 SegmentObject 到 Collector
                     upstreamSegmentStreamObserver.onNext(upstreamSegment);
@@ -192,12 +192,16 @@ public class TraceSegmentServiceClient implements BootService, IConsumer<TraceSe
 
     }
 
+    /**
+     * TracingContext.stopSpan() -> TracingContext.finish() -> 循环 TracingContextListener.afterFinished()
+     * @param traceSegment
+     */
     @Override
     public void afterFinished(TraceSegment traceSegment) {
         if (traceSegment.isIgnore()) {
             return;
         }
-        // 生产消息
+        // 生产消息（为 IConsumer 提供要消费的 TraceSegment （ 也就是 this.consume() ））
         if (!carrier.produce(traceSegment)) {
             if (LOGGER.isDebugEnable()) {
                 LOGGER.debug("One trace segment has been abandoned, cause by buffer is full.");
