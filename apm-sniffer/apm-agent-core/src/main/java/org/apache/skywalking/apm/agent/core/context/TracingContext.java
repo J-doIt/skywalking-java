@@ -466,6 +466,7 @@ public class TracingContext implements AbstractTracerContext {
         // 结束 segment（segment#finish），并通知 TracingThreadListener 和 TracingContextListener，当前上下文结束。
         finish();
 
+        // 如果 activeSpanStack 为空，则返回 true，（为 CONTEXT  和 RUNTIME_CONTEXT 的 remove 做准备）
         return activeSpanStack.isEmpty();
     }
 
