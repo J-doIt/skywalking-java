@@ -284,7 +284,9 @@ public class ContextManager implements BootService {
     }
 
     private static void stopSpan(AbstractSpan span, final AbstractTracerContext context) {
+        // 停止 span，该span 出栈后，若 activeSpanStack 为空，则返回 true
         if (context.stopSpan(span)) {
+            // 若 activeSpanStack 为空，移除 线程变量 CONTEXT 和 RUNTIME_CONTEXT。
             CONTEXT.remove();
             RUNTIME_CONTEXT.remove();
         }
