@@ -21,5 +21,11 @@ package org.apache.skywalking.apm.agent.core.context;
 import org.apache.skywalking.apm.agent.core.context.trace.TraceSegment;
 
 public interface TracingContextListener {
+    /**
+     * 调用 TracingContext.finish() 的时候，调用该方法，
+     *      以实现 向 SW 消息队列（DataCarrier） 的 生产（produce）数据
+     *
+     * @param traceSegment 向 DataCarrier 生产的数据
+     */
     void afterFinished(TraceSegment traceSegment);
 }

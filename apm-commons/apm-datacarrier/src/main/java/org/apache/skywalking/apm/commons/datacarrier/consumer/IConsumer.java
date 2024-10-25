@@ -21,6 +21,10 @@ package org.apache.skywalking.apm.commons.datacarrier.consumer;
 import java.util.List;
 import java.util.Properties;
 
+/**
+ * SW 消息队列 的消费接口
+ * @param <T> 消费的数据类型
+ */
 public interface IConsumer<T> {
     void init(final Properties properties);
 

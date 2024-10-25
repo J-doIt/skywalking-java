@@ -48,11 +48,17 @@ import static org.apache.skywalking.apm.agent.core.remote.GRPCChannelStatus.CONN
 public class TraceSegmentServiceClient implements BootService, IConsumer<TraceSegment>, TracingContextListener, GRPCChannelListener {
     private static final ILog LOGGER = LogManager.getLogger(TraceSegmentServiceClient.class);
 
+    /** 上次记录 this.consume() 的执行时间 */
     private long lastLogTime;
+    /** 发送到OAP 的 Segment 计数器 */
     private long segmentUplinkedCounter;
+    /** 被丢弃的 Segment 计数器 */
     private long segmentAbandonedCounter;
+    /** 生产/消费 TraceSegment 的 消息队列 */
     private volatile DataCarrier<TraceSegment> carrier;
+    /** TraceSegmentReportService grpc 远程调用服务 */
     private volatile TraceSegmentReportServiceGrpc.TraceSegmentReportServiceStub serviceStub;
+    /** grpc 通道的连接状态 */
     private volatile GRPCChannelStatus status = GRPCChannelStatus.DISCONNECT;
 
     @Override
@@ -82,7 +88,9 @@ public class TraceSegmentServiceClient implements BootService, IConsumer<TraceSe
 
     @Override
     public void shutdown() {
+        // 将 this（TracingContext Listener）从 TracingContext.ListenerManager 移除
         TracingContext.ListenerManager.remove(this);
+        // 结束 DataCarrier 消费
         carrier.shutdownConsumers();
     }
 
@@ -108,7 +116,8 @@ public class TraceSegmentServiceClient implements BootService, IConsumer<TraceSe
                 @Override
                 public void onNext(Commands commands) {
                     ServiceManager.INSTANCE.findService(CommandService.class)
-                                           .receiveCommand(commands); // 将收到的 Commands 传递给 CommandService 进行处理
+                                            /* 将收到的 Commands 传递给 CommandService 进行处理 */
+                                           .receiveCommand(commands);
                 }
 
                 /**
@@ -136,7 +145,8 @@ public class TraceSegmentServiceClient implements BootService, IConsumer<TraceSe
                  */
                 @Override
                 public void onCompleted() {
-                    status.finished(); // 标记流为已完成
+                    /* 标记流为已完成 */
+                    status.finished();
                 }
             });
 
@@ -163,11 +173,13 @@ public class TraceSegmentServiceClient implements BootService, IConsumer<TraceSe
             segmentAbandonedCounter += data.size();
         }
 
+        // 执行完 consume 打印一次 Uplink 状态
         printUplinkStatus();
     }
 
     private void printUplinkStatus() {
         long currentTimeMillis = System.currentTimeMillis();
+        // 30s 内不重复 打印日志
         if (currentTimeMillis - lastLogTime > 30 * 1000) {
             lastLogTime = currentTimeMillis;
             if (segmentUplinkedCounter > 0) {
@@ -209,11 +221,15 @@ public class TraceSegmentServiceClient implements BootService, IConsumer<TraceSe
         }
     }
 
+    /**
+     * GRPC Channel 状态变化的时候调用
+     */
     @Override
     public void statusChanged(GRPCChannelStatus status) {
+        // 如果 status 是 已连接
         if (CONNECTED.equals(status)) {
             Channel channel = ServiceManager.INSTANCE.findService(GRPCChannelManager.class).getChannel();
-            //
+            // 创建 新的 grpc stub（TraceSegmentReport grpc 调用 服务）
             serviceStub = TraceSegmentReportServiceGrpc.newStub(channel);
         }
         this.status = status;

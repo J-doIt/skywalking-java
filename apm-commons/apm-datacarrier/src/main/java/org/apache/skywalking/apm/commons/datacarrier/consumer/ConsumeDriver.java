@@ -53,7 +53,7 @@ public class ConsumeDriver<T> implements IDriver {
 
     public ConsumeDriver(String name, Channels<T> channels, IConsumer<T> prototype, int num, long consumeCycle) {
         this(channels, num);
-        //
+        // 初始化 IConsumer 的实现类
         prototype.init(new Properties());
         for (int i = 0; i < num; i++) {
             consumerThreads[i] = new ConsumerThread(
