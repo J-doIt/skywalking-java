@@ -83,6 +83,9 @@ public class Config {
         /**
          * Negative or zero means off, by default. {@code #SAMPLE_N_PER_3_SECS} means sampling N {@link TraceSegment} in
          * 3 seconds tops.
+         * <pre>
+         * (默认情况下，负数或零表示关闭。#SAMPLE_N_PER_3_SECS 表示在 3秒 内采样 N 个 TraceSegment 。)
+         * </pre>
          */
         public static int SAMPLE_N_PER_3_SECS = -1;
 
