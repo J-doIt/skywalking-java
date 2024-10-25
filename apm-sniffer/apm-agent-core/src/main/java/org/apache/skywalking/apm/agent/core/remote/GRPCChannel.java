@@ -30,28 +30,43 @@ import java.util.List;
 
 public class GRPCChannel {
     /**
-     * origin channel
+     * origin channel（经过 装饰前的通道）
      */
     private final ManagedChannel originChannel;
+    /** 装饰后的通道 */
     private final Channel channelWithDecorators;
 
+    /**
+     * @param host 主机名
+     * @param port 端口
+     * @param channelBuilders SK 定义的 ManagedChannelBuilder 构建器
+     * @param decorators SK 定义的 通道装饰器
+     */
     private GRPCChannel(String host, int port, List<ChannelBuilder> channelBuilders,
                         List<ChannelDecorator> decorators) throws Exception {
+        // 创建 ManagedChannelBuilder，并指定主机和端口
         ManagedChannelBuilder channelBuilder = NettyChannelBuilder.forAddress(host, port);
 
+        // 注册默认的 DNS 解析器提供者
         NameResolverRegistry.getDefaultRegistry().register(new DnsNameResolverProvider());
 
+        // 遍历 ManagedChannelBuilder 构建器列表，应用每个构建器来配置 通道
         for (ChannelBuilder builder : channelBuilders) {
+            // 构建 ManagedChannelBuilder
             channelBuilder = builder.build(channelBuilder);
         }
 
+        // 构建 ManagedChannel
         this.originChannel = channelBuilder.build();
 
         Channel channel = originChannel;
+
+        // 遍历通道装饰器列表，应用每个装饰器来增强通道功能
         for (ChannelDecorator decorator : decorators) {
             channel = decorator.build(channel);
         }
 
+        // 将经过装饰的通道赋值给 channelWithDecorators
         channelWithDecorators = channel;
     }
 

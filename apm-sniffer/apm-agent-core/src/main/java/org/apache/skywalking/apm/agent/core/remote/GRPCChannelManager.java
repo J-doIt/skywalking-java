@@ -61,13 +61,14 @@ public class GRPCChannelManager implements BootService, Runnable {
      * 同一时间，GRPCChannelManager 只连接一个 Collector Agent gRPC Server 节点，并且在 Channel 不因为各种网络问题断开的情况下，持续保持。
      */
     private volatile GRPCChannel managedChannel = null;
-    /** 定时重连 gRPC Server 的定时任务 */
+    /** 定时重连 gRPC Server 的定时任务（this.run() 重连 GRPCChannel） 的结果凭证 */
     private volatile ScheduledFuture<?> connectCheckFuture;
     /**
      * 是否重连。
      * 当 Channel 未连接需要连接，或者 Channel 断开需要重连时，标记 reconnect = true 。后台线程会根据该标识进行连接( 重连 )。
      */
     private volatile boolean reconnect = true;
+    /** 随机获得 this.grpcServers 中的 OAP地址 */
     private final Random random = new Random();
     /**
      * 监听器数组。
@@ -75,8 +76,11 @@ public class GRPCChannelManager implements BootService, Runnable {
      * 从而根据连接状态( org.skywalking.apm.agent.core.remote.GRPCChannelStatus )，实现自定义逻辑。
      */
     private final List<GRPCChannelListener> listeners = Collections.synchronizedList(new LinkedList<>());
+    /** OAP（后端） 地址 列表*/
     private volatile List<String> grpcServers;
+    /** 当前 已选择的 OAP 地址 在 grpcServers 中的 index */
     private volatile int selectedIdx = -1;
+    /** 重连计数（GRPCChannel重新设置时，reconnectCount 也重置为 0 了） */
     private volatile int reconnectCount = 0;
 
     @Override
@@ -86,11 +90,13 @@ public class GRPCChannelManager implements BootService, Runnable {
 
     @Override
     public void boot() {
+        // 检查 配置文件 中的 OAP（后端） 地址
         if (Config.Collector.BACKEND_SERVICE.trim().length() == 0) {
             LOGGER.error("Collector server addresses are not set.");
             LOGGER.error("Agent will not uplink any data.");
             return;
         }
+        // 设置 OAP地址 列表
         grpcServers = Arrays.asList(Config.Collector.BACKEND_SERVICE.split(","));
 
         // 创建定时任务。
@@ -112,9 +118,11 @@ public class GRPCChannelManager implements BootService, Runnable {
 
     @Override
     public void shutdown() {
+        // connectCheckFuture 不为空，则 取消 connectCheckFuture
         if (connectCheckFuture != null) {
             connectCheckFuture.cancel(true);
         }
+        // managedChannel 不为空，则 关闭 managedChannel
         if (managedChannel != null) {
             managedChannel.shutdownNow();
         }
@@ -128,9 +136,10 @@ public class GRPCChannelManager implements BootService, Runnable {
         if (IS_RESOLVE_DNS_PERIODICALLY && reconnect) {
             // 获取 Collector skywalking 追踪接收器服务地址。（）
             grpcServers = Arrays.stream(Config.Collector.BACKEND_SERVICE.split(","))
-                    .filter(StringUtil::isNotBlank)
-                    .map(eachBackendService -> eachBackendService.split(":"))
+                    .filter(StringUtil::isNotBlank) // 过滤掉 空值
+                    .map(eachBackendService -> eachBackendService.split(":")) // 将每个服务地址拆分为域名和端口
                     .filter(domainPortPairs -> {
+                        // 检查 OAP 地址 格式 是否正确
                         if (domainPortPairs.length < 2) {
                             LOGGER.debug("Service address [{}] format error. The expected format is IP:port", domainPortPairs[0]);
                             return false;
@@ -139,16 +148,18 @@ public class GRPCChannelManager implements BootService, Runnable {
                     })
                     .flatMap(domainPortPairs -> {
                         try {
+                            // 解析域名为 IP 地址
                             return Arrays.stream(InetAddress.getAllByName(domainPortPairs[0]))
-                                    .map(InetAddress::getHostAddress)
-                                    .map(ip -> String.format("%s:%s", ip, domainPortPairs[1]));
+                                    .map(InetAddress::getHostAddress) // 获取主机地址
+                                    .map(ip -> String.format("%s:%s", ip, domainPortPairs[1])); // 重新组合 IP 和端口
                         } catch (Throwable t) {
                             LOGGER.error(t, "Failed to resolve {} of backend service.", domainPortPairs[0]);
                         }
+                        // 如果解析失败，返回一个空的 Stream
                         return Stream.empty();
                     })
-                    .distinct()
-                    .collect(Collectors.toList());
+                    .distinct() // 去重
+                    .collect(Collectors.toList()); // 收集结果到列表
         }
 
         // 当 reconnect = true 时，才执行连接( 重连 )
@@ -159,33 +170,43 @@ public class GRPCChannelManager implements BootService, Runnable {
                 try {
                     // 随机获得准备链接的 Collector Agent gRPC Server
                     int index = Math.abs(random.nextInt()) % grpcServers.size();
+                    // 随机选中的 index 非 selectedIdx
                     if (index != selectedIdx) {
+                        // 更新 selectedIdx
                         selectedIdx = index;
 
+                        // 当前的 OAP 地址
                         server = grpcServers.get(index);
                         String[] ipAndPort = server.split(":");
 
+                        // 关闭 当前的 GRPCChannel
                         if (managedChannel != null) {
                             managedChannel.shutdownNow();
                         }
 
-                        // 创建 Channel ，并连接
+                        // 重新创建一个  GRPCChannel ，并连接
                         managedChannel = GRPCChannel.newBuilder(ipAndPort[0], Integer.parseInt(ipAndPort[1]))
                                                     .addManagedChannelBuilder(new StandardChannelBuilder())
                                                     .addManagedChannelBuilder(new TLSChannelBuilder())
                                                     .addChannelDecorator(new AgentIDDecorator())
                                                     .addChannelDecorator(new AuthenticationDecorator())
                                                     .build();
+                        // 重连计数 置为 0
                         reconnectCount = 0;
+                        // 不需要 重连
                         reconnect = false;
-                        // 通知 GRPCChannelListener 连接成功
+                        // 通知 GRPCChannelListener，GRPCChannel 的状态 变为 已连接
                         notify(GRPCChannelStatus.CONNECTED);
                     } else if (managedChannel.isConnected(++reconnectCount > Config.Agent.FORCE_RECONNECTION_PERIOD)) {
                         // Reconnect to the same server is automatically done by GRPC,
                         // therefore we are responsible to check the connectivity and
                         // set the state and notify listeners
+                        // (重新连接到同一服务器由 GRPC 自动完成，因此，我们负责 检查连接，并设置 state，并 通知 listener)
+                        // 重连计数 置为 0
                         reconnectCount = 0;
+                        // 重置 reconnect 为 false
                         reconnect = false;
+                        // 通知 GRPCChannelListener，GRPCChannel 的状态 变为 已连接
                         notify(GRPCChannelStatus.CONNECTED);
                     }
 
@@ -213,13 +234,17 @@ public class GRPCChannelManager implements BootService, Runnable {
     /**
      * If the given exception is triggered by network problem, connect in background.
      * <pre>
+     * （如果给定的异常是由网络问题触发的，请在后台连接。）
      * 监听器通知 Manager ，使用 Channel 时发生的异常。
      * 若是网络异常，则后台进行重连
      * </pre>
      */
     public void reportError(Throwable throwable) {
+        // 如果给定的异常是由网络问题触发的
         if (isNetworkError(throwable)) {
+            // 打开 重连 开关
             reconnect = true;
+            // 通知 GRPCChannelListener，GRPCChannel 的状态 变为 断开
             notify(GRPCChannelStatus.DISCONNECT);
         }
     }
@@ -265,6 +290,7 @@ public class GRPCChannelManager implements BootService, Runnable {
 
     @Override
     public int priority() {
+        // 优先级 设置为 最大
         return Integer.MAX_VALUE;
     }
 }

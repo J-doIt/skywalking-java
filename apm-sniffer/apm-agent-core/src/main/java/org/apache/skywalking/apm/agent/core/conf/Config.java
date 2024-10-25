@@ -132,6 +132,10 @@ public class Config {
         /**
          * Force reconnection period of grpc, based on grpc_channel_check_interval. If count of check grpc channel
          * status more than this number. The channel check will call channel.getState(true) to requestConnection.
+         * <pre>
+         * (grpc 强制重连接周期，基于 grpc_channel_check_interval 。
+         * 如果检查 grpc通道状态的计数 大于 此数。通道检查 将 调用 channel.getState(true) to 请求连接。)
+         * </pre>
          */
         public static long FORCE_RECONNECTION_PERIOD = 1;
 
