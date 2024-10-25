@@ -76,6 +76,8 @@ public class InstMethodsInter {
     @RuntimeType
     public Object intercept(@This Object obj, @AllArguments Object[] allArguments, @SuperCall Callable<?> zuper,
         @Origin Method method) throws Throwable {
+
+        // 确保 obj 是 EnhancedInstance 类型，以便进行 SkyWalking 增强
         EnhancedInstance targetObject = (EnhancedInstance) obj;
 
         // new 方法拦截器执行结果

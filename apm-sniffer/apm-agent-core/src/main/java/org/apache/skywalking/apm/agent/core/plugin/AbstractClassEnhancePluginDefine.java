@@ -57,6 +57,7 @@ public abstract class AbstractClassEnhancePluginDefine {
      * Main entrance of enhancing the class.
      *
      * <pre>
+     * (增强 类 的正门)
      * 设置 net.bytebuddy.dynamic.DynamicType.Builder 对象。
      * 通过该对象，定义如何拦截需要修改的目标 Java 类(方法的 transformClassName 参数)。
      * </pre>
@@ -105,6 +106,7 @@ public abstract class AbstractClassEnhancePluginDefine {
         /* 使用拦截器增强目标类 */
         /**
          * find origin class source code for interceptor
+         * (查找 Interceptor 的源类源代码)
          */
         DynamicType.Builder<?> newClassBuilder = this.enhance(typeDescription, builder, classLoader, context);
 
@@ -117,6 +119,9 @@ public abstract class AbstractClassEnhancePluginDefine {
 
     /**
      * Begin to define how to enhance class. After invoke this method, only means definition is finished.
+     * <pre>
+     * (开始定义如何增强类。调用该方法后，仅表示定义完成。)
+     * </pre>
      *
      * @param typeDescription target class description
      * @param newClassBuilder byte-buddy's builder to manipulate class bytecode.

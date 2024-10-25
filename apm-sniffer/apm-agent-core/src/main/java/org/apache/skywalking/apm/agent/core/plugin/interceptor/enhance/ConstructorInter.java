@@ -71,15 +71,17 @@ public class ConstructorInter {
      * 在构造方法执行完成后进行拦截。
      * </pre>
      *
-     * @param obj          target class instance.
-     * @param allArguments all constructor arguments
+     * @param obj          target class instance.（正在被构造的对象实例）
+     * @param allArguments all constructor arguments（构造函数的所有参数）
      */
     @RuntimeType
     public void intercept(@This Object obj, @AllArguments Object[] allArguments) {
         try {
+            // 确保 obj 是 EnhancedInstance 类型，以便进行 SkyWalking 增强
             EnhancedInstance targetObject = (EnhancedInstance) obj;
 
             // interceptor.onConstruct
+            // 调用 interceptor 的 onConstruct() 处理构造过程
             interceptor.onConstruct(targetObject, allArguments);
         } catch (Throwable t) {
             LOGGER.error("ConstructorInter failure.", t);

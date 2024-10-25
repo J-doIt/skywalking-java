@@ -18,6 +18,9 @@
 
 package org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance;
 
+/**
+ * 给 增强类 添加的 Field 的 类型实现的 EnhancedInstance 接口，用于 set/get 为 增强类 新增的 CONTEXT_ATTR_NAME 字段。
+ */
 public interface EnhancedInstance {
     Object getSkyWalkingDynamicField();
 

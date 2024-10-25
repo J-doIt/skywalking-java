@@ -33,7 +33,10 @@ import java.util.Objects;
 public interface StaticMethodsInterceptPoint {
     /**
      * static methods matcher.
-     * 静态方法匹配器
+     * <pre>
+     * (静态方法匹配器)
+     * ElementMatcher 是 ByteBuddy 中实现高度自定义和复杂匹配逻辑的关键。
+     * </pre>
      *
      * @return matcher instance.
      */

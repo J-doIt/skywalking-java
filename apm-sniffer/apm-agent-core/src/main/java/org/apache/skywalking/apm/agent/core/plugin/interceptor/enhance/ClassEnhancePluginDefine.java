@@ -54,7 +54,9 @@ import static net.bytebuddy.matcher.ElementMatchers.not;
  * instance methods, or both, {@link ClassEnhancePluginDefine} will add a field of {@link Object} type.
  *
  * <pre>
- * ()
+ * (该类控制所有增强操作，包括增强构造函数、实例方法和静态方法。
+ * 所有的增强基于三种类型的拦截点：ConstructorInterceptPoint， InstanceMethodsInterceptPoint 和 StaticMethodsInterceptPoint
+ * 如果插件要增强构造函数，实例方法，或两者都增强，ClassEnhancePluginDefine 将添加一个对象类型字段（{@link #CONTEXT_ATTR_NAME}）。)
  *
  * SkyWalking 类增强插件定义抽象类
  * </pre>
@@ -64,6 +66,9 @@ public abstract class ClassEnhancePluginDefine extends AbstractClassEnhancePlugi
 
     /**
      * Enhance a class to intercept constructors and class instance methods.
+     * <pre>
+     * (增强类以拦截构造函数和类实例方法。)
+     * </pre>
      *
      * @param typeDescription target class description
      * @param newClassBuilder byte-buddy's builder to manipulate class bytecode.
@@ -119,12 +124,18 @@ public abstract class ClassEnhancePluginDefine extends AbstractClassEnhancePlugi
          * 为目标 Java 类**"自动"实现 org.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance 接口。
          * 这样，目标 Java 类就有一个私有变量，拦截器在执行过程中，可以存储状态到该私有变量。QFTODO：
          */
+        // 检查当前类是否已经实现了 EnhancedInstance 接口
         if (!typeDescription.isAssignableTo(EnhancedInstance.class)) {
+            // 检查当前对象是否已经被扩展
             if (!context.isObjectExtended()) {
                 newClassBuilder = newClassBuilder.defineField(
+                    // 在 新类 中定义一个名为 CONTEXT_ATTR_NAME 的字段，类型为 Object，修饰符为 private 和 volatile
                     CONTEXT_ATTR_NAME, Object.class, ACC_PRIVATE | ACC_VOLATILE)
+                                                // 使 增强类（新类） 实现 EnhancedInstance 接口，用于 set/get 新增的 CONTEXT_ATTR_NAME 字段
                                                  .implement(EnhancedInstance.class)
+                                                // 使用 FieldAccessor 拦截器来处理对新增字段的访问
                                                  .intercept(FieldAccessor.ofField(CONTEXT_ATTR_NAME));
+                // 标记当前对象已经完成扩展
                 context.extendObjectCompleted();
             }
         }

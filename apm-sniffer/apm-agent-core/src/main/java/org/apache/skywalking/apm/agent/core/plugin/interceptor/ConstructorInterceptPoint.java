@@ -33,7 +33,10 @@ import java.util.Objects;
 public interface ConstructorInterceptPoint {
     /**
      * Constructor matcher
-     * 构造函数匹配器
+     * <pre>
+     * (构造函数匹配器)
+     * ElementMatcher 是 ByteBuddy 中实现高度自定义和复杂匹配逻辑的关键。
+     * </pre>
      *
      * @return matcher instance.
      */

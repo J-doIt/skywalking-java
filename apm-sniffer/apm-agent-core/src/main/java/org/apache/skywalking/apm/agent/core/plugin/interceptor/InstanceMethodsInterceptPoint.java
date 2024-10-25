@@ -39,7 +39,10 @@ import java.util.Objects;
 public interface InstanceMethodsInterceptPoint {
     /**
      * class instance methods matcher.
-     * 类实例方法匹配器
+     * <pre>
+     * (类实例方法匹配器)
+     * ElementMatcher 是 ByteBuddy 中实现高度自定义和复杂匹配逻辑的关键。
+     * </pre>
      *
      * @return methods matcher
      */

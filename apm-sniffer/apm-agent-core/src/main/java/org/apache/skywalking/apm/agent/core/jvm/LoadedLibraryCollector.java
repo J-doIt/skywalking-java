@@ -37,6 +37,9 @@ import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import org.apache.skywalking.apm.agent.core.util.CollectionUtil;
 import org.apache.skywalking.apm.network.common.v3.KeyStringValuePair;
 
+/**
+ * 加载的库收集器
+ */
 public class LoadedLibraryCollector {
 
     private static final ILog LOGGER = LogManager.getLogger(LoadedLibraryCollector.class);
@@ -56,6 +59,9 @@ public class LoadedLibraryCollector {
 
     /**
      * Build the required JVM information to add to the instance properties
+     * <pre>
+     * (构建所需的 JVM 信息以添加到实例属性)
+     * </pre>
      */
     public static List<KeyStringValuePair> buildJVMInfo() {
         List<KeyStringValuePair> jvmInfo = new ArrayList<>();

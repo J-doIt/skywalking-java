@@ -88,18 +88,31 @@ public class BootstrapInstrumentBoost {
     private static String STATIC_METHOD_V2_DELEGATE_TEMPLATE = "org.apache.skywalking.apm.agent.core.plugin.bootstrap.template.v2.StaticMethodInterV2Template";
     private static String STATIC_METHOD_V2_WITH_OVERRIDE_ARGS_DELEGATE_TEMPLATE = "org.apache.skywalking.apm.agent.core.plugin.bootstrap.template.v2.StaticMethodInterV2WithOverrideArgsTemplate";
 
+    /**
+     * 向引导类加载器注入必要的类，以准备SkyWalking的JRE监控能力。
+     *
+     * @param pluginFinder   用于查找插件的组件，帮助定位和加载必要的插件类。
+     * @param instrumentation JVM的Instrumentation实例，用于类加载和重定义。
+     * @param agentBuilder   ByteBuddy的AgentBuilder实例，用于配置和执行类转换。
+     * @param edgeClasses    用于收集需要开放边缘的类，以便于后续的类加载操作。
+     * @return 返回更新后的AgentBuilder实例，已配置了特定的注入策略。
+     * @throws PluginException 如果在准备JRE插件或注入类时发生错误。
+     */
     public static AgentBuilder inject(PluginFinder pluginFinder, Instrumentation instrumentation,
         AgentBuilder agentBuilder, JDK9ModuleExporter.EdgeClasses edgeClasses) throws PluginException {
         Map<String, byte[]> classesTypeMap = new LinkedHashMap<>();
 
+        // 尝试准备JRE的字节码增强，如果失败则直接返回原始的agentBuilder
         if (!prepareJREInstrumentation(pluginFinder, classesTypeMap)) {
             return agentBuilder;
         }
 
+        // 尝试进一步准备JRE增强的第二阶段，同样失败则直接返回
         if (!prepareJREInstrumentationV2(pluginFinder, classesTypeMap)) {
             return agentBuilder;
         }
 
+        // 加载高优先级的类到类型映射中，这些类将被优先注入
         for (String highPriorityClass : HIGH_PRIORITY_CLASSES) {
             loadHighPriorityClass(classesTypeMap, highPriorityClass);
         }
@@ -117,9 +130,13 @@ public class BootstrapInstrumentBoost {
         /**
          * Inject the classes into bootstrap class loader by using Unsafe Strategy.
          * ByteBuddy adapts the sun.misc.Unsafe and jdk.internal.misc.Unsafe automatically.
+         *
+         * 使用Unsafe策略将类注入到引导类加载器中
          */
         ClassInjector.UsingUnsafe.Factory factory = ClassInjector.UsingUnsafe.Factory.resolve(instrumentation);
         factory.make(null, null).injectRaw(classesTypeMap);
+
+        // 更新agentBuilder，配置使用Unsafe策略进行类注入
         agentBuilder = agentBuilder.with(new AgentBuilder.InjectionStrategy.UsingUnsafe.OfFactory(factory));
 
         return agentBuilder;
