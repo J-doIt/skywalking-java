@@ -25,16 +25,33 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInt
 
 import java.lang.reflect.Method;
 
+/**
+ * <pre>
+ * 增强类 okhttp3.Callback 及其子类
+ * 增强方法：fun onFailure(call: Call, e: IOException)
+ * </pre>
+ */
 public class OnFailureInterceptor implements InstanceMethodsAroundInterceptor {
+
+    /**
+     * @param objInst Callback
+     * @param method fun onFailure(call: Call, e: IOException)
+     * @param allArguments [ Call 实例，IOException 实例]
+     * @param argumentsTypes
+     * @param result change this result, if you want to truncate the method.
+     * @throws Throwable
+     */
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         MethodInterceptResult result) throws Throwable {
+        // 创建 操作名 为 Callback/onFailure 的 local span
         ContextManager.createLocalSpan("Callback/onFailure");
     }
 
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         Object ret) throws Throwable {
+        // stop span
         ContextManager.stopSpan();
         return ret;
     }
@@ -42,6 +59,7 @@ public class OnFailureInterceptor implements InstanceMethodsAroundInterceptor {
     @Override
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Throwable t) {
+        // 设置 active span 的 log 为 Throwable
         ContextManager.activeSpan().log(t);
     }
 }

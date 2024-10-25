@@ -20,6 +20,7 @@ package org.apache.skywalking.apm.plugin.okhttp.v4.define;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
 
 public abstract class AbstractOkhttpInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
+    /** 见证类 okhttp3 的 RealCall */
     public static final String WITHNESS_CLASSES = "okhttp3.internal.connection.RealCall";
 
     @Override

@@ -27,6 +27,15 @@ import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static org.apache.skywalking.apm.agent.core.plugin.match.HierarchyMatch.byHierarchyMatch;
 
+/**
+ * <pre>
+ * 增强类 okhttp3.Callback 及其子类
+ * 增强方法：fun onFailure(call: Call, e: IOException)
+ *      拦截器：OnFailureInterceptor
+ * 增强方法：fun onResponse(call: Call, response: Response)
+ *      拦截器：OnResponseInterceptor
+ * </pre>
+ */
 public class CallbackInstrumentation extends AbstractOkhttpInstrumentation {
     @Override
     public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
@@ -73,6 +82,7 @@ public class CallbackInstrumentation extends AbstractOkhttpInstrumentation {
 
     @Override
     protected ClassMatch enhanceClass() {
+        // 匹配 okhttp3.Callback 及其子类
         return byHierarchyMatch(new String[] {"okhttp3.Callback"});
     }
 }

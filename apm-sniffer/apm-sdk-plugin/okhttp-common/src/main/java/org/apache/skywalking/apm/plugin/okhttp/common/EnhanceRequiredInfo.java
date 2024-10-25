@@ -24,6 +24,11 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedI
 /**
  * {@link EnhanceRequiredInfo} storage the `ContextSnapshot` and `RealCall` instances for support the async function of
  * okhttp client.
+ *
+ * <pre>
+ * (EnhanceRequiredInfo 存储‘ ContextSnapshot ’和‘ RealCall ’实例，以支持 okhttp 客户端的异步功能。)
+ * SW 动态增强的字段的类型
+ * </pre>
  */
 public class EnhanceRequiredInfo {
     private ContextSnapshot contextSnapshot;

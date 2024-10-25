@@ -14,6 +14,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# 增强 RealCall
 okhttp-4.x=org.apache.skywalking.apm.plugin.okhttp.v4.define.RealCallInstrumentation
+# 增强 okhttp3.Callback 及其子类
 okhttp-4.x=org.apache.skywalking.apm.plugin.okhttp.v4.define.CallbackInstrumentation
+# 增强 RealCall$AsyncCall
 okhttp-4.x=org.apache.skywalking.apm.plugin.okhttp.v4.define.AsyncCallInstrumentation

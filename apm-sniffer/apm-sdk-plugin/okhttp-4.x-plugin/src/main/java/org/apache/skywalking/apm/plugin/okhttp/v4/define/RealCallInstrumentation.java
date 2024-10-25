@@ -30,6 +30,19 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsIn
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 import org.apache.skywalking.apm.agent.core.plugin.match.NameMatch;
 
+/**
+ * <pre>
+ * 增强类 RealCall
+ * 增强构造函数：RealCall ( OkHttpClient, Request, forWebSocket:Boolean )，
+ *      拦截器：RealCallInterceptor
+ * 增强方法：fun execute(): Response，
+ *      拦截器：RealCallInterceptor
+ * 增强方法：fun getResponseWithInterceptorChain...(): Response，
+ *      拦截器：CallInterceptor
+ * 增强方法：一个参数的 fun enqueue(responseCallback: Callback)，
+ *      拦截器：EnqueueInterceptor
+ * </pre>
+ */
 public class RealCallInstrumentation extends AbstractOkhttpInstrumentation {
 
     /**

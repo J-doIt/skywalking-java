@@ -28,6 +28,15 @@ import static net.bytebuddy.matcher.ElementMatchers.any;
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
+/**
+ * <pre>
+ * 增强类 RealCall$AsyncCall
+ * 增强构造函数：AsyncCall( responseCallback: Callback ).
+ *      拦截器：AsyncCallInterceptor
+ * 增强方法：fun run()，
+ *      拦截器：AsyncCallInterceptor
+ * </pre>
+ */
 public class AsyncCallInstrumentation extends AbstractOkhttpInstrumentation {
 
     @Override
