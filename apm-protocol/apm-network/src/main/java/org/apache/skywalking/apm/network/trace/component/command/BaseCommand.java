@@ -23,8 +23,11 @@ import org.apache.skywalking.apm.network.common.v3.KeyStringValuePair;
 
 public abstract class BaseCommand {
 
+    /** 命令 */
     private final String command;
+    /** 序号 */
     private final String serialNumber;
+    /** Command.proto */
     private final Command.Builder commandBuilder;
 
     BaseCommand(String command, String serialNumber) {

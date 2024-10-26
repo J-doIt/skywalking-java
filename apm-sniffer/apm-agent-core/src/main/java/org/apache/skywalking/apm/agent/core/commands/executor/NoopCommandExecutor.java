@@ -23,6 +23,9 @@ import org.apache.skywalking.apm.network.trace.component.command.BaseCommand;
 
 /**
  * A dummy executor that does nothing when executing a command
+ * <pre>
+ * (执行命令时不执行任何操作的虚拟执行程序)
+ * </pre>
  */
 public enum NoopCommandExecutor implements CommandExecutor {
     INSTANCE;

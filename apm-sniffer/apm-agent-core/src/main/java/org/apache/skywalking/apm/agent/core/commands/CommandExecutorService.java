@@ -34,9 +34,17 @@ import org.apache.skywalking.apm.network.trace.component.command.ProfileTaskComm
  * and it will routes the command to corresponding executor.
  * <p>
  * Registering command executor for new command in {@link #commandExecutorMap} is required to support new command.
+ *
+ * <pre>
+ * (命令执行器服务，
+ * 就像一个 路由执行器，控制所有命令的执行，负责管理命令和它们的执行器之间的所有映射，
+ * 可以简单地调用 execute(BaseCommand)，它将命令路由到相应的执行器。
+ * 为支持新命令，需要在 commandExecutorMap 中为 新命令 注册 命令执行器。)
+ * </pre>
  */
 @DefaultImplementor
 public class CommandExecutorService implements BootService, CommandExecutor {
+    /** ≤命令，执行器≥ */
     private Map<String, CommandExecutor> commandExecutorMap;
 
     @Override
@@ -44,9 +52,11 @@ public class CommandExecutorService implements BootService, CommandExecutor {
         commandExecutorMap = new HashMap<String, CommandExecutor>();
 
         // Profile task executor
+        // 分析任务命令执行程序
         commandExecutorMap.put(ProfileTaskCommand.NAME, new ProfileTaskCommandExecutor());
 
         //Get ConfigurationDiscoveryCommand executor.
+        // 配置发现命令执行程序
         commandExecutorMap.put(ConfigurationDiscoveryCommand.NAME, new ConfigurationDiscoveryCommandExecutor());
     }
 
@@ -67,6 +77,7 @@ public class CommandExecutorService implements BootService, CommandExecutor {
 
     @Override
     public void execute(final BaseCommand command) throws CommandExecutionException {
+        // 由各自的执行器执行命令
         executorForCommand(command).execute(command);
     }
 

@@ -39,11 +39,15 @@ public class CommandService implements BootService, Runnable {
 
     private static final ILog LOGGER = LogManager.getLogger(CommandService.class);
 
+    /** 运行开关 */
     private volatile boolean isRunning = true;
+    /** this.run 的 执行器 */
     private ExecutorService executorService = Executors.newSingleThreadExecutor(
         new DefaultNamedThreadFactory("CommandService")
     );
+    /** 存放 BaseCommand 的 阻塞队列 */
     private LinkedBlockingQueue<BaseCommand> commands = new LinkedBlockingQueue<>(64);
+    /** 命令序列号缓存 */
     private CommandSerialNumberCache serialNumberCache = new CommandSerialNumberCache();
 
     @Override
@@ -52,6 +56,7 @@ public class CommandService implements BootService, Runnable {
 
     @Override
     public void boot() throws Throwable {
+        // 向 执行器 提交任务（this）
         executorService.submit(
             new RunnableWithExceptionProtection(this, t -> LOGGER.error(t, "CommandService failed to execute commands"))
         );
@@ -59,17 +64,23 @@ public class CommandService implements BootService, Runnable {
 
     @Override
     public void run() {
+        // 从 ServiceManager 获取 CommandExecutorService 服务
         final CommandExecutorService commandExecutorService = ServiceManager.INSTANCE.findService(CommandExecutorService.class);
 
+        // 开关 on 时执行
         while (isRunning) {
             try {
+                // 从队列中获取 BaseCommand
                 BaseCommand command = commands.take();
 
+                // 根据 command 的序号 判断是否已在 缓存，是则 continue。
                 if (isCommandExecuted(command)) {
                     continue;
                 }
 
+                // 将 command 提交 给 commandExecutorService 去执行
                 commandExecutorService.execute(command);
+                // 并将 command 的 序号 加入到 this.serialNumberCache
                 serialNumberCache.add(command.getSerialNumber());
             } catch (CommandExecutionException e) {
                 LOGGER.error(e, "Failed to execute command[{}].", e.command().getCommand());
@@ -79,6 +90,9 @@ public class CommandService implements BootService, Runnable {
         }
     }
 
+    /**
+     * 已被 execute 给执行器的 command
+     */
     private boolean isCommandExecuted(BaseCommand command) {
         return serialNumberCache.contain(command.getSerialNumber());
     }
@@ -90,21 +104,31 @@ public class CommandService implements BootService, Runnable {
 
     @Override
     public void shutdown() throws Throwable {
+        // off
         isRunning = false;
+        // 将队列中的 BaseCommand 移到 新列表
         commands.drainTo(new ArrayList<>());
+        // 关闭 执行器
         executorService.shutdown();
     }
 
+    /**
+     * 接收 Commands
+     * @param commands Commands.proto
+     */
     public void receiveCommand(Commands commands) {
         for (Command command : commands.getCommandsList()) {
             try {
+                // 将 Command.proto 反序列化 为 BaseCommand 对象
                 BaseCommand baseCommand = CommandDeserializer.deserialize(command);
 
+                // 若 baseCommand 已被 execute 给执行器，则 continue
                 if (isCommandExecuted(baseCommand)) {
                     LOGGER.warn("Command[{}] is executed, ignored", baseCommand.getCommand());
                     continue;
                 }
 
+                // 将 baseCommand 入队
                 boolean success = this.commands.offer(baseCommand);
 
                 if (!success && LOGGER.isWarnEnable()) {

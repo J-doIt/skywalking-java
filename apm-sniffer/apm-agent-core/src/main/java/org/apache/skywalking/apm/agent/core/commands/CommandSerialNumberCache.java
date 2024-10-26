@@ -20,6 +20,9 @@ package org.apache.skywalking.apm.agent.core.commands;
 import java.util.Deque;
 import java.util.concurrent.LinkedBlockingDeque;
 
+/**
+ * 命令序列号缓存
+ */
 public class CommandSerialNumberCache {
     private static final int DEFAULT_MAX_CAPACITY = 64;
     private final Deque<String> queue;
@@ -35,6 +38,7 @@ public class CommandSerialNumberCache {
     }
 
     public void add(String number) {
+        // 如果 queue长度 >= 最大容量，弹出 第一个 数据，在加入队列
         if (queue.size() >= maxCapacity) {
             queue.pollFirst();
         }
