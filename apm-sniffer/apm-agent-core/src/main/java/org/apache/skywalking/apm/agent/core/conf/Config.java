@@ -121,6 +121,9 @@ public class Config {
         /**
          * service instance properties in json format. e.g. agent.instance_properties_json = {"org":
          * "apache-skywalking"}
+         * <pre>
+         * (json格式的服务实例属性。eg：agent.instance_properties_json = {"org": "apache-skywalking"})
+         * </pre>
          */
         public static String INSTANCE_PROPERTIES_JSON = "";
 
@@ -197,11 +200,19 @@ public class Config {
         public static long GRPC_CHANNEL_CHECK_INTERVAL = 30;
         /**
          * The period in which the agent report a heartbeat to the backend.
+         * <pre>
+         * (agent 向 后端 报告 心跳检测 的 周期。)
+         * </pre>
          */
         public static long HEARTBEAT_PERIOD = 30;
         /**
          * The agent sends the instance properties to the backend every `collector.heartbeat_period *
          * collector.properties_report_period_factor` seconds
+         * <pre>
+         * (每 collector.heartbeat_period * collector.properties_report_period_factor 秒（心跳周期 * 属性报告周期系数（30 * 10 秒）），
+         *  agent 将 服务实例属性 发送到 后端)
+         * 属性报告周期系数
+         * </pre>
          */
         public static int PROPERTIES_REPORT_PERIOD_FACTOR = 10;
         /**

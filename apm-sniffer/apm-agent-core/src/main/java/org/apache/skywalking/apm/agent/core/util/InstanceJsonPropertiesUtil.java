@@ -31,19 +31,26 @@ import org.apache.skywalking.apm.util.StringUtil;
 public class InstanceJsonPropertiesUtil {
     private static final Gson GSON = new Gson();
 
+    /**
+     * 解析json格式的服务实例属性
+     */
     public static List<KeyStringValuePair> parseProperties() {
         List<KeyStringValuePair> properties = new ArrayList<>();
 
+        // 如果 son格式的服务实例属性 不为空
         if (StringUtil.isNotEmpty(Config.Agent.INSTANCE_PROPERTIES_JSON)) {
+            // 将 json 格式转为 Map<String, String>
             Map<String, String> json = GSON.fromJson(
                 Config.Agent.INSTANCE_PROPERTIES_JSON,
                 new TypeToken<Map<String, String>>() {
                 }.getType()
             );
+            // 将 key-value 加入到 properties
             json.forEach(
                 (key, val) -> properties.add(KeyStringValuePair.newBuilder().setKey(key).setValue(val).build()));
         }
 
+        // 向 properties 存入 namespace、cluster、version 的 key-value
         properties.add(KeyStringValuePair.newBuilder().setKey("namespace").setValue(Config.Agent.NAMESPACE).build());
         properties.add(KeyStringValuePair.newBuilder().setKey("cluster").setValue(Config.Agent.CLUSTER).build());
         properties.add(KeyStringValuePair.newBuilder().setKey("version").setValue(Version.CURRENT.toString()).build());
