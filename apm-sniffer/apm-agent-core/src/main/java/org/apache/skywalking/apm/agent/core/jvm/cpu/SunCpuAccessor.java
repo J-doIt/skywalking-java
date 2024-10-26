@@ -25,6 +25,7 @@ import java.lang.management.ManagementFactory;
  * 基于 SUN 提供的方法，获取 CPU 指标访问器
  */
 public class SunCpuAccessor extends CPUMetricsAccessor {
+    /** com.sun.management.OperatingSystemMXBean */
     private final OperatingSystemMXBean osMBean;
 
     public SunCpuAccessor(int cpuCoreNum) {

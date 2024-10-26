@@ -34,7 +34,9 @@ import org.apache.skywalking.apm.network.language.agent.v3.GC;
 public enum GCProvider {
     INSTANCE;
 
+    /** GC 指标访问器接口 */
     private GCMetricAccessor metricAccessor;
+    /** java.lang.management.GarbageCollectorMXBean */
     private List<GarbageCollectorMXBean> beans;
 
     GCProvider() {

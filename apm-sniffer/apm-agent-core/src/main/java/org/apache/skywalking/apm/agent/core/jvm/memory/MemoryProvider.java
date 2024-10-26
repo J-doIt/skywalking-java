@@ -31,6 +31,7 @@ import org.apache.skywalking.apm.network.language.agent.v3.Memory;
  */
 public enum MemoryProvider {
     INSTANCE;
+    /** java.lang.management.MemoryMXBean */
     private final MemoryMXBean memoryMXBean;
 
     MemoryProvider() {

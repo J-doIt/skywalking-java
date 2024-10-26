@@ -28,6 +28,7 @@ public class G1CollectorModule extends MemoryPoolModule {
 
     @Override
     protected String[] getPermNames() {
+        // G1 GC 的 持久代（永久代） 名（jdk7及之前的）
         return new String[] {
             "G1 Perm Gen",
             "Compressed Class Space"
@@ -36,26 +37,31 @@ public class G1CollectorModule extends MemoryPoolModule {
 
     @Override
     protected String[] getCodeCacheNames() {
+        // G1 GC 的 缓存区 名
         return new String[] {"Code Cache"};
     }
 
     @Override
     protected String[] getEdenNames() {
+        // G1 GC 的 年轻代 中 新生代 的 名
         return new String[] {"G1 Eden Space"};
     }
 
     @Override
     protected String[] getOldNames() {
+        // G1 GC 的 老年代 名
         return new String[] {"G1 Old Gen"};
     }
 
     @Override
     protected String[] getSurvivorNames() {
+        // G1 GC 的 年轻代 中  S1/S2 的名
         return new String[] {"G1 Survivor Space"};
     }
 
     @Override
     protected String[] getMetaspaceNames() {
+        // G1 GC 的 元数据区 名
         return new String[] {"Metaspace"};
     }
 }

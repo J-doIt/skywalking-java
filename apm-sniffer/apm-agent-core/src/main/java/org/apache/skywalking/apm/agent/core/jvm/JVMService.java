@@ -43,23 +43,27 @@ import org.apache.skywalking.apm.util.RunnableWithExceptionProtection;
  * and send the collected info to Collector through the channel provided by {@link GRPCChannelManager}
  *
  * <pre>
+ * (JVMService 代表一个计时器，它收 集JVM cpu、内存、内存池、gc、线程 和 类信息，
+ * 并通过 GRPCChannelManager 提供的 通道 将收集到的信息发送给 Collector)
+ *
  * JVM 指标服务，负责将 JVM 指标收集并发送给 Collector。
  * </pre>
  */
 @DefaultImplementor
 public class JVMService implements BootService, Runnable {
     private static final ILog LOGGER = LogManager.getLogger(JVMService.class);
-    /** 收集指标定时任务 */
+    /** 收集指标定时任务 的 结果凭据 */
     private volatile ScheduledFuture<?> collectMetricFuture;
-    /** 发送指标定时任务 */
+    /** 发送指标定时任务 的 结果凭据 */
     private volatile ScheduledFuture<?> sendMetricFuture;
     /** JVM指标发送器 */
     private JVMMetricsSender sender;
+    /** CPU 使用率百分比 */
     private volatile double cpuUsagePercent;
 
     @Override
     public void prepare() throws Throwable {
-        // 在 BootService 的 prepare 阶段，设置 sender
+        // 在 BootService 的 prepare 阶段，获取 JVMMetricsSender 并设置给 sender
         sender = ServiceManager.INSTANCE.findService(JVMMetricsSender.class);
     }
 
@@ -69,25 +73,25 @@ public class JVMService implements BootService, Runnable {
         collectMetricFuture = Executors.newSingleThreadScheduledExecutor(
             new DefaultNamedThreadFactory("JVMService-produce"))
                                        .scheduleAtFixedRate(new RunnableWithExceptionProtection(
-                                           this,
+                                           this, // 任务
                                            new RunnableWithExceptionProtection.CallbackWhenException() {
                                                @Override
                                                public void handle(Throwable t) {
                                                    LOGGER.error("JVMService produces metrics failure.", t);
                                                }
-                                           }
+                                           } // 失败回调
                                        ), 0, Config.Jvm.METRICS_COLLECT_PERIOD, TimeUnit.SECONDS);
         // 创建 发送指标定时任务
         sendMetricFuture = Executors.newSingleThreadScheduledExecutor(
             new DefaultNamedThreadFactory("JVMService-consume"))
                                     .scheduleAtFixedRate(new RunnableWithExceptionProtection(
-                                        sender,
+                                        sender, // 任务
                                         new RunnableWithExceptionProtection.CallbackWhenException() {
                                             @Override
                                             public void handle(Throwable t) {
                                                 LOGGER.error("JVMService consumes and upload failure.", t);
                                             }
-                                        }
+                                        } // 失败回调
                                     ), 0, 1, TimeUnit.SECONDS);
     }
 
@@ -98,7 +102,9 @@ public class JVMService implements BootService, Runnable {
 
     @Override
     public void shutdown() throws Throwable {
+        // 取消 collectMetricFuture
         collectMetricFuture.cancel(true);
+        // 取消 sendMetricFuture
         sendMetricFuture.cancel(true);
     }
 

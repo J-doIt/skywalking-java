@@ -33,14 +33,18 @@ import org.apache.skywalking.apm.network.common.v3.CPU;
  */
 public enum CPUProvider {
     INSTANCE;
+    /** CPU 指标访问器 */
     private CPUMetricsAccessor cpuMetricsAccessor;
 
     CPUProvider() {
         // 获得 CPU 数量
         int processorNum = ProcessorUtil.getNumberOfProcessors();
-        // 获得 CPU 指标访问器
+        // 获得 CPU 指标访问器（org.apache.skywalking.apm.agent.core.jvm.cpu.SunCpuAccessor）
         try {
             // 创建 SunCpuAccessor 对象
+            // QFTODO：SunCpuAccessor 为什么不直接 new，而是要 通过 classLoad.loadClass 和 反射 的方式？
+            //      SkyWalkingAgent.premain -> ... -> CPUProvider()
+            //              到此，处在 JVM 的哪个阶段？（JavaAgent 机制）
             this.cpuMetricsAccessor = (CPUMetricsAccessor) CPUProvider.class.getClassLoader()
                                                                             .loadClass("org.apache.skywalking.apm.agent.core.jvm.cpu.SunCpuAccessor")
                                                                             .getConstructor(int.class)

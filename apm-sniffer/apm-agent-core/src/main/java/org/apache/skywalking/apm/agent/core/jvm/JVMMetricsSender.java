@@ -45,7 +45,7 @@ public class JVMMetricsSender implements BootService, Runnable, GRPCChannelListe
 
     /** 连接状态 */
     private volatile GRPCChannelStatus status = GRPCChannelStatus.DISCONNECT;
-    /** Stub */
+    /** JVM指标报告服务（GRPC Stub） */
     private volatile JVMMetricReportServiceGrpc.JVMMetricReportServiceBlockingStub stub = null;
 
     /** 收集指标队列 */
@@ -67,6 +67,7 @@ public class JVMMetricsSender implements BootService, Runnable, GRPCChannelListe
     public void offer(JVMMetric metric) {
         // drop last message and re-deliver
         if (!queue.offer(metric)) {
+            // 若 offer 失败，则 丢弃最后一条消息，并重新 offer
             queue.poll();
             queue.offer(metric);
         }
@@ -89,14 +90,15 @@ public class JVMMetricsSender implements BootService, Runnable, GRPCChannelListe
                     builder.addAllMetrics(buffer);
                     builder.setService(Config.Agent.SERVICE_NAME);
                     builder.setServiceInstance(Config.Agent.INSTANCE_NAME);
-                    //
+                    // 设置 stub（grpc） 的截止时间，然后开始 执行 collect，并得到 grpc 返回的 Commands
                     Commands commands = stub.withDeadlineAfter(GRPC_UPSTREAM_TIMEOUT, TimeUnit.SECONDS)
                                             .collect(builder.build());
-                    //
+                    // 将 Commands 交给 CommandService 去执行
                     ServiceManager.INSTANCE.findService(CommandService.class).receiveCommand(commands);
                 }
             } catch (Throwable t) {
                 LOGGER.error(t, "send JVM metrics to Collector fail.");
+                // 发送到 OAP 后端 失败，向 GRPCChannelManager 报告 错误
                 ServiceManager.INSTANCE.findService(GRPCChannelManager.class).reportError(t);
             }
         }
@@ -104,7 +106,7 @@ public class JVMMetricsSender implements BootService, Runnable, GRPCChannelListe
 
     @Override
     public void statusChanged(GRPCChannelStatus status) {
-        // 当连接成功时，创建阻塞 Stub
+        // 当连接成功时，重新 创建 阻塞 的 JVM指标报告服务（GRPC 远程调用服务 Stub）
         if (GRPCChannelStatus.CONNECTED.equals(status)) {
             Channel channel = ServiceManager.INSTANCE.findService(GRPCChannelManager.class).getChannel();
             stub = JVMMetricReportServiceGrpc.newBlockingStub(channel);

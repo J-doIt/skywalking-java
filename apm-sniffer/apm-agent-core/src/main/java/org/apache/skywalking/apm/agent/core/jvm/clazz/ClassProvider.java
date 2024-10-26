@@ -24,6 +24,8 @@ import org.apache.skywalking.apm.network.language.agent.v3.Class;
 
 public enum ClassProvider {
     INSTANCE;
+
+    /** java.lang.management.ClassLoadingMXBean */
     private final ClassLoadingMXBean classLoadingMXBean;
 
     ClassProvider() {

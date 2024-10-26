@@ -28,11 +28,13 @@ public class G1GCModule extends GCModule {
 
     @Override
     protected String getOldGCName() {
+        // G1 GC 老年代 使用的什么 GC
         return "G1 Old Generation";
     }
 
     @Override
     protected String getNewGCName() {
+        // G1 GC 年轻代 使用的什么 GC
         return "G1 Young Generation";
     }
 

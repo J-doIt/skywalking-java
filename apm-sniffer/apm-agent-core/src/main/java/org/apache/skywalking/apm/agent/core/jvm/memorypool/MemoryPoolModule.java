@@ -30,6 +30,7 @@ import org.apache.skywalking.apm.network.language.agent.v3.PoolType;
  * 不同 GC 算法之间，内存区域命名不同，通过如下六个方法抽象，分别对应不同内存区域，形成映射关系，屏蔽差异：
  */
 public abstract class MemoryPoolModule implements MemoryPoolMetricsAccessor {
+    /** java.lang.management.MemoryPoolMXBean */
     private List<MemoryPoolMXBean> beans;
 
     public MemoryPoolModule(List<MemoryPoolMXBean> beans) {

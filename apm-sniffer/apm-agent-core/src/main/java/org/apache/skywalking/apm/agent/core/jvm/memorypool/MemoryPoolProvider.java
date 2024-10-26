@@ -43,7 +43,9 @@ import org.apache.skywalking.apm.network.language.agent.v3.MemoryPool;
 public enum MemoryPoolProvider {
     INSTANCE;
 
+    /** MemoryPool 指标访问器接口 */
     private MemoryPoolMetricsAccessor metricAccessor;
+    /** java.lang.management.MemoryPoolMXBean */
     private List<MemoryPoolMXBean> beans;
 
     MemoryPoolProvider() {
@@ -73,18 +75,23 @@ public enum MemoryPoolProvider {
     private MemoryPoolMetricsAccessor findByBeanName(String name) {
         if (name.indexOf("PS") > -1) {
             //Parallel (Old) collector ( -XX:+UseParallelOldGC )
+            // 并行 GC
             return new ParallelCollectorModule(beans);
         } else if (name.indexOf("CMS") > -1) {
             // CMS collector ( -XX:+UseConcMarkSweepGC )
+            // CMS GC
             return new CMSCollectorModule(beans);
         } else if (name.indexOf("G1") > -1) {
             // G1 collector ( -XX:+UseG1GC )
+            // G1 GC
             return new G1CollectorModule(beans);
         } else if (name.equals("Survivor Space")) {
             // Serial collector ( -XX:+UseSerialGC )
+            // 串行 GC
             return new SerialCollectorModule(beans);
         } else if (name.equals("ZHeap")) {
             // ZGC collector ( -XX:+UseZGC )
+            // ZGC GC
             return new ZGCCollectorModule(beans);
         } else {
             // Unknown

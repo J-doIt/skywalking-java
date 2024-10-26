@@ -30,6 +30,7 @@ import java.util.List;
  * 不同 GC 算法之间，生代命名不同，通过如下两个方法抽象，分别对应两个生代，形成映射关系，屏蔽差异。
  */
 public abstract class GCModule implements GCMetricAccessor {
+    /** java.lang.management.GarbageCollectorMXBean */
     private List<GarbageCollectorMXBean> beans;
 
     private long lastOGCCount = 0;

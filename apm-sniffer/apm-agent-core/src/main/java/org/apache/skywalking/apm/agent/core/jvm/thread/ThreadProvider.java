@@ -25,6 +25,8 @@ import org.apache.skywalking.apm.network.language.agent.v3.Thread;
 
 public enum ThreadProvider {
     INSTANCE;
+
+    /** java.lang.management.ThreadMXBean */
     private final ThreadMXBean threadMXBean;
 
     ThreadProvider() {
