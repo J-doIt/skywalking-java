@@ -22,15 +22,23 @@ import java.util.List;
 import org.apache.skywalking.apm.network.language.profile.v3.ThreadSnapshot;
 import org.apache.skywalking.apm.network.language.profile.v3.ThreadStack;
 
+/**
+ * Tracing线程快照
+ */
 public class TracingThreadSnapshot {
 
-    // thread profiler
+    // thread profiler（线程分析器）
+    /** profile task id */
     private final String taskId;
+    /** dumped segment id */
     private final String traceSegmentId;
 
-    // dump info
+    // dump info（转储信息）
+    /** snapshot dump sequence, start with zero */
     private final int sequence;
+    /** dump timestamp */
     private final long time;
+    /** snapshot stack */
     private final List<String> stackList;
 
     public TracingThreadSnapshot(String taskId,
@@ -46,7 +54,7 @@ public class TracingThreadSnapshot {
     }
 
     /**
-     * transform to gRPC data
+     * 转换为 gRPC 数据
      */
     public ThreadSnapshot transform() {
         final ThreadSnapshot.Builder builder = ThreadSnapshot.newBuilder();

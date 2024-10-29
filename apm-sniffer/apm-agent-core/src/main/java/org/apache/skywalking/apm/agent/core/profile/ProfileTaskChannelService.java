@@ -52,29 +52,51 @@ import static org.apache.skywalking.apm.agent.core.conf.Config.Collector.GRPC_UP
  * task list every {@link Config.Collector#GET_PROFILE_TASK_INTERVAL} second. 2. When there is a new profile task
  * snapshot, the data is transferred to the back end. use {@link LinkedBlockingQueue} 3. When profiling task finish, it
  * will send task finish status to backend
+ *
+ * <pre>
+ * (嗅探器 和 后端，关于 分析任务 协议 的通信服务。
+ *  1. 嗅探器 将 每 20s 检查一次 是否有新的 分析任务列表（20s：{@link Config.Collector#GET_PROFILE_TASK_INTERVAL}）
+ *  2. 当有新的 分析任务快照 时，将数据传输到后端。使用 LinkedBlockingQueue
+ *  3. 当 分析任务 完成时，它将向 后端 发送 任务完成状态
+ *  )
+ *
+ *  OAP 后台管理端 可以创建 分析任务，
+ *  SkyWalking Agent 根据 getProfileTaskCommands() 获取 该Agent需要分析的任务
+ *  SkyWalking Agent 根据 reportTaskFinish() 通知 OAP 该分析任务 已完成
+ * </pre>
  */
 @DefaultImplementor
 public class ProfileTaskChannelService implements BootService, Runnable, GRPCChannelListener {
     private static final ILog LOGGER = LogManager.getLogger(ProfileTaskChannelService.class);
 
-    // channel status
+    /** grpc channel 状态 */
     private volatile GRPCChannelStatus status = GRPCChannelStatus.DISCONNECT;
 
-    // gRPC stub
+    /** 分析任务 的 阻塞式Stub */
     private volatile ProfileTaskGrpc.ProfileTaskBlockingStub profileTaskBlockingStub;
 
     // segment snapshot sender
+    /** 存放 Tracing线程快照 的队列 */
     private final BlockingQueue<TracingThreadSnapshot> snapshotQueue = new LinkedBlockingQueue<>(
         Config.Profile.SNAPSHOT_TRANSPORT_BUFFER_SIZE);
+    /** 发送 Tracing线程快照 的结果 凭据 */
     private volatile ScheduledFuture<?> sendSnapshotFuture;
 
     // query task list schedule
+    /** 发送 查询分析任务列表命令 的结果 凭据 */
     private volatile ScheduledFuture<?> getTaskListFuture;
 
+    /** segment快照发送器 */
     private ProfileSnapshotSender sender;
 
+    /**
+     * 该任务 定时查询 OAP 后台 新增的 ProfileTask
+     * 将 OAP 返回的 Command 交给 ProfileTaskCommandExecutor 执行。
+     * 若 查询OAP失败，则打印日志，并 取消 this.getTaskListFuture。
+     */
     @Override
     public void run() {
+        // 连接中，才发送 查询分析任务列表命令 到 OAP 后端
         if (status == GRPCChannelStatus.CONNECTED) {
             try {
                 ProfileTaskCommandQuery.Builder builder = ProfileTaskCommandQuery.newBuilder();
@@ -86,9 +108,11 @@ public class ProfileTaskChannelService implements BootService, Runnable, GRPCCha
                 builder.setLastCommandTime(ServiceManager.INSTANCE.findService(ProfileTaskExecutionService.class)
                                                                   .getLastCommandCreateTime());
 
-                Commands commands = profileTaskBlockingStub.withDeadlineAfter(GRPC_UPSTREAM_TIMEOUT, TimeUnit.SECONDS)
-                                                           .getProfileTaskCommands(builder.build());
+                Commands commands = profileTaskBlockingStub.withDeadlineAfter(GRPC_UPSTREAM_TIMEOUT, TimeUnit.SECONDS) // 设置请求的超时时间
+                        // 执行 ProfileTask.service 的 getProfileTaskCommands 方法 获取 该Agent 需要分析的任务
+                        .getProfileTaskCommands(builder.build());
 
+                // 将收到的 Commands 传递给 CommandService 进行处理
                 ServiceManager.INSTANCE.findService(CommandService.class).receiveCommand(commands);
             } catch (Throwable t) {
                 if (!(t instanceof StatusRuntimeException)) {
@@ -113,15 +137,19 @@ public class ProfileTaskChannelService implements BootService, Runnable, GRPCCha
 
     @Override
     public void prepare() {
+        // 将 this 加入到 GRPCChannelManager 的 GRPCChannelListener 中，方便监听 grpc channel 状态变化
         ServiceManager.INSTANCE.findService(GRPCChannelManager.class).addChannelListener(this);
     }
 
     @Override
     public void boot() {
+        // 从 ServiceManager 获取 segment快照发送器
         sender = ServiceManager.INSTANCE.findService(ProfileSnapshotSender.class);
 
+        // 检查用户是否启用了 分析功能
         if (Config.Profile.ACTIVE) {
-            // query task list
+
+            /* 向 OAP 查询 ProfileTask 列表 */
             getTaskListFuture = Executors.newSingleThreadScheduledExecutor(
                 new DefaultNamedThreadFactory("ProfileGetTaskService")
             ).scheduleWithFixedDelay(
@@ -131,14 +159,18 @@ public class ProfileTaskChannelService implements BootService, Runnable, GRPCCha
                 ), 0, Config.Collector.GET_PROFILE_TASK_INTERVAL, TimeUnit.SECONDS
             );
 
+            /* 发送 Tracing线程快照 到 OAP */
             sendSnapshotFuture = Executors.newSingleThreadScheduledExecutor(
                 new DefaultNamedThreadFactory("ProfileSendSnapshotService")
             ).scheduleWithFixedDelay(
                 new RunnableWithExceptionProtection(
                     () -> {
                         List<TracingThreadSnapshot> buffer = new ArrayList<>(Config.Profile.SNAPSHOT_TRANSPORT_BUFFER_SIZE);
+                        // 将 snapshotQueue 的数据 移到 buffer
                         snapshotQueue.drainTo(buffer);
+                        // 如果 buffer 不为空
                         if (!buffer.isEmpty()) {
+                            // 由 ProfileSnapshotSender 发送 Tracing线程快照 到 OAP
                             sender.send(buffer);
                         }
                     },
@@ -154,10 +186,12 @@ public class ProfileTaskChannelService implements BootService, Runnable, GRPCCha
 
     @Override
     public void shutdown() {
+        // 取消 getTaskListFuture
         if (getTaskListFuture != null) {
             getTaskListFuture.cancel(true);
         }
 
+        // 取消 sendSnapshotFuture
         if (sendSnapshotFuture != null) {
             sendSnapshotFuture.cancel(true);
         }
@@ -167,8 +201,10 @@ public class ProfileTaskChannelService implements BootService, Runnable, GRPCCha
     public void statusChanged(GRPCChannelStatus status) {
         if (GRPCChannelStatus.CONNECTED.equals(status)) {
             Channel channel = ServiceManager.INSTANCE.findService(GRPCChannelManager.class).getChannel();
+            // 当连接成功时，使用 通道 重新 初始化 ProfileTask 的 阻塞式 grpc stub
             profileTaskBlockingStub = ProfileTaskGrpc.newBlockingStub(channel);
         } else {
+            // 当连接关闭时，设置 profileTaskBlockingStub 置为 null
             profileTaskBlockingStub = null;
         }
         this.status = status;
@@ -176,6 +212,9 @@ public class ProfileTaskChannelService implements BootService, Runnable, GRPCCha
 
     /**
      * add a new profiling snapshot, send to {@link #snapshotQueue}
+     * <pre>
+     * (添加一个新的 分析快照 ，发送到 snapshotQueue)
+     * </pre>
      */
     public void addProfilingSnapshot(TracingThreadSnapshot snapshot) {
         snapshotQueue.offer(snapshot);
@@ -183,9 +222,15 @@ public class ProfileTaskChannelService implements BootService, Runnable, GRPCCha
 
     /**
      * notify backend profile task has finish
+     * <pre>
+     * (通知 后端 分析任务 已完成)
+     * </pre>
+     *
+     * @param task 从 OAP 服务器接收的 ProfileTask
      */
     public void notifyProfileTaskFinish(ProfileTask task) {
         try {
+            // 构建 ProfileTaskFinishReport
             final ProfileTaskFinishReport.Builder reportBuilder = ProfileTaskFinishReport.newBuilder();
             // sniffer info
             reportBuilder.setService(Config.Agent.SERVICE_NAME)
@@ -194,7 +239,8 @@ public class ProfileTaskChannelService implements BootService, Runnable, GRPCCha
             reportBuilder.setTaskId(task.getTaskId());
 
             // send data
-            profileTaskBlockingStub.withDeadlineAfter(GRPC_UPSTREAM_TIMEOUT, TimeUnit.SECONDS)
+            profileTaskBlockingStub.withDeadlineAfter(GRPC_UPSTREAM_TIMEOUT, TimeUnit.SECONDS) // 设置请求的超时时间
+                                    // 执行 ProfileTask.service 的 reportTaskFinish 方法，报告 OAP 当前的 ProfileTask 已完成
                                    .reportTaskFinish(reportBuilder.build());
         } catch (Throwable e) {
             LOGGER.error(e, "Notify profile task finish to backend fail.");

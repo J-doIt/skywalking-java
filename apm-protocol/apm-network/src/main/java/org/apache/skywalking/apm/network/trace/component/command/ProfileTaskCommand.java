@@ -23,6 +23,9 @@ import org.apache.skywalking.apm.network.common.v3.KeyStringValuePair;
 
 import java.util.List;
 
+/**
+ * ProfileTaskChannelService 从 OAP 查询分析任务列表，得到的 ProfileTask 命令
+ */
 public class ProfileTaskCommand extends BaseCommand implements Serializable, Deserializable<ProfileTaskCommand> {
     public static final Deserializable<ProfileTaskCommand> DESERIALIZER = new ProfileTaskCommand("", "", "", 0, 0, 0, 0, 0, 0);
     public static final String NAME = "ProfileTaskQuery";

@@ -28,6 +28,9 @@ import org.apache.skywalking.apm.network.trace.component.command.ProfileTaskComm
 
 /**
  * Command executor that executes the {@link ProfileTaskCommand} command
+ * <pre>
+ * (执行 ProfileTaskCommand 命令 的 命令执行器)
+ * </pre>
  */
 public class ProfileTaskCommandExecutor implements CommandExecutor {
 
@@ -36,6 +39,7 @@ public class ProfileTaskCommandExecutor implements CommandExecutor {
         final ProfileTaskCommand profileTaskCommand = (ProfileTaskCommand) command;
 
         // build profile task
+        // 构建 ProfileTask
         final ProfileTask profileTask = new ProfileTask();
         profileTask.setTaskId(profileTaskCommand.getTaskId());
         profileTask.setFirstSpanOPName(profileTaskCommand.getEndpointName());
@@ -47,6 +51,10 @@ public class ProfileTaskCommandExecutor implements CommandExecutor {
         profileTask.setCreateTime(profileTaskCommand.getCreateTime());
 
         // send to executor
+        // 将 ProfileTask 加入到 ProfileTaskExecutionService.profileTaskList，
+        //      先 停止 当前的 ProfileTaskExecutionContext，
+        //      然后 开启 新的 ProfileTaskExecutionContext，
+        //      然后 执行 分析任务
         ServiceManager.INSTANCE.findService(ProfileTaskExecutionService.class).addProfileTask(profileTask);
     }
 

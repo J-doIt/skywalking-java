@@ -28,22 +28,29 @@ import org.apache.skywalking.apm.agent.core.context.TracingContext;
 
 /**
  * profile task execution context, it will create on process this profile task
+ * <pre>
+ * (分析任务执行的上下文中，它将在处理此分析任务时创建)
+ * </pre>
  */
 public class ProfileTaskExecutionContext {
 
-    // task data
+    /** 当前 ProfileTask */
     private final ProfileTask task;
 
     // record current first endpoint profiling count, use this to check has available profile slot
+    /** 记录 当前第一端点分析计数 ，使用此项 检查是否有可用的 profile slot */
     private final AtomicInteger currentEndpointProfilingCount = new AtomicInteger(0);
 
-    // profiling segment slot
+    /** profiling segment slot
+     * 存放 trace线程分析，因为 为 端点 创建的分析任务，在一个时间段内会被不同线程执行。
+     */
     private volatile AtomicReferenceArray<ThreadProfiler> profilingSegmentSlots;
 
-    // current profiling execution future
+    /** 当前 ProfileTask 的 执行结果 的 凭证 */
     private volatile Future profilingFuture;
 
-    // total started profiling tracing context count
+    /** total started profiling tracing context count
+     * （已启动的 分析跟踪上下文 的 总数） */
     private final AtomicInteger totalStartedProfilingCount = new AtomicInteger(0);
 
     public ProfileTaskExecutionContext(ProfileTask task) {
@@ -53,8 +60,14 @@ public class ProfileTaskExecutionContext {
 
     /**
      * start profiling this task
+     * <pre>
+     * 开始分析当前的任务
+     * </pre>
+     *
+     * @param executorService 执行器
      */
     public void startProfiling(ExecutorService executorService) {
+        // 创建 ProfileThread 并提交给 执行器 执行
         profilingFuture = executorService.submit(new ProfileThread(this));
     }
 
@@ -69,6 +82,9 @@ public class ProfileTaskExecutionContext {
 
     /**
      * check have available slot to profile and add it
+     * <pre>
+     * (检查是否有可用的 slot 可供分析，如果有则添加到这个slot)
+     * </pre>
      *
      * @return is add profile success
      */
@@ -76,28 +92,34 @@ public class ProfileTaskExecutionContext {
                                                  String traceSegmentId,
                                                  String firstSpanOPName) {
         // check has limited the max parallel profiling count
+        // this.currentEndpointProfilingCount 必须小于 配置文件中的 Config.Profile.MAX_PARALLEL
         final int profilingEndpointCount = currentEndpointProfilingCount.get();
         if (profilingEndpointCount >= Config.Profile.MAX_PARALLEL) {
             return ProfileStatusContext.createWithNone();
         }
 
         // check first operation name matches
+        // ProfileTask 的第一个执行名 必须等于 参数firstSpanOPName
         if (!Objects.equals(task.getFirstSpanOPName(), firstSpanOPName)) {
             return ProfileStatusContext.createWithNone();
         }
 
         // if out limit started profiling count then stop add profiling
+        // totalStartedProfilingCount 必须 ≤ ProfileTask.maxSamplingCount
         if (totalStartedProfilingCount.get() > task.getMaxSamplingCount()) {
             return ProfileStatusContext.createWithNone();
         }
 
         // try to occupy slot
+        // (尝试 占用 插槽)
         if (!currentEndpointProfilingCount.compareAndSet(profilingEndpointCount, profilingEndpointCount + 1)) {
             return ProfileStatusContext.createWithNone();
         }
 
         ThreadProfiler profiler;
+        // 创建 ThreadProfiler 并尝试加入到 this.profilingSegmentSlots 数组中
         if ((profiler = addProfilingThread(tracingContext, traceSegmentId)) != null) {
+            // 返回 ThreadProfiler 的 ProfileStatusContext
             return profiler.profilingStatus();
         }
         return ProfileStatusContext.createWithNone();
@@ -108,9 +130,11 @@ public class ProfileTaskExecutionContext {
     }
 
     private ThreadProfiler addProfilingThread(TracingContext tracingContext, String traceSegmentId) {
+        // 创建 ThreadProfiler
         final ThreadProfiler threadProfiler = new ThreadProfiler(
             tracingContext, traceSegmentId, Thread.currentThread(), this);
         int slotLength = profilingSegmentSlots.length();
+        // 将 新的ThreadProfiler 加入到 profilingSegmentSlots 数组中（从前往后，知道加入成功）
         for (int slot = 0; slot < slotLength; slot++) {
             if (profilingSegmentSlots.compareAndSet(slot, null, threadProfiler)) {
                 return threadProfiler;

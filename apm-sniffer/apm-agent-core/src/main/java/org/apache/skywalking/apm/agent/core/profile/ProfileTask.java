@@ -22,6 +22,9 @@ import java.util.Objects;
 
 /**
  * Profile task bean, receive from OAP server
+ * <pre>
+ * (分析任务 Bean， 从 OAP 服务器接收)
+ * </pre>
  */
 public class ProfileTask {
 
@@ -31,16 +34,17 @@ public class ProfileTask {
     // monitor first span operation name
     private String firstSpanOPName;
 
-    // task duration (minute)
+    /** 任务持续时间（分钟） */
     private int duration;
 
-    // trace start monitoring time (ms)
+    /** trace start monitoring time (ms) */
     private int minDurationThreshold;
 
-    // thread dump period (ms)
+    /** 线程转储周期 （ms）*/
     private int threadDumpPeriod;
 
     // max number of traces monitor on the sniffer
+    /** 嗅探器的最大跟踪监控数 */
     private int maxSamplingCount;
 
     // task start time

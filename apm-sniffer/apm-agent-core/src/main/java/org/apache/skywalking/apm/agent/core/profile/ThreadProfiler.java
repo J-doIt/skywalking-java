@@ -24,24 +24,33 @@ import java.util.concurrent.TimeUnit;
 import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.context.TracingContext;
 
+/**
+ * 线程分析
+ */
 public class ThreadProfiler {
 
-    // current tracing context
+    /** 当前的 TracingContext */
     private final TracingContext tracingContext;
-    // current tracing segment id
+    /** current tracing segment id */
     private final String traceSegmentId;
-    // need to profiling thread
+    /** 需要分析的线程 */
     private final Thread profilingThread;
-    // profiling execution context
+    /** 分析任务执行的上下文 */
     private final ProfileTaskExecutionContext executionContext;
 
-    // profiling time
+    /** 分析开始时间 */
     private long profilingStartTime;
+    /** 最大监控段时间（分钟），如果当前段监控时间超出限制，则停止监控。 */
     private long profilingMaxTimeMills;
 
-    // after min duration threshold check, it will start dump
+    /**
+     * after min duration threshold check, it will start dump
+     * <pre>
+     * (检查最小持续时间阈值后，它将开始转储)
+     * </pre>
+     */
     private final ProfileStatusContext profilingStatus;
-    // thread dump sequence
+    /** 线程转储序列 */
     private int dumpSequence = 0;
 
     public ThreadProfiler(TracingContext tracingContext, String traceSegmentId, Thread profilingThread,
@@ -51,16 +60,22 @@ public class ThreadProfiler {
         this.profilingThread = profilingThread;
         this.executionContext = executionContext;
         if (tracingContext.profileStatus() == null) {
+            // 如果 tracingContext 的 分析状态 为空，则 新建一个 状态为 PENDING 的 ProfileStatusContext
             this.profilingStatus = ProfileStatusContext.createWithPending(tracingContext().createTime());
         } else {
+            // 如果 tracingContext 的 分析状态 不为空，则 更新 当前ProfileStatusContext 的状态为 PENDING
             this.profilingStatus = tracingContext.profileStatus();
             this.profilingStatus.updateStatus(ProfileStatus.PENDING, tracingContext);
         }
+        // 获取 最大监控段时间（分钟）
         this.profilingMaxTimeMills = TimeUnit.MINUTES.toMillis(Config.Profile.MAX_DURATION);
     }
 
     /**
      * If tracing start time greater than {@link ProfileTask#getMinDurationThreshold()}, then start to profiling trace
+     * <pre>
+     * (如果 跟踪开始时间 大于 ProfileTask.getMinDurationThreshold()，则开始分析跟踪)
+     * </pre>
      */
     public void startProfilingIfNeed() {
         if (System.currentTimeMillis() - profilingStatus.firstSegmentCreateTime() > executionContext.getTask()
@@ -79,6 +94,9 @@ public class ThreadProfiler {
 
     /**
      * dump tracing thread and build thread snapshot
+     * <pre>
+     * (转储 跟踪线程 和 生成线程快照)
+     * </pre>
      *
      * @return snapshot, if null means dump snapshot error, should stop it
      */
@@ -91,6 +109,7 @@ public class ThreadProfiler {
         // dump thread
         StackTraceElement[] stackTrace;
         try {
+            // QFTODO：获取此线程的堆栈转储的堆栈跟踪元素数组
             stackTrace = profilingThread.getStackTrace();
 
             // stack depth is zero, means thread is already run finished
@@ -112,15 +131,20 @@ public class ThreadProfiler {
         // use inverted order, because thread dump is start with bottom
         final ArrayList<String> stackList = new ArrayList<>(dumpElementCount);
         for (int i = dumpElementCount - 1; i >= 0; i--) {
+            // 生成堆栈元素代码签名，并加入到 stackList
             stackList.add(buildStackElementCodeSignature(stackTrace[i]));
         }
 
         String taskId = executionContext.getTask().getTaskId();
+        // 创建 TracingThreadSnapshot 并返回
         return new TracingThreadSnapshot(taskId, traceSegmentId, dumpSequence++, currentTime, stackList);
     }
 
     /**
      * build thread stack element code signature
+     * <pre>
+     * (生成线程堆栈元素代码签名)
+     * </pre>
      *
      * @return code sign: className.methodName:lineNumber
      */

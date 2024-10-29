@@ -63,7 +63,7 @@ public class TracingContext implements AbstractTracerContext {
     private long lastWarningTimestamp = 0;
 
     /**
-     * @see ProfileTaskExecutionService
+     * 分析任务执行器服务
      */
     private static ProfileTaskExecutionService PROFILE_TASK_EXECUTION_SERVICE;
 
@@ -115,7 +115,7 @@ public class TracingContext implements AbstractTracerContext {
     private final long createTime;
 
     /**
-     * profile status
+     * 分析任务状态上下文
      */
     private final ProfileStatusContext profileStatus;
     /** 关联上下文 */
@@ -144,11 +144,11 @@ public class TracingContext implements AbstractTracerContext {
         running = true;
 
         // profiling status
-        // 性能分析执行器服务
+        // 分析任务执行器服务
         if (PROFILE_TASK_EXECUTION_SERVICE == null) {
             PROFILE_TASK_EXECUTION_SERVICE = ServiceManager.INSTANCE.findService(ProfileTaskExecutionService.class);
         }
-        // 开始 当前TracingContext 的性能分析？
+        // 开始 当前TracingContext 的分析任务
         this.profileStatus = PROFILE_TASK_EXECUTION_SERVICE.addProfiling(
             this, segment.getTraceSegmentId(), firstOPName);
 
@@ -298,7 +298,7 @@ public class TracingContext implements AbstractTracerContext {
             this.extensionContext.handle(this.activeSpan());
             // 如果 采样状态 可以从快照中继续
             if (this.profileStatus.continued(snapshot)) {
-                // 继续采样任务
+                // 继续分析任务
                 PROFILE_TASK_EXECUTION_SERVICE.continueProfiling(this, this.segment.getTraceSegmentId());
             }
         }
@@ -351,9 +351,9 @@ public class TracingContext implements AbstractTracerContext {
             /**
              * Only add the profiling recheck on creating entry span,
              * as the operation name could be overrided.
-             * （仅在创建入口 Span 时添加性能分析重新检查，因为操作名称可能会被覆盖。）
+             * （仅在创建入口 Span 时添加分析任务的重新检查，因为操作名称可能会被覆盖。）
              */
-            // 性能分析重新检查
+            // 分析任务重新检查
             profilingRecheck(parentSpan, operationName);
             // 设置操作名称
             parentSpan.setOperationName(operationName);

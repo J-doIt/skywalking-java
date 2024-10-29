@@ -25,21 +25,33 @@ public class ProfileConstants {
 
     /**
      * Monitor duration must greater than 1 minutes
+     * <pre>
+     * （监视器持续时间必须大于 1 分钟）
+     * </pre>
      */
     public static final int TASK_DURATION_MIN_MINUTE = 1;
 
     /**
      * The duration of the monitoring task cannot be greater than 15 minutes
+     * <pre>
+     * （监控任务的时长不能超过 15 分钟）
+     * </pre>
      */
     public static final int TASK_DURATION_MAX_MINUTE = 15;
 
     /**
      * Dump period must be greater than or equals 10 milliseconds
+     * <pre>
+     * (转储周期必须 ≥ 10 毫秒)
+     * </pre>
      */
     public static final int TASK_DUMP_PERIOD_MIN_MILLIS = 10;
 
     /**
      * Max sampling count must less than 10
+     * <pre>
+     * (最大采样计数必须 < 10)
+     * </pre>
      */
     public static final int TASK_MAX_SAMPLING_COUNT = 10;
 

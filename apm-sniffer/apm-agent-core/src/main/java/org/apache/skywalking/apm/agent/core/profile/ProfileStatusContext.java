@@ -27,9 +27,13 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * Wrapper {@link ProfileStatus}, make sure {@link org.apache.skywalking.apm.agent.core.context.TracingContext} with {@link ThreadProfiler} have same reference with {@link ProfileStatus},
  * And only the profile module could change the status
+ * <pre>
+ * (包装 ProfileStatus，确保 TracingContext 与 ThreadProfiler 有相同的 引用 ProfileStatus，只有 profile模块 可以改变状态、)
+ * </pre>
  */
 public class ProfileStatusContext {
 
+    /** 分析状态 */
     private volatile ProfileStatus status;
     private volatile boolean fromFirstSegment;
     private volatile long firstSegmentCreateTime;
@@ -70,6 +74,9 @@ public class ProfileStatusContext {
 
     /**
      * The profile monitoring is watching, wait for some profile conditions.
+     * <pre>
+     * (分析监控 正在 监视，请等待一些 分析条件。)
+     * </pre>
      */
     public boolean isBeingWatched() {
         return this.status != ProfileStatus.NONE;
@@ -85,6 +92,10 @@ public class ProfileStatusContext {
 
     /**
      * Continued profile status context
+     * <pre>
+     * (继续 分析任务状态上下文)
+     * </pre>
+     *
      * @return is needs to keep profile
      */
     public boolean continued(ContextSnapshot snapshot) {

@@ -50,6 +50,7 @@ public class ContextSnapshot {
         this.parentEndpoint = parentEndpoint;
         this.correlationContext = correlationContext.clone();
         this.extensionContext = extensionContext.clone();
+        // 克隆 分析任务状态上下文
         this.profileStatusContext = profileStatusContext.clone();
     }
 

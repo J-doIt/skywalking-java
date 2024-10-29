@@ -249,26 +249,39 @@ public class Config {
         /**
          * If true, skywalking agent will enable profile when user create a new profile task. Otherwise disable
          * profile.
+         * <pre>
+         * (如果为 true， skywalking agent 将在用户创建新的 分析任务 时 启用分析。否则禁用 分析。)
+         * </pre>
          */
         public static boolean ACTIVE = true;
 
         /**
          * Parallel monitor endpoint thread count
+         * <pre>
+         * (并行监视器 终端节点 线程 计数)
+         * </pre>
          */
         public static int MAX_PARALLEL = 5;
 
         /**
          * Max monitoring sub-tasks count of one single endpoint access
+         * <pre>
+         * (单个终端节点 访问的 最大监控子任务数)
+         * </pre>
          */
         public static int MAX_ACCEPT_SUB_PARALLEL = 5;
 
         /**
          * Max monitor segment time(minutes), if current segment monitor time out of limit, then stop it.
+         * <pre>
+         * (最大监控段时间（分钟），如果当前段监控时间超出限制，则停止监控。)
+         * </pre>
          */
         public static int MAX_DURATION = 10;
 
         /**
          * Max dump thread stack depth
+         * （最大转储线程堆栈深度）
          */
         public static int DUMP_MAX_STACK_DEPTH = 500;
 

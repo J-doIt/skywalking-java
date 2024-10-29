@@ -20,27 +20,32 @@ package org.apache.skywalking.apm.agent.core.profile;
 
 /**
  * Profile status, include entire profile cycle
+ * <pre>
+ * (分析状态，包括整个分析周期)
+ * </pre>
  */
 public enum ProfileStatus {
     /**
-     * No profile
+     * 无分析
      */
     NONE,
 
     /**
      * Prepare to profile, until {@link ProfileTask#getMinDurationThreshold()} reached,
      * Once the status changed to profiling, the thread snapshot is officially started
+     * <pre>
+     * (准备分析，直到 ProfileTask.getMinDurationThreshold() 达到，一旦状态变为 profiling，线程快照 就 正式启动)
+     * </pre>
      */
     PENDING,
 
     /**
-     * Profile operation has been started.
+     * 配置操作已启动
      */
     PROFILING,
 
     /**
-     * The current {@link org.apache.skywalking.apm.agent.core.context.TracingContext} has finished,
-     * or the current thread isn't available.
+     * 当前的 TracingContext 已完成，或者 当前线程 不可用。
      */
     STOPPED
 }

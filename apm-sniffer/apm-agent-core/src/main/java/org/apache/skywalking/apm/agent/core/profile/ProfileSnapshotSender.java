@@ -39,17 +39,24 @@ import static org.apache.skywalking.apm.agent.core.conf.Config.Collector.GRPC_UP
 
 /**
  * send segment snapshot
+ *
+ * <pre>
+ * (segment快照发送器)
+ * </pre>
  */
 @DefaultImplementor
 public class ProfileSnapshotSender implements BootService, GRPCChannelListener {
     private static final ILog LOGGER = LogManager.getLogger(ProfileSnapshotSender.class);
 
+    /** grpc channel 状态 */
     private volatile GRPCChannelStatus status = GRPCChannelStatus.DISCONNECT;
 
+    /** 分析任务 的 Stub */
     private volatile ProfileTaskGrpc.ProfileTaskStub profileTaskStub;
 
     @Override
     public void prepare() throws Throwable {
+        // 将 this 加入到 GRPCChannelManager 的 GRPCChannelListener 中，方便监听 grpc channel 状态变化
         ServiceManager.INSTANCE.findService(GRPCChannelManager.class).addChannelListener(this);
     }
 
@@ -62,51 +69,66 @@ public class ProfileSnapshotSender implements BootService, GRPCChannelListener {
     public void statusChanged(final GRPCChannelStatus status) {
         if (GRPCChannelStatus.CONNECTED.equals(status)) {
             Channel channel = ServiceManager.INSTANCE.findService(GRPCChannelManager.class).getChannel();
+            // 当连接成功时，使用 通道 重新 初始化 ProfileTask 的 Stub
             profileTaskStub = ProfileTaskGrpc.newStub(channel);
         } else {
+            // 当连接关闭时，设置 profileTaskStub 置为 null
             profileTaskStub = null;
         }
         this.status = status;
     }
 
+    /**
+     *
+     * @param buffer TracingThreadSnapshot
+     */
     public void send(List<TracingThreadSnapshot> buffer) {
+        // 连接中，才发送 Tracing线程快照 到 OAP 后端
         if (status == GRPCChannelStatus.CONNECTED) {
             try {
                 final GRPCStreamServiceStatus status = new GRPCStreamServiceStatus(false);
-                StreamObserver<ThreadSnapshot> snapshotStreamObserver = profileTaskStub.withDeadlineAfter(
-                    GRPC_UPSTREAM_TIMEOUT, TimeUnit.SECONDS
-                ).collectSnapshot(
-                    new StreamObserver<Commands>() {
-                        @Override
-                        public void onNext(
-                            Commands commands) {
-                        }
+                StreamObserver<ThreadSnapshot> snapshotStreamObserver = profileTaskStub
+                        .withDeadlineAfter(GRPC_UPSTREAM_TIMEOUT, TimeUnit.SECONDS) // 设置请求的超时时间
+                        // 执行 ProfileTask.service 的 collectSnapshot 方法
+                        .collectSnapshot(
+                            new StreamObserver<Commands>() {
+                                @Override
+                                public void onNext(
+                                    Commands commands) {
+                                }
 
-                        @Override
-                        public void onError(
-                            Throwable throwable) {
-                            status.finished();
-                            if (LOGGER.isErrorEnable()) {
-                                LOGGER.error(
-                                    throwable,
-                                    "Send profile segment snapshot to collector fail with a grpc internal exception."
-                                );
+                                @Override
+                                public void onError(
+                                    Throwable throwable) {
+                                    // grpc stream 状态置为 true（结束）
+                                    status.finished();
+                                    if (LOGGER.isErrorEnable()) {
+                                        LOGGER.error(
+                                            throwable,
+                                            "Send profile segment snapshot to collector fail with a grpc internal exception."
+                                        );
+                                    }
+                                    // 发送到 OAP 后端 失败，向 GRPCChannelManager 报告 错误
+                                    ServiceManager.INSTANCE.findService(GRPCChannelManager.class).reportError(throwable);
+                                }
+
+                                @Override
+                                public void onCompleted() {
+                                    // grpc stream 状态置为 true（结束）
+                                    status.finished();
+                                }
                             }
-                            ServiceManager.INSTANCE.findService(GRPCChannelManager.class).reportError(throwable);
-                        }
-
-                        @Override
-                        public void onCompleted() {
-                            status.finished();
-                        }
-                    }
-                );
+                        );
                 for (TracingThreadSnapshot snapshot : buffer) {
+                    // 转换为 gRPC 数据
                     final ThreadSnapshot transformSnapshot = snapshot.transform();
+                    // 通过 grpc stream 发送数据 到 OAP
                     snapshotStreamObserver.onNext(transformSnapshot);
                 }
 
+                // stream 完成
                 snapshotStreamObserver.onCompleted();
+                // wait 直到 stream 完成
                 status.wait4Finish();
             } catch (Throwable t) {
                 LOGGER.error(t, "Send profile segment snapshot to backend fail.");

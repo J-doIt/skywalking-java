@@ -23,6 +23,7 @@ import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 
 public class GRPCStreamServiceStatus {
     private static final ILog LOGGER = LogManager.getLogger(GRPCStreamServiceStatus.class);
+    /** 状态：true-结束 */
     private volatile boolean status;
 
     public GRPCStreamServiceStatus(boolean status) {
@@ -38,13 +39,17 @@ public class GRPCStreamServiceStatus {
     }
 
     /**
-     * Wait until success status reported.
+     * 等待，直到报告结束。
      */
     public void wait4Finish() {
+        // 每次 2倍 扩大，但不超过 maxCycle
         long recheckCycle = 5;
+        // 总的等待时间
         long hasWaited = 0L;
         long maxCycle = 30 * 1000L; // 30 seconds max.
+        // 未结束，则继续
         while (!status) {
+            // sleep 5s
             try2Sleep(recheckCycle);
             hasWaited += recheckCycle;
 
@@ -65,7 +70,7 @@ public class GRPCStreamServiceStatus {
         try {
             Thread.sleep(millis);
         } catch (InterruptedException ignored) {
-
+            // 忽略中断信号
         }
     }
 }
