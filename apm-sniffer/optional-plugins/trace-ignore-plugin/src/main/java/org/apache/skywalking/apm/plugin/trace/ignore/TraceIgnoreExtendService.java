@@ -36,6 +36,7 @@ public class TraceIgnoreExtendService extends SamplingService {
     private static final String PATTERN_SEPARATOR = ",";
     private TracePathMatcher pathMatcher = new FastPathMatcher();
     private volatile String[] patterns = new String[] {};
+    /** 动态配置观察器（观察 agent.trace.ignore_path 配置） */
     private TraceIgnorePatternWatcher traceIgnorePatternWatcher;
 
     @Override
@@ -53,6 +54,7 @@ public class TraceIgnoreExtendService extends SamplingService {
         }
 
         traceIgnorePatternWatcher = new TraceIgnorePatternWatcher("agent.trace.ignore_path", this);
+        // 注册动态配置观察器
         ServiceManager.INSTANCE.findService(ConfigurationDiscoveryService.class)
                                .registerAgentConfigChangeWatcher(traceIgnorePatternWatcher);
 

@@ -103,6 +103,9 @@ public class Config {
         /**
          * The max number of spans in a single segment. Through this config item, SkyWalking keep your application
          * memory cost estimated.
+         * <pre>
+         * (单个 segment 中 span 的最大数目。通过此配置项，SkyWalking保持应用程序内存成本估算。)
+         * </pre>
          */
         public static int SPAN_LIMIT_PER_SEGMENT = 300;
 

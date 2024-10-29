@@ -27,6 +27,11 @@ import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import org.apache.skywalking.apm.network.trace.component.command.BaseCommand;
 import org.apache.skywalking.apm.network.trace.component.command.ConfigurationDiscoveryCommand;
 
+/**
+ * <pre>
+ * (执行 ConfigurationDiscoveryCommand 的 命令执行器)
+ * </pre>
+ */
 public class ConfigurationDiscoveryCommandExecutor implements CommandExecutor {
 
     private static final ILog LOGGER = LogManager.getLogger(ConfigurationDiscoveryCommandExecutor.class);
@@ -36,6 +41,7 @@ public class ConfigurationDiscoveryCommandExecutor implements CommandExecutor {
         try {
             ConfigurationDiscoveryCommand agentDynamicConfigurationCommand = (ConfigurationDiscoveryCommand) command;
 
+            // 处理 ConfigurationDiscoveryCommand
             ServiceManager.INSTANCE.findService(ConfigurationDiscoveryService.class)
                                    .handleConfigurationDiscoveryCommand(agentDynamicConfigurationCommand);
         } catch (Exception e) {

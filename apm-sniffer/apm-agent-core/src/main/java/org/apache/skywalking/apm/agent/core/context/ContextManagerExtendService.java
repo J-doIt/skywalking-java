@@ -43,8 +43,10 @@ public class ContextManagerExtendService implements BootService, GRPCChannelList
 
     private volatile GRPCChannelStatus status = GRPCChannelStatus.DISCONNECT;
 
+    /** 忽略前缀模式观察者 */
     private IgnoreSuffixPatternsWatcher ignoreSuffixPatternsWatcher;
 
+    /** Span数目限制观察者 */
     private SpanLimitWatcher spanLimitWatcher;
 
     @Override
@@ -57,14 +59,19 @@ public class ContextManagerExtendService implements BootService, GRPCChannelList
     @Override
     public void boot() {
         ignoreSuffixSet = Stream.of(Config.Agent.IGNORE_SUFFIX.split(",")).collect(Collectors.toSet());
+        // 忽略前缀模式观察者
         ignoreSuffixPatternsWatcher = new IgnoreSuffixPatternsWatcher("agent.ignore_suffix", this);
+        // Span数目限制观察者
         spanLimitWatcher = new SpanLimitWatcher("agent.span_limit_per_segment");
 
+        // 得到 配置发现服务，并向其注册 观察者
         ConfigurationDiscoveryService configurationDiscoveryService = ServiceManager.INSTANCE.findService(
             ConfigurationDiscoveryService.class);
+        // 注册动态配置观察器
         configurationDiscoveryService.registerAgentConfigChangeWatcher(spanLimitWatcher);
         configurationDiscoveryService.registerAgentConfigChangeWatcher(ignoreSuffixPatternsWatcher);
 
+        // 处理 忽略前缀模式改变 的操作
         handleIgnoreSuffixPatternsChanged();
     }
 
@@ -94,7 +101,7 @@ public class ContextManagerExtendService implements BootService, GRPCChannelList
             context = new IgnoredTracerContext();
         } else {
             SamplingService samplingService = ServiceManager.INSTANCE.findService(SamplingService.class);
-            // 强制收集 || 者需要收集
+            // 强制收集 || 需要收集
             if (forceSampling || samplingService.trySampling(operationName)) {
                 // 创建 TracingContext 对象
                 context = new TracingContext(operationName, spanLimitWatcher);

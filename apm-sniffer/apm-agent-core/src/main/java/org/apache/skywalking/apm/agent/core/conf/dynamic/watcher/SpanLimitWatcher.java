@@ -24,11 +24,18 @@ import org.apache.skywalking.apm.agent.core.conf.dynamic.AgentConfigChangeWatche
 import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 
+/**
+ * Span数目限制观察者
+ */
 public class SpanLimitWatcher extends AgentConfigChangeWatcher {
     private static final ILog LOGGER = LogManager.getLogger(SpanLimitWatcher.class);
 
+    /** 单个 segment 中 span 的最大数目 */
     private final AtomicInteger spanLimit;
 
+    /**
+     * @param propertyKey agent.span_limit_per_segment
+     */
     public SpanLimitWatcher(final String propertyKey) {
         super(propertyKey);
         this.spanLimit = new AtomicInteger(getDefaultValue());
@@ -47,9 +54,11 @@ public class SpanLimitWatcher extends AgentConfigChangeWatcher {
 
     @Override
     public void notify(final ConfigChangeEvent value) {
+        // 如果是 DELETE 事件，则设置 this.propertyKey 为默认值
         if (EventType.DELETE.equals(value.getEventType())) {
             activeSetting(String.valueOf(getDefaultValue()));
         } else {
+            // 如果是 ADD、MODIFY 事件，则设置 this.propertyKey 为 最新值
             activeSetting(value.getNewValue());
         }
     }

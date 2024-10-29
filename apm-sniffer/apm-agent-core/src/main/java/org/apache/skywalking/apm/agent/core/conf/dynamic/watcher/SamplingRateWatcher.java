@@ -25,6 +25,9 @@ import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import org.apache.skywalking.apm.agent.core.sampling.SamplingService;
 
+/**
+ * 动态配置观察器（观察 agent.sample_n_per_3_secs 配置）
+ */
 public class SamplingRateWatcher extends AgentConfigChangeWatcher {
     private static final ILog LOGGER = LogManager.getLogger(SamplingRateWatcher.class);
 

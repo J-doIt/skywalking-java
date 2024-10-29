@@ -28,15 +28,24 @@ import org.apache.skywalking.apm.plugin.jdbc.connectionurl.parser.URLParser;
 
 import java.lang.reflect.Method;
 
+/**
+ * <pre>
+ * 驱动连接拦截器
+ * 增强类：com.mysql.cj.jdbc.NonRegisteringDriver
+ * 增强方法：public Connection connect(String url, Properties info)
+ * </pre>
+ */
 public class DriverConnectInterceptor implements InstanceMethodsAroundInterceptor {
 
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         MethodInterceptResult result) throws Throwable {
         ConnectionCache.save(URLParser.parser(allArguments[0].toString()));
+        // 动态配置观察器（关注 plugin.jdbc.trace_sql_parameters 配置）
         TraceSqlParametersWatcher traceSqlParametersWatcher = new TraceSqlParametersWatcher("plugin.jdbc.trace_sql_parameters");
         ConfigurationDiscoveryService configurationDiscoveryService = ServiceManager.INSTANCE.findService(
                 ConfigurationDiscoveryService.class);
+        // 注册动态配置观察器
         configurationDiscoveryService.registerAgentConfigChangeWatcher(traceSqlParametersWatcher);
     }
 

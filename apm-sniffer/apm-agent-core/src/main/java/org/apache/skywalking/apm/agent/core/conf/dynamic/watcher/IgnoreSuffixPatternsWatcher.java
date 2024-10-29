@@ -26,6 +26,9 @@ import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 
 import java.util.concurrent.atomic.AtomicReference;
 
+/**
+ * 动态配置观察器（观察 agent.ignore_suffix 配置）
+ */
 public class IgnoreSuffixPatternsWatcher extends AgentConfigChangeWatcher {
 
     private static final ILog LOGGER = LogManager.getLogger(IgnoreSuffixPatternsWatcher.class);

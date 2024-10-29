@@ -59,6 +59,7 @@ public class SamplingService implements BootService {
     /** 重置采样因子 的 结果凭据 */
     private volatile ScheduledFuture<?> scheduledFuture;
 
+    /** 动态配置观察器 */
     private SamplingRateWatcher samplingRateWatcher;
     /** 单线程定时执行器（SkywalkingAgent-n-SamplingService-），负责 重置采样因子 */
     private ScheduledExecutorService service;
@@ -73,6 +74,7 @@ public class SamplingService implements BootService {
         service = Executors.newSingleThreadScheduledExecutor(
                 new DefaultNamedThreadFactory("SamplingService"));
         samplingRateWatcher = new SamplingRateWatcher("agent.sample_n_per_3_secs", this);
+        // 注册动态配置观察器
         ServiceManager.INSTANCE.findService(ConfigurationDiscoveryService.class)
                                .registerAgentConfigChangeWatcher(samplingRateWatcher);
 

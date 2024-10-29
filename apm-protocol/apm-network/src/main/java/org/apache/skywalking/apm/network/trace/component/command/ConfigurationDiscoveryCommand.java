@@ -23,6 +23,9 @@ import java.util.List;
 import org.apache.skywalking.apm.network.common.v3.Command;
 import org.apache.skywalking.apm.network.common.v3.KeyStringValuePair;
 
+/**
+ * ConfigurationDiscoveryService 从 OAP 获取代理动态配置，得到的 ConfigurationDiscoveryCommand
+ */
 public class ConfigurationDiscoveryCommand extends BaseCommand implements Serializable, Deserializable<ConfigurationDiscoveryCommand> {
     public static final Deserializable<ConfigurationDiscoveryCommand> DESERIALIZER = new ConfigurationDiscoveryCommand(
         "", "", new ArrayList<>());
@@ -31,12 +34,13 @@ public class ConfigurationDiscoveryCommand extends BaseCommand implements Serial
     public static final String UUID_CONST_NAME = "UUID";
     public static final String SERIAL_NUMBER_CONST_NAME = "SerialNumber";
 
-    /*
+    /**
      * If config is unchanged, then could response the same uuid, and config is not required.
+     * (如果 config 保持不变，则可以响应相同的 uuid，并且 config 不是必需的。)
      */
     private String uuid;
-    /*
-     * The configuration of service.
+    /**
+     * 服务的配置
      */
     private List<KeyStringValuePair> config;
 

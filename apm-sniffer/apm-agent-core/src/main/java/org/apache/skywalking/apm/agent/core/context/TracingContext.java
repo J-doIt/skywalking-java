@@ -126,6 +126,7 @@ public class TracingContext implements AbstractTracerContext {
     private final ExtensionContext extensionContext;
 
     //CDS watcher
+    /** Span数目限制观察者（配置发现服务） */
     private final SpanLimitWatcher spanLimitWatcher;
 
     /**
@@ -154,6 +155,7 @@ public class TracingContext implements AbstractTracerContext {
 
         this.correlationContext = new CorrelationContext();
         this.extensionContext = new ExtensionContext();
+        // Span数目限制观察者
         this.spanLimitWatcher = spanLimitWatcher;
     }
 

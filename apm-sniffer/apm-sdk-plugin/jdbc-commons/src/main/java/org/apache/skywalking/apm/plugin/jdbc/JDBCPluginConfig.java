@@ -27,6 +27,7 @@ public class JDBCPluginConfig {
             /**
              * If set to true, the parameters of the sql (typically {@link java.sql.PreparedStatement}) would be
              * collected.
+             * （如果设置为 true，则将收集 sql 的参数（通常为 PreparedStatement）。）
              */
             public static volatile boolean TRACE_SQL_PARAMETERS = false;
             /**

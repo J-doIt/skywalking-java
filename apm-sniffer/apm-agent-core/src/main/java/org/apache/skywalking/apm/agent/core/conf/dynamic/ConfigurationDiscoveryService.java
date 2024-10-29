@@ -59,14 +59,19 @@ public class ConfigurationDiscoveryService implements BootService, GRPCChannelLi
 
     /**
      * UUID of the last return value.
+     * 最后一个 响应的 uuid
      */
     private String uuid;
+    /** 本地 动态配置中心 */
     private final Register register = new Register();
 
     private volatile int lastRegisterWatcherSize;
 
+    /** 从 OAP 获取服务的最新动态配置 的 结果 的 凭证 */
     private volatile ScheduledFuture<?> getDynamicConfigurationFuture;
+    /** grpc channel 状态 */
     private volatile GRPCChannelStatus status = GRPCChannelStatus.DISCONNECT;
+    /** ConfigurationDiscoveryService 的 Stub */
     private volatile ConfigurationDiscoveryServiceGrpc.ConfigurationDiscoveryServiceBlockingStub configurationDiscoveryServiceBlockingStub;
 
     private static final ILog LOGGER = LogManager.getLogger(ConfigurationDiscoveryService.class);
@@ -75,20 +80,25 @@ public class ConfigurationDiscoveryService implements BootService, GRPCChannelLi
     public void statusChanged(final GRPCChannelStatus status) {
         if (GRPCChannelStatus.CONNECTED.equals(status)) {
             Channel channel = ServiceManager.INSTANCE.findService(GRPCChannelManager.class).getChannel();
+            // 当连接成功时，使用 通道 重新 初始化 ConfigurationDiscoveryService 的 Stub
             configurationDiscoveryServiceBlockingStub = ConfigurationDiscoveryServiceGrpc.newBlockingStub(channel);
         } else {
+            // 当连接关闭时，设置 configurationDiscoveryServiceBlockingStub 置为 null
             configurationDiscoveryServiceBlockingStub = null;
         }
+        // 更新grpc通道的状态
         this.status = status;
     }
 
     @Override
     public void prepare() throws Throwable {
+        // 将 this 加入到 GRPCChannelManager 的 GRPCChannelListener 中，方便监听 grpc channel 状态变化
         ServiceManager.INSTANCE.findService(GRPCChannelManager.class).addChannelListener(this);
     }
 
     @Override
     public void boot() throws Throwable {
+        // 定时任务，20s后，每 20s 执行一次 getAgentDynamicConfig()
         getDynamicConfigurationFuture = Executors.newSingleThreadScheduledExecutor(
             new DefaultNamedThreadFactory("ConfigurationDiscoveryService")
         ).scheduleAtFixedRate(
@@ -109,6 +119,7 @@ public class ConfigurationDiscoveryService implements BootService, GRPCChannelLi
 
     @Override
     public void shutdown() throws Throwable {
+        // 取消 getDynamicConfigurationFuture
         if (getDynamicConfigurationFuture != null) {
             getDynamicConfigurationFuture.cancel(true);
         }
@@ -135,49 +146,61 @@ public class ConfigurationDiscoveryService implements BootService, GRPCChannelLi
 
     /**
      * Process ConfigurationDiscoveryCommand and notify each configuration watcher.
+     * （处理 ConfigurationDiscoveryCommand ，并通知每个配置观察程序。）
      *
      * @param configurationDiscoveryCommand Describe dynamic configuration information
      */
     public void handleConfigurationDiscoveryCommand(ConfigurationDiscoveryCommand configurationDiscoveryCommand) {
         final String responseUuid = configurationDiscoveryCommand.getUuid();
 
+        // 如果响应 uuid 和 this.uuid 相同，则说明 config 保持不变
         if (responseUuid != null && Objects.equals(this.uuid, responseUuid)) {
             return;
         }
 
+        // 读取OAP返回的动态配置
         List<KeyStringValuePair> config = readConfig(configurationDiscoveryCommand);
 
         config.forEach(property -> {
             String propertyKey = property.getKey();
+            // 根据 propertyKey 获取 对应的 观察者们
             List<WatcherHolder> holderList = register.get(propertyKey);
             for (WatcherHolder holder : holderList) {
                 if (holder != null) {
                     AgentConfigChangeWatcher watcher = holder.getWatcher();
                     String newPropertyValue = property.getValue();
+                    // 如果 新值 为 null
                     if (StringUtil.isBlank(newPropertyValue)) {
                         if (watcher.value() != null) {
                             // Notify watcher, the new value is null with delete event type.
+                            // (通知观察者，新值为 null，事件类型为 delete。)
                             watcher.notify(
                                     new AgentConfigChangeWatcher.ConfigChangeEvent(
                                             null, AgentConfigChangeWatcher.EventType.DELETE
                                     ));
                         } else {
                             // Don't need to notify, stay in null.
+                            // (如果 旧值 为 null，无需通知，保持 null。)
                         }
-                    } else {
+                    } else { // 如果 新值 不为 null
+                        //  如果 新增 != 旧值
                         if (!newPropertyValue.equals(watcher.value())) {
+                            // 通知观察者，新值为 newPropertyValue，事件类型为 modify。
                             watcher.notify(new AgentConfigChangeWatcher.ConfigChangeEvent(
                                     newPropertyValue, AgentConfigChangeWatcher.EventType.MODIFY
                             ));
                         } else {
                             // Don't need to notify, stay in the same config value.
+                            // (如果 新增 == 旧值，不需要通知，保持相同的 config 值。)
                         }
                     }
                 } else {
+                    // 匹配任何 watcher，忽略
                     LOGGER.warn("Config {} from OAP, doesn't match any watcher, ignore.", propertyKey);
                 }
             }
         });
+        // 更新 uuid 为 响应的uuid
         this.uuid = responseUuid;
 
         LOGGER.trace("Current configurations after the sync, configurations:{}", register.toString());
@@ -186,6 +209,9 @@ public class ConfigurationDiscoveryService implements BootService, GRPCChannelLi
     /**
      * Read the registered dynamic configuration, compare it with the dynamic configuration information returned by the
      * service, and complete the dynamic configuration that has been deleted on the OAP.
+     * <pre>
+     * (读取注册的动态配置，与服务返回的动态配置信息进行比较，完成OAP上已删除的动态配置。)
+     * </pre>
      *
      * @param configurationDiscoveryCommand Describe dynamic configuration information
      * @return Adapted dynamic configuration information
@@ -209,10 +235,12 @@ public class ConfigurationDiscoveryService implements BootService, GRPCChannelLi
 
     /**
      * get agent dynamic config through gRPC.
+     * (通过 gRPC 获取代理动态配置。)
      */
     private void getAgentDynamicConfig() {
         LOGGER.debug("ConfigurationDiscoveryService running, status:{}.", status);
 
+        // 连接中，才发送 ConfigurationSyncRequest 到 OAP 后端
         if (GRPCChannelStatus.CONNECTED.equals(status)) {
             try {
                 ConfigurationSyncRequest.Builder builder = ConfigurationSyncRequest.newBuilder();
@@ -231,9 +259,10 @@ public class ConfigurationDiscoveryService implements BootService, GRPCChannelLi
                 }
 
                 if (configurationDiscoveryServiceBlockingStub != null) {
-                    final Commands commands = configurationDiscoveryServiceBlockingStub.withDeadlineAfter(
-                        GRPC_UPSTREAM_TIMEOUT, TimeUnit.SECONDS
-                    ).fetchConfigurations(builder.build());
+                    final Commands commands = configurationDiscoveryServiceBlockingStub
+                            .withDeadlineAfter(GRPC_UPSTREAM_TIMEOUT, TimeUnit.SECONDS) // 设置请求的超时时间
+                            .fetchConfigurations(builder.build()); // 调用 grpc 获取服务的最新动态配置
+                    // 将 Commands 交给 CommandService 去执行
                     ServiceManager.INSTANCE.findService(CommandService.class).receiveCommand(commands);
                 }
             } catch (Throwable t) {
@@ -245,8 +274,12 @@ public class ConfigurationDiscoveryService implements BootService, GRPCChannelLi
 
     /**
      * Local dynamic configuration center.
+     * <pre>
+     * (本地 动态配置中心。)
+     * </pre>
      */
     public static class Register {
+        /** ≤ propertyKey, WatcherHolder 的 List ≥ */
         private final Map<String, List<WatcherHolder>> register = new HashMap<>();
 
         private boolean containsKey(String key) {
@@ -265,6 +298,9 @@ public class ConfigurationDiscoveryService implements BootService, GRPCChannelLi
             }
         }
 
+        /**
+         * @param name propertyKey
+         */
         public List<WatcherHolder> get(String name) {
             return register.get(name);
         }
@@ -294,8 +330,10 @@ public class ConfigurationDiscoveryService implements BootService, GRPCChannelLi
         }
     }
 
+    /** 配置变更观察者的持有者 */
     @Getter
     private static class WatcherHolder {
+        /** 配置变更观察者 */
         private final AgentConfigChangeWatcher watcher;
         private final String key;
 

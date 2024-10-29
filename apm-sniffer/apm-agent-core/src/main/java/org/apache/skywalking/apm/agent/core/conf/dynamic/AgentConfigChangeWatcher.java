@@ -21,9 +21,12 @@ package org.apache.skywalking.apm.agent.core.conf.dynamic;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+/**
+ * Agent 配置变更观察者
+ */
 @Getter
 public abstract class AgentConfigChangeWatcher {
-    // Config key, should match KEY in the Table of Agent Configuration Properties.
+    /** Config key, should match KEY in the Table of Agent Configuration Properties. */
     private final String propertyKey;
 
     public AgentConfigChangeWatcher(String propertyKey) {
@@ -49,6 +52,7 @@ public abstract class AgentConfigChangeWatcher {
             '}';
     }
 
+    /** 配置变更事件 */
     @Getter
     @RequiredArgsConstructor
     public static class ConfigChangeEvent {
@@ -56,7 +60,13 @@ public abstract class AgentConfigChangeWatcher {
         private final EventType eventType;
     }
 
+    /** 事件类型 */
     public enum EventType {
-        ADD, MODIFY, DELETE
+        /** 新增配置 */
+        ADD,
+        /** 修改配置 */
+        MODIFY,
+        /** 删除配置 */
+        DELETE
     }
 }

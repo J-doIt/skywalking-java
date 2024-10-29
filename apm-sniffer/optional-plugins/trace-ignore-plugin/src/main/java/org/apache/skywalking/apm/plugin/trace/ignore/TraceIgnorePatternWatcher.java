@@ -24,6 +24,9 @@ import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import org.apache.skywalking.apm.plugin.trace.ignore.conf.IgnoreConfig;
 
+/**
+ * 动态配置观察器（观察 agent.trace.ignore_path 配置）
+ */
 public class TraceIgnorePatternWatcher extends AgentConfigChangeWatcher {
     private static final ILog LOGGER = LogManager.getLogger(TraceIgnorePatternWatcher.class);
 
