@@ -31,20 +31,30 @@ import static org.apache.skywalking.apm.agent.core.context.status.StatusChecker.
 /**
  * The <code>StatusCheckService</code> determines whether the span should be tagged in error status if an exception
  * captured in the scope.
+ * <pre>
+ * (如果在范围中捕获异常，则 StatusCheckService 确定是否应该将 span 标记为 错误状态。)
+ * </pre>
  */
 @DefaultImplementor
 public class StatusCheckService implements BootService {
 
+    /** 配置文件中配置的不是异常的错误 */
     @Getter
     private String[] ignoredExceptionNames;
 
+    /** 状态检查类型：
+     * OFF：所有异常都会将 span 标记为错误状态
+     * HIERARCHY_MATCH：
+     */
     private StatusChecker statusChecker;
 
     @Override
     public void prepare() throws Throwable {
+        // 配置文件中配置的不是异常的错误
         ignoredExceptionNames = Arrays.stream(Config.StatusCheck.IGNORED_EXCEPTIONS.split(","))
                                       .filter(StringUtil::isNotEmpty)
                                       .toArray(String[]::new);
+        // MAX_RECURSIVE_DEPTH ≤ 0时，则使用 OFF（不检查 错误状态，所有异常都会将 span 标记为错误状态）
         statusChecker = Config.StatusCheck.MAX_RECURSIVE_DEPTH > 0 ? HIERARCHY_MATCH : OFF;
     }
 

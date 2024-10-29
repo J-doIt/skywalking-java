@@ -26,10 +26,16 @@ public class IgnoredExceptionConstructInterceptor implements InstanceConstructor
 
     /**
      * Inject a tag field to mark the exception should be not thought error status.
+     * <pre>
+     * (注入 tag 字段来标记异常时，不应被视为错误状态。)
+     * </pre>
+     *
+     * @param objInst 被注解了 IgnoredException 的异常类的增强类
      */
     @Override
     public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
         if (ContextManager.isActive()) {
+            // 将 AnnotationMatchExceptionCheckStrategy 字符串 赋值给 objInst 的动态字段
             objInst.setSkyWalkingDynamicField(AnnotationMatchExceptionCheckStrategy.class.getSimpleName());
         }
     }

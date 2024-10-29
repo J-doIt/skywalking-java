@@ -27,7 +27,9 @@ import java.util.concurrent.ConcurrentHashMap;
 public enum ExceptionCheckContext {
     INSTANCE;
 
+    /** 需要忽略的异常 */
     private final Set<Class<? extends Throwable>> ignoredExceptions = ConcurrentHashMap.newKeySet(32);
+    /** 不需要忽略的异常 */
     private final Set<Class<? extends Throwable>> errorStatusExceptions = ConcurrentHashMap.newKeySet(128);
 
     public boolean isChecked(Throwable throwable) {

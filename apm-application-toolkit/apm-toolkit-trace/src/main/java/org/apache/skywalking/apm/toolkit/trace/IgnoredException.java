@@ -27,6 +27,10 @@ import java.lang.annotation.Target;
 /**
  * After the exception status checker activated in the agent, the span wouldn't be marked as error status if the
  * exception has this annotation.
+ *
+ * <pre>
+ * (在代理中激活异常状态检查器之后，如果异常具有此注释，则不会将span标记为错误状态。)
+ * </pre>
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)

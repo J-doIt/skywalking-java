@@ -19,6 +19,7 @@ toolkit-trace=org.apache.skywalking.apm.toolkit.activation.trace.TraceAnnotation
 toolkit-trace=org.apache.skywalking.apm.toolkit.activation.trace.TraceContextActivation
 toolkit-trace=org.apache.skywalking.apm.toolkit.activation.trace.CallableOrRunnableActivation
 toolkit-tag=org.apache.skywalking.apm.toolkit.activation.trace.TagAnnotationActivation
+# 被注解了 @IgnoredException 的类，忽略其
 toolkit-exception=org.apache.skywalking.apm.toolkit.activation.trace.IgnoredExceptionAnnotationActivation
 toolkit-tracer=org.apache.skywalking.apm.toolkit.activation.trace.CarrierItemRefActivation
 toolkit-tracer=org.apache.skywalking.apm.toolkit.activation.trace.ContextCarrierRefActivation

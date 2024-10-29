@@ -24,6 +24,12 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedI
  * AnnotationMatchExceptionCheckStrategy does an annotation matching check for a traced exception. If it has been
  * annotated with org.apache.skywalking.apm.toolkit.trace.IgnoredException, the error status of the span wouldn't be
  * changed. Because of the annotation supports integration, the subclasses would be also annotated with it.
+ *
+ * <pre>
+ * (AnnotationMatchExceptionCheckStrategy 对 跟踪的异常 进行 注释匹配检查。
+ * 如果它已经用了 @IgnoredException，则不会改变span的错误状态。
+ * 因为注释支持集成，所以子类也将使用它进行注释。)
+ * </pre>
  */
 public class AnnotationMatchExceptionCheckStrategy implements ExceptionCheckStrategy {
 
@@ -31,6 +37,8 @@ public class AnnotationMatchExceptionCheckStrategy implements ExceptionCheckStra
 
     @Override
     public boolean isError(final Throwable e) {
-        return !(e instanceof EnhancedInstance) || !TAG_NAME.equals(((EnhancedInstance) e).getSkyWalkingDynamicField());
+        // 如果 e 是被SW动态增强的，且 动态字段 是 AnnotationMatchExceptionCheckStrategy 字符串，则表示该 span 不是异常
+        return !(e instanceof EnhancedInstance)
+                || !TAG_NAME.equals(((EnhancedInstance) e).getSkyWalkingDynamicField());
     }
 }

@@ -78,6 +78,7 @@ public abstract class AbstractTracingSpan implements AbstractSpan {
     protected long endTime;
     /**
      * Error has occurred in the scope of span.
+     * (span 范围内发生错误。)
      */
     protected boolean errorOccurred = false;
 
@@ -177,7 +178,9 @@ public abstract class AbstractTracingSpan implements AbstractSpan {
         if (logs == null) {
             logs = new LinkedList<>();
         }
+        // !errorOccurred && StatusCheckService 认为该 t 是错误
         if (!errorOccurred && ServiceManager.INSTANCE.findService(StatusCheckService.class).isError(t)) {
+            // 标志位 this.errorOccurred 置为 true
             errorOccurred();
         }
         logs.add(new LogDataEntity.Builder().add(new KeyValuePair("event", "error"))
@@ -212,6 +215,9 @@ public abstract class AbstractTracingSpan implements AbstractSpan {
     /**
      * In the scope of this span tracing context, error occurred, in auto-instrumentation mechanism, almost means throw
      * an exception.
+     * <pre>
+     * (在这个 TracingSpanContext 的范围内，在 自动检测 机制 中，发生错误几乎意味着抛出异常。)
+     * </pre>
      *
      * @return span instance, for chaining.
      */

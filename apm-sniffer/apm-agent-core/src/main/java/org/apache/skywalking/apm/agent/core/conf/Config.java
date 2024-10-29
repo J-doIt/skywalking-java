@@ -389,6 +389,9 @@ public class Config {
         /**
          * Listed exceptions would not be treated as an error. Because in some codes, the exception is being used as a
          * way of controlling business flow.
+         * <pre>
+         * (列出的异常不会被视为错误。因为在某些代码中，异常被用作控制业务流的一种方式。)
+         * </pre>
          */
         public static String IGNORED_EXCEPTIONS = "";
 
@@ -396,6 +399,11 @@ public class Config {
          * The max recursive depth when checking the exception traced by the agent. Typically, we don't recommend
          * setting this more than 10, which could cause a performance issue. Negative value and 0 would be ignored,
          * which means all exceptions would make the span tagged in error status.
+         * <pre>
+         * (检查 agent 跟踪的异常时的最大递归深度。
+         * 通常，我们建议不要将其设置为超过 10，这可能会导致性能问题。
+         * 负值 和 0 将被忽略，这意味着所有异常都会使 span 标记为错误状态。)
+         * </pre>
          */
         public static Integer MAX_RECURSIVE_DEPTH = 1;
     }

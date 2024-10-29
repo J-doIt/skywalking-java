@@ -60,6 +60,7 @@ public class IgnoredExceptionAnnotationActivation extends ClassInstanceMethodsEn
 
     @Override
     protected ClassMatch enhanceClass() {
+        // 被注解了 IgnoredException 的类
         return byClassAnnotationMatch(new String[] {ANNOTATION_NAME});
     }
 }
