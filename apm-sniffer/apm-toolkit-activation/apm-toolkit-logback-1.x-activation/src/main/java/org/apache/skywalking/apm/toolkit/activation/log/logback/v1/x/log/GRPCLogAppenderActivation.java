@@ -32,6 +32,10 @@ import net.bytebuddy.matcher.ElementMatcher;
 /**
  * enhance the method append of the grpc log send logback class "org.apache.skywalking.apm.toolkit
  * .log.logback.v1.x.log.GRPCLogClientAppender".
+ *
+ * <pre>
+ * (增强了 gRPC log send logback 类 GRPCLogClientAppender 的 append 方法。)
+ * </pre>
  */
 public class GRPCLogAppenderActivation extends ClassInstanceMethodsEnhancePluginDefine {
 

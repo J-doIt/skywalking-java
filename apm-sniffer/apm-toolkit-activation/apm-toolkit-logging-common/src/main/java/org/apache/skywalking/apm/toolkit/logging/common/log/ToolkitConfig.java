@@ -28,6 +28,7 @@ public class ToolkitConfig {
             public static class Log {
                 /**
                  * Whether or not to transmit logged data as formatted or un-formatted.
+                 * （是否以 格式化或未格式化 的方式 传输记录的数据。）
                  */
                 public static boolean TRANSMIT_FORMATTED = true;
             }

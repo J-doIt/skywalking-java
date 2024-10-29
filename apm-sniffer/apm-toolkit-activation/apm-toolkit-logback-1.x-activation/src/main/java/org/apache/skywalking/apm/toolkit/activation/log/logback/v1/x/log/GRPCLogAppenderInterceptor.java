@@ -41,10 +41,21 @@ import org.apache.skywalking.apm.network.logging.v3.TextLog;
 import org.apache.skywalking.apm.network.logging.v3.TraceContext;
 import org.apache.skywalking.apm.toolkit.logging.common.log.ToolkitConfig;
 
+/**
+ * <pre>
+ * 增强类：org.apache.skywalking.apm.toolkit.log.logback.v1.x.log.GRPCLogClientAppender
+ * 增强方法：protected void subAppend(final E event)
+ * </pre>
+ */
 public class GRPCLogAppenderInterceptor implements InstanceMethodsAroundInterceptor {
 
+    /** LogReport服务客户端 */
     private LogReportServiceClient client;
 
+    /**
+     * @param objInst GRPCLogClientAppender 的增强类
+     * @param method protected void subAppend(final E event)
+     */
     @SuppressWarnings("unchecked")
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
@@ -57,6 +68,7 @@ public class GRPCLogAppenderInterceptor implements InstanceMethodsAroundIntercep
         }
         ILoggingEvent event = (ILoggingEvent) allArguments[0];
         if (Objects.nonNull(event)) {
+            // 将 event 转换为 LogData.Builder 并加入到 消费队列
             client.produce(transform((OutputStreamAppender<ILoggingEvent>) objInst, event));
         }
     }
@@ -118,6 +130,7 @@ public class GRPCLogAppenderInterceptor implements InstanceMethodsAroundIntercep
             builder.setEndpoint(primaryEndpointName);
         }
 
+        // 如果 当前的AbstractTracerContext的 active span 的 spanId 非-1时，还需设置 LogDate 的 TraceContext
         return -1 == ContextManager.getSpanId() ? builder
                 : builder.setTraceContext(TraceContext.newBuilder()
                         .setTraceId(ContextManager.getGlobalTraceId())

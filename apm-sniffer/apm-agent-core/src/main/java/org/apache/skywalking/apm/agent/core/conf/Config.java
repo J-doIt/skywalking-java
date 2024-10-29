@@ -322,6 +322,7 @@ public class Config {
     public static class Log {
         /**
          * The max size of message to send to server.Default is 10 MB.
+         * （要发送到服务器的消息的最大大小。默认值为 10 MB。）
          */
         public static int MAX_MESSAGE_SIZE = 10 * 1024 * 1024;
     }
