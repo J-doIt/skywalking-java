@@ -133,7 +133,7 @@ public class EventReportServiceClient implements BootService, GRPCChannelListene
                                                  )
                                                 .setLayer(EVENT_LAYER_NAME);
 
-        // 声明 grpc 调用
+        // 使用 grpc 存根调用远程方法
         final StreamObserver<Event> collector = eventServiceStub.collect(new StreamObserver<Commands>() {
             @Override
             public void onNext(final Commands commands) {
@@ -193,7 +193,7 @@ public class EventReportServiceClient implements BootService, GRPCChannelListene
             return;
         }
 
-        // 声明 grpc 调用
+        // 使用 grpc 存根调用远程方法
         final StreamObserver<Event> collector = eventServiceStub.collect(new StreamObserver<Commands>() {
             @Override
             public void onNext(final Commands commands) {
