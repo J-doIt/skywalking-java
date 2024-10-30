@@ -36,8 +36,8 @@ import java.lang.reflect.Method;
  * <pre>
  * (RestMappingMethodInterceptor 仅使用第一个 mapping 值。它将拦截 @GetMapping、@PostMapping、@PutMapping @DeleteMapping @PatchMapping。)
  *
- * 增强类：被注解了 Controller 的类
- * 增强方法：带有 @RequestMapping 注解的方法
+ * 增强类：被注解了 RestController 的类
+ * 增强方法：带有  @GetMapping、@PostMapping、@PutMapping、@DeleteMapping 和 @PatchMapping 注解的方法
  * </pre>
  */
 public class RestMappingMethodInterceptor extends AbstractMethodInterceptor {
