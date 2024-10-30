@@ -20,14 +20,18 @@ package org.apache.skywalking.apm.plugin.feign.http.v9;
 
 /**
  * class for {@link PathVarInterceptor} intercept feign url resolved params in url .
+ * <pre>
+ * (PathVarInterceptor 拦截 feign url 解析 在 url 中的 参数。)
+ * feign 解析的 URL
+ * </pre>
  */
 public class FeignResolvedURL {
     /**
-     * url before resolved
+     * 解析之前的 URL
      */
     private String originUrl;
     /**
-     * url after resolved
+     * 解析后的 URL
      */
     private String url;
 

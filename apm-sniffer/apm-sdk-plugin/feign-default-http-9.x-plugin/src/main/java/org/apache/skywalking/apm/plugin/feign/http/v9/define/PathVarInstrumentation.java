@@ -28,6 +28,13 @@ import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
+/**
+ * <pre>
+ * 增强类 feign.ReflectiveFeign$BuildTemplateByResolvingArgs
+ * 增强方法：RequestTemplate resolve(Object[] argv, RequestTemplate mutable, Map<String, Object> variables)
+ *      拦截器：v9.PathVarInterceptor
+ * </pre>
+ */
 public class PathVarInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
     /**

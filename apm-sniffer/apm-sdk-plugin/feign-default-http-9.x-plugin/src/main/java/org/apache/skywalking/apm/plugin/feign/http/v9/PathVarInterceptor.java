@@ -27,6 +27,13 @@ import java.lang.reflect.Method;
 
 /**
  * {@link PathVarInterceptor} intercept the Feign RequestTemplate args resolve ;
+ *
+ * <pre>
+ * (PathVarInterceptor 拦截 Feign 的 RequestTemplate 参数；)
+ *
+ * 增强类 feign.ReflectiveFeign$BuildTemplateByResolvingArgs
+ * 增强方法：RequestTemplate resolve(Object[] argv, RequestTemplate mutable, Map<String, Object> variables)
+ * </pre>
  */
 public class PathVarInterceptor implements InstanceMethodsAroundInterceptor {
 
@@ -36,13 +43,15 @@ public class PathVarInterceptor implements InstanceMethodsAroundInterceptor {
      * Get the {@link RequestTemplate#url()} before feign.ReflectiveFeign.BuildTemplateByResolvingArgs#resolve(Object[],
      * RequestTemplate, Map) put it into the {@link PathVarInterceptor#URL_CONTEXT}
      *
-     * @param method intercept method
+     * @param objInst feign.ReflectiveFeign$BuildTemplateByResolvingArgs 的增强类 的实例
+     * @param method RequestTemplate resolve(Object[] argv, RequestTemplate mutable, Map<String, Object> variables)
      * @param result change this result, if you want to truncate the method.
      */
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         MethodInterceptResult result) {
         RequestTemplate template = (RequestTemplate) allArguments[1];
+        // 根据 RequestTemplate 的 url（解析前的url） 创建 FeignResolvedURL 并加入到 线程变量
         URL_CONTEXT.set(new FeignResolvedURL(template.url()));
     }
 
@@ -58,13 +67,18 @@ public class PathVarInterceptor implements InstanceMethodsAroundInterceptor {
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         Object ret) {
         RequestTemplate resolvedTemplate = (RequestTemplate) ret;
+        // 设置 解析后的 URL
         URL_CONTEXT.get().setUrl(resolvedTemplate.url());
         return ret;
     }
 
+    /**
+     * resolve() 执行失败 的 异常处理
+     */
     @Override
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Throwable t) {
+        // 移除 当前线程 的 线程变量
         if (URL_CONTEXT.get() != null) {
             URL_CONTEXT.remove();
         }

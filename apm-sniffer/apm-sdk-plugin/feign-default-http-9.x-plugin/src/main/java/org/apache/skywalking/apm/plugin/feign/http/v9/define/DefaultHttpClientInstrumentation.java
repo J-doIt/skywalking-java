@@ -28,6 +28,13 @@ import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
+/**
+ * <pre>
+ * 增强类 feign.Client$Default
+ * 增强方法：Response execute(Request request, Request.Options options)
+ *      拦截器：v9.DefaultHttpClientInterceptor
+ * </pre>
+ */
 public class DefaultHttpClientInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
     /**

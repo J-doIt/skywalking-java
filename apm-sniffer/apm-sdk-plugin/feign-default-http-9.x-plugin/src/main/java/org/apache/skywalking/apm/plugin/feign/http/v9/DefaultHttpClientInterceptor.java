@@ -46,10 +46,18 @@ import static feign.Util.valuesOrEmpty;
 
 /**
  * {@link DefaultHttpClientInterceptor} intercept the default implementation of http calls by the Feign.
+ *
+ * <pre>
+ * (DefaultHttpClientInterceptor 拦截 Feign 的 http 调用 的 默认实现。)
+ *
+ * 增强类 feign.Client$Default
+ * 增强方法：Response execute(Request request, Request.Options options)
+ * </pre>
  */
 public class DefaultHttpClientInterceptor implements InstanceMethodsAroundInterceptor {
 
     private static final String CONTENT_TYPE_HEADER = "Content-Type";
+    /** feign.Request 的 headers 字段 */
     private static Field FIELD_HEADERS_OF_REQUEST;
 
     static {
@@ -67,7 +75,8 @@ public class DefaultHttpClientInterceptor implements InstanceMethodsAroundInterc
      * kind, component, url from {@link feign.Request}. Through the reflection of the way, set the http header of
      * context data into {@link feign.Request#headers}.
      *
-     * @param method intercept method
+     * @param objInst feign.Client$Default 的增强类 的实例
+     * @param method Response execute(Request request, Request.Options options)
      * @param result change this result, if you want to truncate the method.
      * @throws Throwable NoSuchFieldException or IllegalArgumentException
      */
@@ -76,6 +85,7 @@ public class DefaultHttpClientInterceptor implements InstanceMethodsAroundInterc
                              MethodInterceptResult result) throws Throwable {
         Request request = (Request) allArguments[0];
         URL url = new URL(request.url());
+        // 创建 跨进程传输载体
         ContextCarrier contextCarrier = new ContextCarrier();
         int port = url.getPort() == -1 ? 80 : url.getPort();
         String remotePeer = url.getHost() + ":" + port;
@@ -83,38 +93,51 @@ public class DefaultHttpClientInterceptor implements InstanceMethodsAroundInterc
         FeignResolvedURL feignResolvedURL = PathVarInterceptor.URL_CONTEXT.get();
         if (feignResolvedURL != null) {
             try {
+                // 将 feign解析前的url 替换为 解析后的 url
                 operationName = operationName.replace(feignResolvedURL.getUrl(), feignResolvedURL.getOriginUrl());
             } finally {
+                // 移除 PathVarInterceptor 的 当前线程 的 线程变量
                 PathVarInterceptor.URL_CONTEXT.remove();
             }
         }
         if (operationName.length() == 0) {
             operationName = "/";
         }
+        // 创建 exit span，并将 当前的 TracerContext 和 该 exit span 的相关信息 注入 到 ContextCarrier 中
         AbstractSpan span = ContextManager.createExitSpan(operationName, contextCarrier, remotePeer);
+        // 设置 span 的 组件为 Feign
         span.setComponent(ComponentsDefine.FEIGN);
+        // 设置 span 的 HTTP 方法标签
         Tags.HTTP.METHOD.set(span, request.method());
+        // 设置 span 的 URL 标签
         Tags.URL.set(span, request.url());
+        // 设置 span 层为 HTTP
         SpanLayer.asHttp(span);
 
+        // 否应收集请求的 http 正文
         if (FeignPluginConfig.Plugin.Feign.COLLECT_REQUEST_BODY) {
             boolean needCollectHttpBody = false;
             Iterator<String> stringIterator = valuesOrEmpty(request.headers(), CONTENT_TYPE_HEADER).iterator();
             String contentTypeHeaderValue = stringIterator.hasNext() ? stringIterator.next() : "";
+            // 遍历 支持的内容类型前缀
             for (String contentType : FeignPluginConfig.Plugin.Feign.SUPPORTED_CONTENT_TYPES_PREFIX.split(",")) {
                 if (contentTypeHeaderValue.startsWith(contentType)) {
+                    // 标记为需要收集请求正文
                     needCollectHttpBody = true;
                     break;
                 }
             }
             if (needCollectHttpBody) {
+                // 收集请求正文
                 collectHttpBody(request, span);
             }
         }
 
+        // 如果 feign.Request 的 headers 字段 不为空
         if (FIELD_HEADERS_OF_REQUEST != null) {
             Map<String, Collection<String>> headers = new LinkedHashMap<String, Collection<String>>();
             CarrierItem next = contextCarrier.items();
+            // 将 下文载体 的 key-value 放置到 headers
             while (next.hasNext()) {
                 next = next.next();
                 List<String> contextCollection = new ArrayList<String>(1);
@@ -123,18 +146,21 @@ public class DefaultHttpClientInterceptor implements InstanceMethodsAroundInterc
             }
             headers.putAll(request.headers());
 
+            // 为 方法参数 request 的 headers 字段 设置值
             FIELD_HEADERS_OF_REQUEST.set(request, Collections.unmodifiableMap(headers));
         }
     }
 
+    /** 收集请求正文 */
     private void collectHttpBody(final Request request, final AbstractSpan span) {
         if (request.body() == null || request.charset() == null) {
             return;
         }
         String tagValue = new String(request.body(), request.charset());
+        // 根据 字符数限制 截取 请求正文
         tagValue = FeignPluginConfig.Plugin.Feign.FILTER_LENGTH_LIMIT > 0 ?
             StringUtil.cut(tagValue, FeignPluginConfig.Plugin.Feign.FILTER_LENGTH_LIMIT) : tagValue;
-
+        // 设置 span 的 HTTP 的 BODY 标签
         Tags.HTTP.BODY.set(span, tagValue);
     }
 
@@ -142,7 +168,8 @@ public class DefaultHttpClientInterceptor implements InstanceMethodsAroundInterc
      * Get the status code from {@link Response}, when status code greater than 400, it means there was some errors in
      * the server. Finish the {@link AbstractSpan}.
      *
-     * @param method intercept method
+     * @param objInst feign.Client$Default 的增强类 的实例
+     * @param method Response execute(Request request, Request.Options options)
      * @param ret    the method's original return value.
      * @return origin ret
      */
@@ -153,22 +180,28 @@ public class DefaultHttpClientInterceptor implements InstanceMethodsAroundInterc
         if (response != null) {
             int statusCode = response.status();
 
+            // 获取当前活跃的 Span
             AbstractSpan span = ContextManager.activeSpan();
+            // 设置 span 的 response状态码 标签
             Tags.HTTP_RESPONSE_STATUS_CODE.set(span, statusCode);
+            // 如果 响应状态码 大于等于 400，则标记 Span 为错误
             if (statusCode >= 400) {
                 span.errorOccurred();
             }
         }
 
+        // 停止 当前活跃的 Span。
         ContextManager.stopSpan();
 
         return ret;
     }
 
+    /**  execute() 执行失败 的 异常处理 */
     @Override
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
                                       Class<?>[] argumentsTypes, Throwable t) {
         AbstractSpan activeSpan = ContextManager.activeSpan();
+        // 设置 active span 的 log 为 t
         activeSpan.log(t);
     }
 }

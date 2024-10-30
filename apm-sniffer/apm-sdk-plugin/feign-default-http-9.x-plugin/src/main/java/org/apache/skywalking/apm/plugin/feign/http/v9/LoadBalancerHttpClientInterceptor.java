@@ -33,6 +33,15 @@ import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 
 /**
  * {@link LoadBalancerHttpClientInterceptor} intercept the implementation of http calls by the Feign LoadBalancer.
+ *
+ *
+ * <pre>
+ * (LoadBalancerHttpClientInterceptor 拦截 由 Feign LoadBalancer 执行的 http 调用。)
+ *
+ * 增强类 LoadBalancerFeignClient
+ * 增强方法：Response execute(Request request, Request.Options options)
+ *      拦截器：AsyncCallInterceptor
+ * </pre>
  */
 public class LoadBalancerHttpClientInterceptor implements InstanceMethodsAroundInterceptor {
 
