@@ -26,14 +26,20 @@ import org.apache.skywalking.apm.agent.core.os.OSUtil;
 
 import static org.apache.skywalking.apm.util.StringUtil.isEmpty;
 
+/**
+ * 服务实例名生成器
+ */
 @Getter
 public class ServiceInstanceGenerator implements BootService {
     @Override
     public void prepare() throws Throwable {
+        // 如果 agent 配置文件中的 agent.instance_name 不为空，则直接返回
         if (!isEmpty(Config.Agent.INSTANCE_NAME)) {
             return;
         }
 
+        // 如果 agent.instance_name 为空，则生成一个新的实例名称
+        // 生成一个 UUID 并去掉其中的 "-" 字符，然后加上 "@" 和当前机器的 IPv4 地址
         Config.Agent.INSTANCE_NAME = UUID.randomUUID().toString().replaceAll("-", "") + "@" + OSUtil.getIPV4();
     }
 
@@ -54,6 +60,7 @@ public class ServiceInstanceGenerator implements BootService {
 
     @Override
     public int priority() {
+        // 优先级 设置为 最大
         return Integer.MAX_VALUE;
     }
 }
