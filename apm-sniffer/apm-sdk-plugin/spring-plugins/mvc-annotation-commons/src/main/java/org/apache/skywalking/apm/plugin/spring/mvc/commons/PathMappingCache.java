@@ -25,6 +25,10 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * {@link PathMappingCache} cache all request urls of {@link org.springframework.stereotype.Controller} .
+ *
+ * <pre>
+ * (PathMappingCache 缓存 Controller 的所有请求 url。)
+ * </pre>
  */
 public class PathMappingCache {
 

@@ -28,9 +28,17 @@ import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
+/**
+ * <pre>
+ * 增强类 AnnotationMethodHandlerAdapter（后续版本不在使用了）
+ * 增强方法：ModelAndView invokeHandlerMethod(HttpServletRequest request, HttpServletResponse response, Object handler)
+ *      拦截器：InvokeHandlerMethodInterceptor
+ * </pre>
+ */
 public class AnnotationMethodHandlerAdapterInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
     @Override
     public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
+        // 不增强构造函数
         return new ConstructorInterceptPoint[0];
     }
 
@@ -40,6 +48,7 @@ public class AnnotationMethodHandlerAdapterInstrumentation extends ClassInstance
             new InstanceMethodsInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                    // 拦截 AnnotationMethodHandlerAdapter 的 invokeHandlerMethod 方法
                     return named("invokeHandlerMethod");
                 }
 
@@ -50,6 +59,7 @@ public class AnnotationMethodHandlerAdapterInstrumentation extends ClassInstance
 
                 @Override
                 public boolean isOverrideArgs() {
+                    // 不重写增强方法的参数类型
                     return false;
                 }
             }
@@ -58,6 +68,7 @@ public class AnnotationMethodHandlerAdapterInstrumentation extends ClassInstance
 
     @Override
     protected ClassMatch enhanceClass() {
+        // 增强类：AnnotationMethodHandlerAdapter（后续版本不在使用了）
         return byName("org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter");
     }
 }

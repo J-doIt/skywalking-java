@@ -27,16 +27,27 @@ import java.lang.reflect.Method;
 /**
  * The <code>RequestMappingMethodInterceptor</code> only use the first mapping value. it will interceptor with
  * <code>@RequestMapping</code>
+ * <pre>
+ * (RequestMappingMethodInterceptor 只使用第一个mapping值。它将使用 @RequestMapping 进行拦截。)
+ *
+ * 增强类：被注解了 Controller 的类
+ * 增强方法：带有 @RequestMapping 注解的方法
+ * </pre>
  */
 public class RequestMappingMethodInterceptor extends AbstractMethodInterceptor {
     @Override
     public String getRequestURL(Method method) {
+
+        // 使用 ParsePathUtil 工具类 递归解析方法上的 RequestMapping 注解
         return ParsePathUtil.recursiveParseMethodAnnotation(method, m -> {
             String requestURL = null;
+            // 获取方法上的 RequestMapping 注解
             RequestMapping methodRequestMapping = AnnotationUtils.getAnnotation(m, RequestMapping.class);
             if (methodRequestMapping != null) {
+                // 使用 RequestMapping 注解的第一个mapping值 作为 requestURL
                 requestURL = methodRequestMapping.value().length > 0 ? methodRequestMapping.value()[0] : "";
             }
+            // 返回解析得到的 requestURL
             return requestURL;
         });
     }

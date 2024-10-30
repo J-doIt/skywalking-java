@@ -19,6 +19,7 @@ package org.apache.skywalking.apm.plugin.spring.mvc.v5.define.reactive;
 
 public class ReactiveControllerInstrumentation extends AbstractReactiveControllerInstrumentation {
 
+    /** 增强被注解了 Controller 的类 */
     public static final String ENHANCE_ANNOTATION = "org.springframework.stereotype.Controller";
 
     @Override

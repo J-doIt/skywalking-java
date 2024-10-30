@@ -22,11 +22,21 @@ import org.apache.skywalking.apm.agent.core.context.ContextSnapshot;
 import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
 import org.apache.skywalking.apm.network.trace.component.OfficialComponent;
 
+/**
+ * <pre>
+ * Skywalking 动态增强的字段类型。
+ * {@link org.apache.skywalking.apm.agent.core.plugin.AbstractClassEnhancePluginDefine#CONTEXT_ATTR_NAME}
+ * </pre>
+ */
 public class EnhanceCacheObjects {
+    /** span 所属 组件 */
     private OfficialComponent component;
+    /** span 所属 框架 */
     private SpanLayer spanLayer;
 
+    /** 操作名 */
     private String operationName;
+    /** 上下文快照 */
     private ContextSnapshot contextSnapshot;
 
     public EnhanceCacheObjects(String operationName, OfficialComponent component, SpanLayer spanLayer,

@@ -29,10 +29,20 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
 /**
  * {@link HandlerMethodInstrumentation} intercept the <code>getBean</code> method in the
  * <code>org.springframework.web.method.HandlerMethod</code> class.
+ *
+ * <pre>
+ * (HandlerMethodInstrumentation 拦截 HandlerMethod 类中的 getBean 方法。)
+ *
+ * 增强类 HandlerMethod
+ * 增强方法：Object getBean()
+ *      拦截器：v5.GetBeanInterceptor
+ * </pre>
  */
 public class HandlerMethodInstrumentation extends AbstractSpring5Instrumentation {
 
+    /** 增强 HandlerMethod 的 getBean 方法 */
     public static final String ENHANCE_METHOD = "getBean";
+    /** 增强 HandlerMethod 类 */
     public static final String ENHANCE_CLASS = "org.springframework.web.method.HandlerMethod";
 
     @Override

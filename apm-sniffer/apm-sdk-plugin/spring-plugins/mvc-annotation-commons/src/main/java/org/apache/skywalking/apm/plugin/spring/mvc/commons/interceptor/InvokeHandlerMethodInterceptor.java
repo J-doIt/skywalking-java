@@ -28,11 +28,27 @@ import java.lang.reflect.Method;
 import static org.apache.skywalking.apm.plugin.spring.mvc.commons.Constants.REQUEST_KEY_IN_RUNTIME_CONTEXT;
 import static org.apache.skywalking.apm.plugin.spring.mvc.commons.Constants.RESPONSE_KEY_IN_RUNTIME_CONTEXT;
 
+/**
+ * <pre>
+ * 增强类 AnnotationMethodHandlerAdapter（后续版本不在使用了）
+ * 增强方法：ModelAndView invokeHandlerMethod(HttpServletRequest request, HttpServletResponse response, Object handler)
+ * </pre>
+ */
 public class InvokeHandlerMethodInterceptor implements InstanceMethodsAroundInterceptor {
+    /**
+     * @param objInst 被增强了的 AnnotationMethodHandlerAdapter
+     * @param method 被增强了的 AnnotationMethodHandlerAdapter 的 invokeHandlerMethod((HttpServletRequest, HttpServletResponse, Object handler)) 方法
+     * @param allArguments
+     * @param argumentsTypes
+     * @param result change this result, if you want to truncate the method.
+     * @throws Throwable
+     */
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
                              MethodInterceptResult result) throws Throwable {
+        // 如果第三个参数 handler 的类型是 被修改过的，且是 EnhancedInstance 类型
         if (allArguments[2] instanceof EnhancedInstance) {
+            // 将 方法的 HttpServletRequest 和  HttpServletResponse 参数 加入到 RuntimeContext
             ContextManager.getRuntimeContext().put(RESPONSE_KEY_IN_RUNTIME_CONTEXT, allArguments[1]);
             ContextManager.getRuntimeContext().put(REQUEST_KEY_IN_RUNTIME_CONTEXT, allArguments[0]);
         }

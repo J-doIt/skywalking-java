@@ -30,11 +30,17 @@ import static org.apache.skywalking.apm.plugin.spring.mvc.commons.Constants.RESP
 /**
  * {@link InvokeForRequestInterceptor} pass the {@link NativeWebRequest} object into the {@link
  * org.springframework.stereotype.Controller} object.
+ *
+ * <pre>
+ * (InvokeForRequestInterceptor 将 NativeWebRequest 对象传递给 Controller 对象。)
+ * v3 和 v4 版本的 Interceptor
+ * </pre>
  */
 public class InvokeForRequestInterceptor implements InstanceMethodsAroundInterceptor {
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
                              MethodInterceptResult result) throws Throwable {
+        //
         ContextManager.getRuntimeContext()
                 .put(RESPONSE_KEY_IN_RUNTIME_CONTEXT, ((NativeWebRequest) allArguments[0]).getNativeResponse());
     }

@@ -32,6 +32,13 @@ import static org.apache.skywalking.apm.plugin.spring.mvc.commons.Constants.RESP
 /**
  * {@link GetBeanInterceptor} pass the {@link NativeWebRequest} object into the {@link
  * org.springframework.stereotype.Controller} object.
+ *
+ * <pre>
+ * (GetBeanInterceptor 将 NativeWebRequest对象 传递到 Controller对象 中。)
+ *
+ * 增强类 HandlerMethod
+ * 增强方法：Object getBean()
+ * </pre>
  */
 public class GetBeanInterceptor implements InstanceMethodsAroundInterceptor {
     @Override
@@ -39,17 +46,25 @@ public class GetBeanInterceptor implements InstanceMethodsAroundInterceptor {
                              MethodInterceptResult result) throws Throwable {
     }
 
+    /**
+     * @param objInst 被增强的 HandlerMethod 类的实例
+     * @param method getBean() 方法（QFTODO：HandlerMethod.getBean ？为什么要增强这个，该方法的返回值什么时候被增强为 EnhancedInstance 了的？）
+     * @param ret 该方法的原始返回值。如果该方法触发异常，则可能为 null。
+     */
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
                               Object ret) throws Throwable {
+        // 如果该方法（getBean）的返回值是被增强过的动态字段 QFTODO: ret 在哪里被增强的？
         if (ret instanceof EnhancedInstance) {
             ServletRequestAttributes requestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
             if (requestAttributes != null) {
+                // 将 请求 加入到 当前Trace上下文 中
                 ContextManager.getRuntimeContext()
                               .put(
                                   REQUEST_KEY_IN_RUNTIME_CONTEXT,
                                   requestAttributes.getRequest()
                               );
+                // 将 应答 加入到 当前Trace上下文 中
                 ContextManager.getRuntimeContext()
                               .put(
                                   RESPONSE_KEY_IN_RUNTIME_CONTEXT,

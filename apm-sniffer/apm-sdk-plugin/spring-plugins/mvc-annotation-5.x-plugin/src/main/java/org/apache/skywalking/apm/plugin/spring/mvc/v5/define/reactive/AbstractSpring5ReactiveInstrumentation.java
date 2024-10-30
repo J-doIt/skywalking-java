@@ -20,7 +20,9 @@ package org.apache.skywalking.apm.plugin.spring.mvc.v5.define.reactive;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
 
 public abstract class AbstractSpring5ReactiveInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
+    /** 见证类 LOW 版本 */
     public static final String WITNESS_CLASSES_LOW_VERSION = "org.springframework.beans.annotation.AnnotationBeanUtils";
+    /** 见证类 HIGH 版本 */
     public static final String WITNESS_CLASSES_HIGH_VERSION = "org.springframework.core.ReactiveAdapterRegistry";
 
     @Override

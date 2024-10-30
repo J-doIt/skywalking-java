@@ -42,6 +42,16 @@ import static org.apache.skywalking.apm.agent.core.plugin.match.MethodInheritanc
  * from dynamic field first, if not found, <code>RequestMappingMethodInterceptor</code> generate request path  that
  * combine the path value of current annotation on current method and the base path and set the new path to the dynamic
  * filed
+ *
+ * <pre>
+ * 增强类：被注解了 Controller 或 RestController 的类
+ * 增强构造函数：任何构造函数
+ *      拦截器：v5.ControllerConstructorInterceptor
+ * 增强方法：带有 @RequestMapping 注解的方法
+ *      拦截器：RequestMappingMethodInterceptor
+ * 增强方法：带有 @GetMapping、@PostMapping、@PutMapping、@DeleteMapping 和 @PatchMapping 注解的方法
+ *      拦截器：RestMappingMethodInterceptor
+ * </pre>
  */
 public abstract class AbstractControllerInstrumentation extends AbstractSpring5Instrumentation {
     @Override
@@ -64,6 +74,7 @@ public abstract class AbstractControllerInstrumentation extends AbstractSpring5I
     @Override
     public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
         return new InstanceMethodsInterceptPoint[] {
+            // 第一个拦截点：匹配带有 @RequestMapping 注解的方法
             new DeclaredInstanceMethodsInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
@@ -80,6 +91,7 @@ public abstract class AbstractControllerInstrumentation extends AbstractSpring5I
                     return false;
                 }
             },
+            // 第二个拦截点：匹配带有 @GetMapping、@PostMapping、@PutMapping、@DeleteMapping 和 @PatchMapping 注解的方法
             new DeclaredInstanceMethodsInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
@@ -105,6 +117,7 @@ public abstract class AbstractControllerInstrumentation extends AbstractSpring5I
 
     @Override
     protected ClassMatch enhanceClass() {
+        // 被注解了 Controller 或 RestController 的类
         return ClassAnnotationMatch.byClassAnnotationMatch(getEnhanceAnnotations());
     }
 

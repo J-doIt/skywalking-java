@@ -32,8 +32,16 @@ import java.lang.reflect.Method;
  * The <code>RestMappingMethodInterceptor</code> only use the first mapping value. it will interceptor with
  * <code>@GetMapping</code>, <code>@PostMapping</code>, <code>@PutMapping</code>
  * <code>@DeleteMapping</code>, <code>@PatchMapping</code>
+ *
+ * <pre>
+ * (RestMappingMethodInterceptor 仅使用第一个 mapping 值。它将拦截 @GetMapping、@PostMapping、@PutMapping @DeleteMapping @PatchMapping。)
+ *
+ * 增强类：被注解了 Controller 的类
+ * 增强方法：带有 @RequestMapping 注解的方法
+ * </pre>
  */
 public class RestMappingMethodInterceptor extends AbstractMethodInterceptor {
+
     @Override
     public String getRequestURL(Method method) {
         return ParsePathUtil.recursiveParseMethodAnnotation(method, m -> {
@@ -43,6 +51,7 @@ public class RestMappingMethodInterceptor extends AbstractMethodInterceptor {
             PutMapping putMapping = AnnotationUtils.getAnnotation(m, PutMapping.class);
             DeleteMapping deleteMapping = AnnotationUtils.getAnnotation(m, DeleteMapping.class);
             PatchMapping patchMapping = AnnotationUtils.getAnnotation(m, PatchMapping.class);
+            // 从 注解中 获取 requestURL
             if (getMapping != null) {
                 if (getMapping.value().length > 0) {
                     requestURL = getMapping.value()[0];

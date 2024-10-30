@@ -14,9 +14,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# 声明 增强 被注解了 Controller 的类 的 构造器
 spring-mvc-annotation-5.x=org.apache.skywalking.apm.plugin.spring.mvc.v5.define.ControllerInstrumentation
+# 声明 增强 被注解了 RestController 的类 的 构造器
 spring-mvc-annotation-5.x=org.apache.skywalking.apm.plugin.spring.mvc.v5.define.RestControllerInstrumentation
+# 声明 增强 HandlerMethod 的 getBean 方法
 spring-mvc-annotation-5.x=org.apache.skywalking.apm.plugin.spring.mvc.v5.define.HandlerMethodInstrumentation
+# 声明 增强  webflux 的 InvocableHandlerMethod 的 invoke 方法
 spring-mvc-annotation-5.x=org.apache.skywalking.apm.plugin.spring.mvc.v5.define.reactive.InvocableHandlerMethodInstrumentation
+# 声明 增强  webflux 的  的  方法
 spring-mvc-annotation-5.x=org.apache.skywalking.apm.plugin.spring.mvc.v5.define.reactive.ReactiveControllerInstrumentation
+# 声明 增强  webflux 的  的  方法
 spring-mvc-annotation-5.x=org.apache.skywalking.apm.plugin.spring.mvc.v5.define.reactive.ReactiveRestControllerInstrumentation

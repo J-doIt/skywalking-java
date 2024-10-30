@@ -20,6 +20,9 @@ package org.apache.skywalking.apm.plugin.spring.mvc.commons;
 
 import java.lang.reflect.Method;
 
+/**
+ * 动态字段，用于关联 PathMappingCache 中缓存的 basePath)
+ */
 public class EnhanceRequireObjectCache {
     private PathMappingCache pathMappingCache;
 

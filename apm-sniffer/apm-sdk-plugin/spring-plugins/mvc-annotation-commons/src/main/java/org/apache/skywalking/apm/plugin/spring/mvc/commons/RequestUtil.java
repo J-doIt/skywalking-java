@@ -32,6 +32,9 @@ import java.util.List;
 import java.util.Map;
 
 public class RequestUtil {
+    /**
+     * 收集 HTTP 参数
+     */
     public static void collectHttpParam(HttpServletRequest request, AbstractSpan span) {
         final Map<String, String[]> parameterMap = request.getParameterMap();
         if (parameterMap != null && !parameterMap.isEmpty()) {
@@ -65,6 +68,9 @@ public class RequestUtil {
         }
     }
 
+    /**
+     * 收集 INCLUDE_HTTP_HEADERS 指定的 HTTP 头部
+     */
     public static void collectHttpHeaders(HttpServletRequest request, AbstractSpan span) {
         final List<String> headersList = new ArrayList<>(SpringMVCPluginConfig.Plugin.Http.INCLUDE_HTTP_HEADERS.size());
         SpringMVCPluginConfig.Plugin.Http.INCLUDE_HTTP_HEADERS.stream()
@@ -120,6 +126,9 @@ public class RequestUtil {
         collectHttpHeaders(headersList, span);
     }
 
+    /**
+     * 收集 HTTP 头部 到 span 的 tag
+     */
     private static void collectHttpHeaders(final List<String> headersList, final AbstractSpan span) {
         if (headersList != null && !headersList.isEmpty()) {
             String tagValue = String.join("\n", headersList);

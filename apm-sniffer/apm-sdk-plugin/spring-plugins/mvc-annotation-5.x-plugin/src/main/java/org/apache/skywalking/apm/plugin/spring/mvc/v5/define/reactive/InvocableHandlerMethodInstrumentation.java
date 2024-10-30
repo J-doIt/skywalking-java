@@ -27,6 +27,13 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
 import static org.apache.skywalking.apm.agent.core.plugin.bytebuddy.ArgumentTypeNameMatch.takesArgumentWithType;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
+/**
+ *<pre>
+ * 增强类 webflux 的 InvocableHandlerMethod
+ * 增强方法：Mono≤HandlerResult> invoke(ServerWebExchange exchange, BindingContext bindingContext, Object... providedArgs)
+ *      拦截器：v5.InvokeInterceptor
+ * </pre>
+ */
 public class InvocableHandlerMethodInstrumentation extends AbstractSpring5ReactiveInstrumentationV2 {
     @Override
     protected ClassMatch enhanceClass() {
