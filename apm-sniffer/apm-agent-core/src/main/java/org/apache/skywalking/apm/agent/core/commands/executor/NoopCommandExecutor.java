@@ -32,7 +32,7 @@ public enum NoopCommandExecutor implements CommandExecutor {
 
     @Override
     public void execute(final BaseCommand command) throws CommandExecutionException {
-
+        // 不执行任何操作
     }
 
 }
