@@ -24,10 +24,14 @@ import java.util.ArrayList;
 
 /**
  * Help to build the meter
+ * @param <BUILDER> 指标构建器
+ * @param <METER> 指标
  */
 public abstract class AbstractBuilder<BUILDER extends AbstractBuilder, METER extends BaseMeter> {
 
+    /** 指标服务 */
     private static MeterService METER_SERVICE;
+    /** 唯一标识 指标 的 Id */
     protected final MeterId meterId;
 
     /**
@@ -37,6 +41,7 @@ public abstract class AbstractBuilder<BUILDER extends AbstractBuilder, METER ext
         if (name == null) {
             throw new IllegalArgumentException("Meter name cannot be null");
         }
+        // 初始化 MeterId
         this.meterId = new MeterId(name, getType(), new ArrayList<>());
     }
 
@@ -50,6 +55,7 @@ public abstract class AbstractBuilder<BUILDER extends AbstractBuilder, METER ext
 
     /**
      * Get supported build meter type
+     * （获取 支持的 构建指标类型）
      */
     protected abstract MeterType getType();
 
@@ -60,6 +66,9 @@ public abstract class AbstractBuilder<BUILDER extends AbstractBuilder, METER ext
 
     /**
      * Build a new meter object
+     * <pre>
+     * (构建新的 meter 对象，并注册到 MeterService.meterMap 中)
+     * </pre>
      */
     public METER build() {
         // sort the tags
@@ -68,8 +77,10 @@ public abstract class AbstractBuilder<BUILDER extends AbstractBuilder, METER ext
         if (METER_SERVICE == null) {
             METER_SERVICE = ServiceManager.INSTANCE.findService(MeterService.class);
         }
+        // 创建 BaseMeter
         final METER adapter = this.create(meterId);
 
+        // 注册 BaseMeter
         METER_SERVICE.register(adapter);
 
         return (METER) adapter;

@@ -24,11 +24,17 @@ package org.apache.skywalking.apm.agent.core.meter;
 public enum CounterMode {
     /**
      * INCREMENT mode represents reporting the latest value.
+     * <pre>
+     * (INCREMENT 模式：报告最新值。)
+     * </pre>
      */
     INCREMENT,
 
     /**
      * RATE mode represents reporting the increment rate. Value = latest value - last reported value.
+     * <pre>
+     * (RATE 模式：报告增量速率。值 = 最新值 - 上次报告的值。)
+     * </pre>
      */
     RATE
 }

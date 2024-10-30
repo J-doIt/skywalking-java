@@ -26,14 +26,19 @@ import java.util.stream.Collectors;
 
 /**
  * Identity the meter, including name, type and tags.
+ * <pre>
+ * (计量器的唯一标识。包括 名称、类型 和 标签。)
+ * </pre>
  */
 public class MeterId {
 
     private final String name;
     private final MeterType type;
+    /** 对应 Meter.proto 中的 Label */
     private final List<MeterTag> tags;
 
     // Labels are used to report meter to the backend.
+    /** 标签用于向 OAP 报告 meter。 */
     private List<Label> labels;
 
     public MeterId(String name, MeterType type, List<MeterTag> tags) {
@@ -55,7 +60,7 @@ public class MeterId {
     }
 
     /**
-     * transform tags to label message
+     * 将 tags 转换为 Label message
      */
     public List<Label> transformTags() {
         if (labels != null) {

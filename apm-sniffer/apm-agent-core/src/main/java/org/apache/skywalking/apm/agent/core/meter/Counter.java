@@ -27,11 +27,19 @@ import java.util.concurrent.atomic.DoubleAdder;
 
 /**
  * A counter is a cumulative metric that represents a single monotonically increasing counter whose value can only increase.
+ * <pre>
+ * (计数器 是一个 累积metric，它表示单个单调递增的计数器，其值只能递增。)
+ *
+ * 单调递增的计数器，用于记录 指标数据 的数量。它通常用于统计请求次数、错误次数等。
+ * </pre>
  */
 public class Counter extends BaseMeter {
 
+    /** Adder加法器，单调递增的计数 */
     protected final DoubleAdder count;
+    /** 计数模式：最新值、增速 */
     protected final CounterMode mode;
+    /** 如果是 计数模式是 RATE，则 previous 记录 上一次的 计数  */
     private final AtomicReference<Double> previous = new AtomicReference();
 
     public Counter(MeterId meterId, CounterMode mode) {
@@ -53,7 +61,9 @@ public class Counter extends BaseMeter {
         // using rate mode or increase
         final double currentValue = get();
         double count;
+        // 如果计数模式是RATE-增速
         if (Objects.equals(mode, CounterMode.RATE)) {
+            // 上一次的计数
             final Double previousValue = previous.getAndSet(currentValue);
 
             // calculate the add count
@@ -63,6 +73,7 @@ public class Counter extends BaseMeter {
                 count = currentValue - previousValue;
             }
         } else {
+            // 如果计数模式是INCREMENT-最新值
             count = currentValue;
         }
 
@@ -81,11 +92,13 @@ public class Counter extends BaseMeter {
     public enum Mode {
         /**
          * Increase single value, report the real value
+         * （增加单个值，报告实际值）
          */
         INCREMENT,
 
         /**
          * Rate with previous value when report
+         * （报告时与前一个值的比率）
          */
         RATE
     }

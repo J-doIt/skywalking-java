@@ -297,16 +297,21 @@ public class Config {
     public static class Meter {
         /**
          * If true, skywalking agent will enable sending meters. Otherwise disable meter report.
+         * <pre>
+         * (如果为 true，则 skywalking agent 将启用 sending meters。否则，禁用 meter 报告。)
+         * </pre>
          */
         public static boolean ACTIVE = true;
 
         /**
          * Report meters interval
+         * （报告 meters 的间隔）
          */
         public static Integer REPORT_INTERVAL = 20;
 
         /**
          * Max size of the meter count, using {@link org.apache.skywalking.apm.agent.core.meter.MeterId} as identity
+         * （meter计数的最大大小，使用 MeterId 作为标识）
          */
         public static Integer MAX_METER_SIZE = 500;
     }

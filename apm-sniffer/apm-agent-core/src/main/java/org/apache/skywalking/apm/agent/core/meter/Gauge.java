@@ -27,9 +27,15 @@ import java.util.function.Supplier;
 
 /**
  * A gauge is a metric that represents a single numerical value that can arbitrarily go up and down.
+ * <pre>
+ * (gauge（仪表？） 是一种 计量器，它代表一个可以任意上下的数值。)
+ *
+ * 表示某个数值在某个时间点的状态。它可以用于监控内存使用量、线程池大小等。
+ * </pre>
  */
 public class Gauge extends BaseMeter {
     private static final ILog LOGGER = LogManager.getLogger(Gauge.class);
+    /** 获取 value 的 函数 */
     protected Supplier<Double> getter;
 
     public Gauge(MeterId meterId, Supplier<Double> getter) {
