@@ -18,8 +18,12 @@
 
 package org.apache.skywalking.apm.network.trace.component;
 
+/**
+ * 官方组件
+ */
 public class OfficialComponent implements Component {
     private int id;
+    /** 官方组件名 */
     private String name;
 
     public OfficialComponent(int id, String name) {

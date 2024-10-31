@@ -22,6 +22,11 @@ package org.apache.skywalking.apm.network.trace.component;
  * The <code>Component</code> represents component library, which has been supported by skywalking sniffer.
  * <p>
  * The supported list is in {@link ComponentsDefine}.
+ *
+ * <pre>
+ * (Component 表示 组件库，它已被 skywalking sniffer 支持。
+ * 支持的列表在 ComponentsDefine 中。)
+ * </pre>
  */
 public interface Component {
     int getId();
