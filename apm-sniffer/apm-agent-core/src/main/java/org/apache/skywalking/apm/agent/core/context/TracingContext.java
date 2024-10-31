@@ -205,7 +205,7 @@ public class TracingContext implements AbstractTracerContext {
         }
 
         // 为 carrier 的属性设置值（方便后续 carrier 的序列化（carrier.item 中进行））
-        carrier.setTraceId(getReadablePrimaryTraceId());
+        carrier.setTraceId(getReadablePrimaryTraceId()); // 注入 ContextCarrier 时设置 分布式跟踪ID
         carrier.setTraceSegmentId(this.segment.getTraceSegmentId());
         carrier.setSpanId(exitSpan.getSpanId());
         carrier.setParentService(Config.Agent.SERVICE_NAME);

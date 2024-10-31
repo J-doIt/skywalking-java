@@ -20,6 +20,9 @@ package org.apache.skywalking.apm.agent.core.context.ids;
 
 /**
  * The <code>NewDistributedTraceId</code> is a {@link DistributedTraceId} with a new generated id.
+ * <pre>
+ * (NewDistributedTraceId 是一个带有 新生成 id 的 DistributedTraceId。)
+ * </pre>
  */
 public class NewDistributedTraceId extends DistributedTraceId {
     public NewDistributedTraceId() {
