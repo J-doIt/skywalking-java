@@ -24,8 +24,24 @@ import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
  */
 public class EnhanceObjectCache {
 
+    /**
+     * <pre>
+     * 在 HttpClientFinalizerConstructorInterceptor.onConstruct() 被设置，
+     * 在 HttpClientFinalizerUriInterceptor.afterMethod() 被重新设置
+     * </pre>
+     */
     private String url;
+    /**
+     * <pre>
+     * 在 HttpClientFinalizerSendInterceptor.beforeMethod() 被设置
+     * </pre>
+     */
     private AbstractSpan span;
+    /**
+     * <pre>
+     * 在 HttpClientFinalizerSendInterceptor.beforeMethod() 被设置
+     * </pre>
+     */
     private AbstractSpan span1;
 
     public String getUrl() {

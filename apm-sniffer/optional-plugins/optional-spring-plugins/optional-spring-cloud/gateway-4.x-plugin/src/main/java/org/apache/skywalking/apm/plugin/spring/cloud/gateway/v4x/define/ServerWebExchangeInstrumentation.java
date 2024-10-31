@@ -21,6 +21,10 @@ package org.apache.skywalking.apm.plugin.spring.cloud.gateway.v4x.define;
 /**
  * This class is used for enable {@link org.apache.skywalking.apm.plugin.spring.webflux.v6.define.ServerWebExchangeInstrumentation}
  * when {@link org.springframework.cloud.gateway.config.GatewayLoadBalancerProperties} class is exist.
+ *
+ * <pre>
+ * (当 GatewayLoadBalancerProperties 类存在时，该类用于启用 spring-webflux-6.x-plugin 中的.ServerWebExchangeInstrumentation。)
+ * </pre>
  */
 public class ServerWebExchangeInstrumentation extends
         org.apache.skywalking.apm.plugin.spring.webflux.v6.define.ServerWebExchangeInstrumentation {

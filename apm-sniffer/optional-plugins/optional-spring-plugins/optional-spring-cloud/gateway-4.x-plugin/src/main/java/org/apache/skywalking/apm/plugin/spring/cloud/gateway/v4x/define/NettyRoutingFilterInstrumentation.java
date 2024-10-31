@@ -34,6 +34,15 @@ import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName
  * org.springframework.web.server.ServerWebExchange}. Create a local span to continue context snapshot created in {@link
  * org.apache.skywalking.apm.plugin.spring.webflux.v6.DispatcherHandlerHandleMethodInterceptor} interceptor.
  * </p>
+ *
+ * <pre>
+ * (此类检测 NettyRoutingFilter 类。
+ * 增强 filter() 并从 ServerWebExchange 获取 ContextSnapshot。创建本地 span 以继续在 DispatcherHandlerHandleMethodInterceptor 中创建的 ContextSnapshot)
+ *
+ * 增强类：org.springframework.cloud.gateway.filter.NettyRoutingFilter
+ * 增强方法：Mono≤Void> filter(ServerWebExchange exchange, GatewayFilterChain chain)
+ *      拦截器：（重写了方法参数）v4x.NettyRoutingFilterInterceptor
+ * </pre>
  */
 public class NettyRoutingFilterInstrumentation extends AbstractGatewayV4EnhancePluginDefine {
 

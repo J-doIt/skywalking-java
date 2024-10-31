@@ -14,7 +14,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+#SPI
+
+# 监控通过 reactor.nett 的 HttpClient 发出的 HTTP 请求
+# （在请求发送时创建一个新的 Span，并在响应接收后结束该 Span）
+# 【拦截通过 HttpClient 发送的出站 HTTP 请求（网关转发到后端服务的请求）】
 spring-cloud-gateway-4.x=org.apache.skywalking.apm.plugin.spring.cloud.gateway.v4x.define.HttpClientFinalizerInstrumentation
+# 监控 Netty Routing Filter
+# （Spring Cloud Gateway 使用 Netty 作为其底层网络库，而 NettyRoutingFilter 是一个核心的过滤器，负责将请求路由到相应的服务。）
+# 【拦截进入网关 并经过 NettyRoutingFilter 处理的请求】
 spring-cloud-gateway-4.x=org.apache.skywalking.apm.plugin.spring.cloud.gateway.v4x.define.NettyRoutingFilterInstrumentation
+# 监控 ServerWebExchange
+# （Spring WebFlux 中的一个核心接口，代表了一个 HTTP 请求和响应的交换）
+# 【拦截所有进入和离开网关的 HTTP 请求】
 spring-cloud-gateway-4.x=org.apache.skywalking.apm.plugin.spring.cloud.gateway.v4x.define.ServerWebExchangeInstrumentation
+# 监控 DispatcherHandler
+# （Spring WebFlux 中的核心处理器，负责处理所有的请求。这个类通过对 DispatcherHandler 的拦截，来监控每个请求的处理过程。）
+# 【拦截进入 DispatcherHandler 的 HTTP 请求】
 spring-cloud-gateway-4.x=org.apache.skywalking.apm.plugin.spring.cloud.gateway.v4x.define.DispatcherHandlerInstrumentation

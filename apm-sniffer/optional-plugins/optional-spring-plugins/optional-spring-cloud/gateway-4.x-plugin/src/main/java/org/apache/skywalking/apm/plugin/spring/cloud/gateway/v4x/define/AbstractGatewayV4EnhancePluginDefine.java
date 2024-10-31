@@ -22,6 +22,10 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInst
 /**
  * This abstract class defines the <code>witnessClasses()</code> method,
  * and other plugin define classes need to inherit from this class
+ *
+ * <pre>
+ * (这个抽象类定义了 witnessClasses()，其他 插件定义类 需要从这个类继承)
+ * </pre>
  */
 public abstract class AbstractGatewayV4EnhancePluginDefine extends ClassInstanceMethodsEnhancePluginDefine {
 

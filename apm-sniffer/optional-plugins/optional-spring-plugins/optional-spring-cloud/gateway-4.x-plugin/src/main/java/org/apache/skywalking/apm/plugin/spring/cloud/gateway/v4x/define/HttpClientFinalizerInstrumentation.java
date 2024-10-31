@@ -33,6 +33,24 @@ import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName
  * This is the class that actually sends the request. By enhancing in different methods,
  * we can get information such as uri and send trace context to the downstream service through http header.
  * </p>
+ *
+ * <pre>
+ * (此类检测 HttpClientFinalizer 类。
+ * 这是实际发送请求的类。通过不同的方法进行增强，我们可以获取 uri 等信息，并通过 http header 将 trace context 发送给下游服务。)
+ *
+ * 增强类：reactor.netty.http.client.HttpClientFinalizer（v1.1.0）
+ * 增强构造函数：HttpClientFinalizer(HttpClientConfig config)
+ *      拦截器：v4x.HttpClientFinalizerConstructorInterceptor
+ * 增强方法1：名为 uri 的方法（有3个）
+ *              HttpClient.RequestSender uri(Mono≤String> uri)
+ *              HttpClient.RequestSender uri(String uri)
+ *              HttpClient.RequestSender uri(URI uri)
+ *      拦截器：v4x.HttpClientFinalizerUriInterceptor
+ * 增强方法2：HttpClientFinalizer send(BiFunction≤? super HttpClientRequest, ? super NettyOutbound, ? extends Publisher≤Void>> sender)
+ *      拦截器：（重写了方法参数）v4x.HttpClientFinalizerSendInterceptor
+ * 增强方法3：≤V> Flux≤V> responseConnection(BiFunction≤? super HttpClientResponse, ? super Connection, ? extends Publisher≤V>> receiver)
+ *      拦截器：（重写了方法参数）v4x.HttpClientFinalizerResponseConnectionInterceptor
+ * </pre>
  */
 public class HttpClientFinalizerInstrumentation extends AbstractGatewayV4EnhancePluginDefine {
 
@@ -54,6 +72,7 @@ public class HttpClientFinalizerInstrumentation extends AbstractGatewayV4Enhance
                 new ConstructorInterceptPoint() {
                     @Override
                     public ElementMatcher<MethodDescription> getConstructorMatcher() {
+                        // HttpClientFinalizer 的构造器，且第一个参数为 HttpClientConfig
                         return takesArgumentWithType(0, CLIENT_FINALIZER_CONSTRUCTOR_ARGUMENT_TYPE);
                     }
 
@@ -68,6 +87,7 @@ public class HttpClientFinalizerInstrumentation extends AbstractGatewayV4Enhance
     @Override
     public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
         return new InstanceMethodsInterceptPoint[]{
+                // 第一个拦截点：
                 new InstanceMethodsInterceptPoint() {
                     @Override
                     public ElementMatcher<MethodDescription> getMethodsMatcher() {
@@ -84,6 +104,7 @@ public class HttpClientFinalizerInstrumentation extends AbstractGatewayV4Enhance
                         return false;
                     }
                 },
+                // 第二个拦截点：
                 new InstanceMethodsInterceptPoint() {
                     @Override
                     public ElementMatcher<MethodDescription> getMethodsMatcher() {
@@ -100,6 +121,7 @@ public class HttpClientFinalizerInstrumentation extends AbstractGatewayV4Enhance
                         return true;
                     }
                 },
+                // 第三个拦截点：
                 new InstanceMethodsInterceptPoint() {
                     @Override
                     public ElementMatcher<MethodDescription> getMethodsMatcher() {

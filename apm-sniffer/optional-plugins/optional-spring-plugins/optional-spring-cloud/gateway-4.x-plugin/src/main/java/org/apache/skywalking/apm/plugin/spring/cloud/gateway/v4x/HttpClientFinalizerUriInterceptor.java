@@ -26,6 +26,16 @@ import java.lang.reflect.Method;
 
 /**
  * This class intercept <code>uri</code> method to get the url of downstream service
+ *
+ * <pre>
+ * (这个类拦截 uri() 获取 下游服务 的 url。)
+ *
+ * 增强类：reactor.netty.http.client.HttpClientFinalizer（v1.1.0）
+ * 增强方法：名为 uri 的方法（有3个）
+ *              HttpClient.RequestSender uri(Mono≤String> uri)
+ *              HttpClient.RequestSender uri(String uri)
+ *              HttpClient.RequestSender uri(URI uri)
+ * </pre>
  */
 public class HttpClientFinalizerUriInterceptor implements InstanceMethodsAroundInterceptor {
 
@@ -34,12 +44,21 @@ public class HttpClientFinalizerUriInterceptor implements InstanceMethodsAroundI
             MethodInterceptResult result) throws Throwable {
     }
 
+    /**
+     * @param objInst HttpClientFinalizer
+     * @param method uri()
+     * @param allArguments uri
+     * @param argumentsTypes  Mono≤String> 或 String 或 URI
+     * @param ret HttpClient.RequestSender 对象（QFTODO：在哪里被增强的？）
+     */
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
             Object ret) throws Throwable {
+        // 如果 ret 是被增强了的，则获取 ret 的 动态增强域 enhanceObjectCache
         if (ret instanceof EnhancedInstance) {
             EnhanceObjectCache enhanceObjectCache = (EnhanceObjectCache) ((EnhancedInstance) ret)
                     .getSkyWalkingDynamicField();
+            // 设置 动态增强域 的 url
             enhanceObjectCache.setUrl(String.valueOf(allArguments[0]));
         }
         return ret;

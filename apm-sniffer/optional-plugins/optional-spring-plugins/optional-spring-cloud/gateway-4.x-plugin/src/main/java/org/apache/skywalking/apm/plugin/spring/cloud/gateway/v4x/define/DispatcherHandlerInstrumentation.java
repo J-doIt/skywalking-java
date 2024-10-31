@@ -21,6 +21,10 @@ package org.apache.skywalking.apm.plugin.spring.cloud.gateway.v4x.define;
 /**
  * This class is used for enable {@link org.apache.skywalking.apm.plugin.spring.webflux.v6.define.DispatcherHandlerInstrumentation}
  * class when {@link org.springframework.cloud.gateway.config.GatewayLoadBalancerProperties} class is exist
+ *
+ * <pre>
+ * (当 GatewayLoadBalancerProperties 类存在时，该类用于启用 spring.webflux.v6.define.DispatcherHandlerInstrumentation 类)
+ * </pre>
  */
 public class DispatcherHandlerInstrumentation extends
         org.apache.skywalking.apm.plugin.spring.webflux.v6.define.DispatcherHandlerInstrumentation {
