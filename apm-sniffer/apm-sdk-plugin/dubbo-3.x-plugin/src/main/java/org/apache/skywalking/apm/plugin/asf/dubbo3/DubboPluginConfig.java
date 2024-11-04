@@ -27,12 +27,16 @@ public class DubboPluginConfig {
         @PluginConfig(root = DubboPluginConfig.class)
         public static class Dubbo {
 
+            /** 需要收集客户端的远程调用参数 */
             public static boolean COLLECT_CONSUMER_ARGUMENTS = false;
 
+            /** 客户端的远程调用参数最大长度 */
             public static int CONSUMER_ARGUMENTS_LENGTH_THRESHOLD = 256;
 
+            /** 需要收集服务端的远程调用参数 */
             public static boolean COLLECT_PROVIDER_ARGUMENTS = false;
 
+            /** 服务端的远程调用参数最大长度 */
             public static int PROVIDER_ARGUMENTS_LENGTH_THRESHOLD = 256;
         }
     }

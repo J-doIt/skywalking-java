@@ -33,6 +33,13 @@ import java.util.List;
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static net.bytebuddy.matcher.ElementMatchers.returns;
 
+/**
+ * <pre>
+ * 增强类：org.apache.dubbo.monitor.support.MonitorFilter
+ * 增强方法：Result invoke(Invoker≤?> invoker, Invocation invocation)
+ *      拦截器：org.apache.skywalking.apm.plugin.asf.dubbo3.DubboInterceptor
+ * </pre>
+ */
 public class DubboInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
     public static final String ENHANCE_CLASS = "org.apache.dubbo.monitor.support.MonitorFilter";
@@ -54,6 +61,7 @@ public class DubboInstrumentation extends ClassInstanceMethodsEnhancePluginDefin
 
     @Override
     public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
+        // 不增强构造函数
         return null;
     }
 
@@ -73,6 +81,7 @@ public class DubboInstrumentation extends ClassInstanceMethodsEnhancePluginDefin
 
                 @Override
                 public boolean isOverrideArgs() {
+                    // 不重新方法的参数
                     return false;
                 }
             }
@@ -81,6 +90,7 @@ public class DubboInstrumentation extends ClassInstanceMethodsEnhancePluginDefin
 
     @Override
     protected List<WitnessMethod> witnessMethods() {
+        // 见证方法：RpcContext.getServerContext()，且返回值类型是 RpcContextAttachment
         return Collections.singletonList(
             new WitnessMethod(
                 CONTEXT_TYPE_NAME,

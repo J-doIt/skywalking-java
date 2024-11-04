@@ -28,6 +28,13 @@ import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 import static net.bytebuddy.matcher.ElementMatchers.any;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
+/**
+ * <pre>
+ * 增强类：com.alibaba.dubbo.remoting.transport.AbstractServer
+ * 增强构造方法：AbstractServer(URL url, ChannelHandler handler)
+ *      拦截器：org.apache.skywalking.apm.plugin.dubbo.AbstractServerConstructorInterceptor
+ * </pre>
+ */
 public class AbstractServerInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
     private static final String ENHANCE_CLASS = "com.alibaba.dubbo.remoting.transport.AbstractServer";
     private static final String CONSTRUCTOR_INTERCEPTOR = "org.apache.skywalking.apm.plugin.dubbo.AbstractServerConstructorInterceptor";
