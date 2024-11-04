@@ -21,11 +21,12 @@ rocketMQ-5.x=org.apache.skywalking.apm.plugin.rocketMQ.v5.define.ConsumeMessageC
 #   增强 consumeMessage()，创建 entry span，从 message.properties 中的 链路信息 提取 上游的 链路信息
 rocketMQ-5.x=org.apache.skywalking.apm.plugin.rocketMQ.v5.define.ConsumeMessageOrderlyInstrumentation
 # 增强_发送消息客户端（MQClientAPIImpl）
-#   增强 sendMessage()，创建 exit span，将 上游 的 链路信息 放入到 requestHeader.properties 中传递给 下游
-#   增强 updateNameServerAddressList()，将 namesrv 设置到 MQClientAPIImpl 的 动态增强域
+#   增强 sendMessage()，创建 exit span，将 上游 的 链路信息 放入到 requestHeader.properties 中传递给 下游，
+#           将 SendCallBackEnhanceInfo(message.topic, 当前ContextSnapshot) 设置到 SendCallback 的 动态增强域。
+#   增强 updateNameServerAddressList()，将 参数namesrv 设置到 MQClientAPIImpl 的 动态增强域
 rocketMQ-5.x=org.apache.skywalking.apm.plugin.rocketMQ.v5.define.MQClientAPIImplInstrumentation
 # 增强_发送回调函数（SendCallback 及其子类）
 rocketMQ-5.x=org.apache.skywalking.apm.plugin.rocketMQ.v5.define.SendCallbackInstrumentation
 # 增强_推模式的消息消费者（DefaultMQPushConsumer）
-#   增强 registerMessageListener()，将 namesrv 设置到 messageListener 的 动态增强域
+#   增强 registerMessageListener()，将 ConsumerEnhanceInfos(namesrvAddr) 设置到 messageListener 的 动态增强域
 rocketMQ-5.x=org.apache.skywalking.apm.plugin.rocketMQ.v5.define.DefaultMQPushConsumerInstrumentation
