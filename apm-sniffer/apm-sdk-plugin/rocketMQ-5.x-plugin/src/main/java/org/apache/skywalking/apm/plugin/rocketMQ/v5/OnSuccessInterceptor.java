@@ -34,6 +34,11 @@ import org.apache.skywalking.apm.plugin.rocketMQ.v5.define.SendCallBackEnhanceIn
 /**
  * {@link OnSuccessInterceptor} create local span when the method {@link org.apache.rocketmq.client.producer.SendCallback#onSuccess(SendResult)}
  * execute.
+ *
+ * <pre>
+ * 增强类：org.apache.rocketmq.client.producer.SendCallback 及其子类
+ * 增强方法：void onSuccess(SendResult sendResult)
+ * </pre>
  */
 public class OnSuccessInterceptor implements InstanceMethodsAroundInterceptor {
 
@@ -42,20 +47,27 @@ public class OnSuccessInterceptor implements InstanceMethodsAroundInterceptor {
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         MethodInterceptResult result) throws Throwable {
+        // 拿到 SendCallback 的增强字段值
         SendCallBackEnhanceInfo enhanceInfo = (SendCallBackEnhanceInfo) objInst.getSkyWalkingDynamicField();
+        // 创建 操作名为 RocketMQ/xxTopicId/Producer/Callback 的 local span
         AbstractSpan activeSpan = ContextManager.createLocalSpan(CALLBACK_OPERATION_NAME_PREFIX + enhanceInfo.getTopicId() + "/Producer/Callback");
         activeSpan.setComponent(ComponentsDefine.ROCKET_MQ_PRODUCER);
         SendStatus sendStatus = ((SendResult) allArguments[0]).getSendStatus();
+        // 如果发送状态 非 SEND_OK
         if (sendStatus != SendStatus.SEND_OK) {
+            // 设置 activeSpan 的 errorOccurred 标志位为 true
             activeSpan.errorOccurred();
+            // 设置 activeSpan 的 mq_status 标签
             Tags.MQ_STATUS.set(activeSpan, sendStatus.name());
         }
+        // 从 enhanceInfo 获取快照 并执行 continued 继续
         ContextManager.continued(enhanceInfo.getContextSnapshot());
     }
 
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         Object ret) throws Throwable {
+        // 停止 active span
         ContextManager.stopSpan();
         return ret;
     }
@@ -63,6 +75,7 @@ public class OnSuccessInterceptor implements InstanceMethodsAroundInterceptor {
     @Override
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Throwable t) {
+        // 设置 active span 的 log 为 t
         ContextManager.activeSpan().log(t);
     }
 }

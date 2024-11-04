@@ -27,6 +27,13 @@ import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static org.apache.skywalking.apm.agent.core.plugin.match.HierarchyMatch.byHierarchyMatch;
 
+/**
+ * <pre>
+ * 增强类：org.apache.rocketmq.client.consumer.listener.MessageListenerOrderly 及其子类
+ * 增强方法：ConsumeOrderlyStatus consumeMessage(List<MessageExt> msgs, ConsumeOrderlyContext context)
+ *      拦截器：org.apache.skywalking.apm.plugin.rocketMQ.v5.MessageOrderlyConsumeInterceptor
+ * </pre>
+ */
 public class ConsumeMessageOrderlyInstrumentation extends AbstractRocketMQInstrumentation {
     private static final String ENHANCE_CLASS = "org.apache.rocketmq.client.consumer.listener.MessageListenerOrderly";
     private static final String ENHANCE_METHOD = "consumeMessage";

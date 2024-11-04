@@ -24,10 +24,17 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedI
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 
+/**
+ * <pre>
+ * 增强类：org.apache.rocketmq.client.impl.MQClientAPIImpl
+ * 增强方法：void updateNameServerAddressList(String addrs)
+ * </pre>
+ */
 public class UpdateNameServerInterceptor implements InstanceMethodsAroundInterceptor {
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         MethodInterceptResult result) throws Throwable {
+        // 将 MQClientAPIImpl 增强对象 的 动态增强域 的值设置为 第一个参数（namesrv）
         objInst.setSkyWalkingDynamicField(allArguments[0]);
     }
 

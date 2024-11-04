@@ -22,9 +22,15 @@ import org.apache.skywalking.apm.agent.core.context.ContextSnapshot;
 
 /**
  * {@link SendCallBackEnhanceInfo} saves the topic Id and {@link ContextSnapshot} instance for trace.
+ *
+ * <pre>
+ * SendCallback 增强对象 的 动态增强域 的类型
+ * </pre>
  */
 public class SendCallBackEnhanceInfo {
+    /** Message.Topic */
     private String topicId;
+    /** 当前上下文快照 */
     private ContextSnapshot contextSnapshot;
 
     public SendCallBackEnhanceInfo(String topicId, ContextSnapshot contextSnapshot) {

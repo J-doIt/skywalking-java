@@ -27,6 +27,13 @@ import org.apache.skywalking.apm.agent.core.plugin.match.HierarchyMatch;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
 
+/**
+ * <pre>
+ * 增强类：org.apache.rocketmq.client.consumer.listener.MessageListenerConcurrently 及其子类
+ * 增强方法：ConsumeConcurrentlyStatus consumeMessage(List<MessageExt> msgs, ConsumeConcurrentlyContext context)
+ *      拦截器：org.apache.skywalking.apm.plugin.rocketMQ.v5.MessageConcurrentlyConsumeInterceptor
+ * </pre>
+ */
 public class ConsumeMessageConcurrentlyInstrumentation extends AbstractRocketMQInstrumentation {
     private static final String ENHANCE_CLASS = "org.apache.rocketmq.client.consumer.listener.MessageListenerConcurrently";
     private static final String CONSUMER_MESSAGE_METHOD = "consumeMessage";

@@ -30,19 +30,37 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedI
  * {@link MessageOrderlyConsumeInterceptor} set the process status after the {@link
  * org.apache.rocketmq.client.consumer.listener.MessageListenerOrderly#consumeMessage(java.util.List,
  * org.apache.rocketmq.client.consumer.listener.ConsumeOrderlyContext)} method execute.
+ *
+ * <pre>
+ * 增强类：org.apache.rocketmq.client.consumer.listener.MessageListenerOrderly 及其子类
+ * 增强方法：ConsumeOrderlyStatus consumeMessage(List<MessageExt> msgs, ConsumeOrderlyContext context)
+ * </pre>
  */
 public class MessageOrderlyConsumeInterceptor extends AbstractMessageConsumeInterceptor {
 
+    /**
+     * @param objInst
+     * @param method consumeMessage
+     * @param allArguments
+     * @param argumentsTypes [List<MessageExt>, ConsumeOrderlyContext]
+     * @param ret ConsumeOrderlyStatus 对象
+     * @return
+     * @throws Throwable
+     */
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         Object ret) throws Throwable {
 
         ConsumeOrderlyStatus status = (ConsumeOrderlyStatus) ret;
+        // 如果“顺序消费状态”为“暂时挂起当前队列”
         if (status == ConsumeOrderlyStatus.SUSPEND_CURRENT_QUEUE_A_MOMENT) {
             AbstractSpan activeSpan = ContextManager.activeSpan();
+            // 设置 active span 的 errorOccurred 标志位为 true
             activeSpan.errorOccurred();
+            // 设置 active span 的 MQ状态标签
             Tags.MQ_STATUS.set(activeSpan, status.name());
         }
+        // 停止 active span
         ContextManager.stopSpan();
         return ret;
     }

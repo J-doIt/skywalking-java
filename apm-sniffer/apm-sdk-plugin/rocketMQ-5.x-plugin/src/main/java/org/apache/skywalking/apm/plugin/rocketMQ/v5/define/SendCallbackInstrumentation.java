@@ -28,6 +28,15 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
 import static org.apache.skywalking.apm.agent.core.plugin.bytebuddy.ArgumentTypeNameMatch.takesArgumentWithType;
 import static org.apache.skywalking.apm.agent.core.plugin.match.HierarchyMatch.byHierarchyMatch;
 
+/**
+ * <pre>
+ * 增强类：org.apache.rocketmq.client.producer.SendCallback 及其子类
+ * 增强方法：void onSuccess(SendResult sendResult)
+ *      拦截器：org.apache.skywalking.apm.plugin.rocketMQ.v5.OnSuccessInterceptor
+ * 增强方法：void onException(Throwable e)
+ *      拦截器：org.apache.skywalking.apm.plugin.rocketMQ.v5.OnExceptionInterceptor
+ * </pre>
+ */
 public class SendCallbackInstrumentation extends AbstractRocketMQInstrumentation {
 
     private static final String ENHANCE_CLASS = "org.apache.rocketmq.client.producer.SendCallback";

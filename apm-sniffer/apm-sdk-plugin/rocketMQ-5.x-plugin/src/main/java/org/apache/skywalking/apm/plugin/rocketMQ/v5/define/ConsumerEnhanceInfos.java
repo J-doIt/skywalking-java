@@ -18,6 +18,9 @@
 
 package org.apache.skywalking.apm.plugin.rocketMQ.v5.define;
 
+/**
+ * MessageListenerConcurrently 和 MessageListenerOrderly 的增强对象 的 动态增强域 的类型
+ */
 public class ConsumerEnhanceInfos {
     
     private String namesrvAddr;

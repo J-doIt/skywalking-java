@@ -30,18 +30,38 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedI
  * {@link MessageConcurrentlyConsumeInterceptor} set the process status after the {@link
  * org.apache.rocketmq.client.consumer.listener.MessageListenerConcurrently#consumeMessage(java.util.List,
  * org.apache.rocketmq.client.consumer.listener.ConsumeConcurrentlyContext)} method execute.
+ *
+ * <pre>
+ * （MessageConcurrentlyConsumeInterceptor 在 MessageListenerConcurrently.consumeMessage(）方法执行后设置进程状态。）
+ *
+ * 增强类：org.apache.rocketmq.client.consumer.listener.MessageListenerConcurrently 及其子类
+ * 增强方法：ConsumeConcurrentlyStatus consumeMessage(List<MessageExt> msgs, ConsumeConcurrentlyContext context)
+ * </pre>
  */
 public class MessageConcurrentlyConsumeInterceptor extends AbstractMessageConsumeInterceptor {
 
+    /**
+     * @param objInst
+     * @param method consumeMessage
+     * @param allArguments
+     * @param argumentsTypes [List<MessageExt>, ConsumeConcurrentlyContext]
+     * @param ret ConsumeConcurrentlyStatus 对象
+     * @return
+     * @throws Throwable
+     */
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         Object ret) throws Throwable {
         ConsumeConcurrentlyStatus status = (ConsumeConcurrentlyStatus) ret;
+        // 如果“并发消费状态”为“消费失败”
         if (status == ConsumeConcurrentlyStatus.RECONSUME_LATER) {
             AbstractSpan activeSpan = ContextManager.activeSpan();
+            // 设置 active span 的 errorOccurred 标志位为 true
             activeSpan.errorOccurred();
+            // 设置 active span 的 MQ状态标签
             Tags.MQ_STATUS.set(activeSpan, status.name());
         }
+        // 停止 active span
         ContextManager.stopSpan();
         return ret;
     }

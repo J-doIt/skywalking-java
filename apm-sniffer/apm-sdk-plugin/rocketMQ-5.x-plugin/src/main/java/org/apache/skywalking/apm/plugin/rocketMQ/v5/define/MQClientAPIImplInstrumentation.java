@@ -28,6 +28,19 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
 import static net.bytebuddy.matcher.ElementMatchers.takesArguments;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
+/**
+ * <pre>
+ * 增强类：org.apache.rocketmq.client.impl.MQClientAPIImpl
+ * 增强方法：SendResult sendMessage(
+ *                  String addr, String brokerName, Message msg, SendMessageRequestHeader requestHeader,
+ *                  long timeoutMillis, CommunicationMode communicationMode, SendCallback sendCallback,
+ *                  TopicPublishInfo topicPublishInfo, MQClientInstance instance, int retryTimesWhenSendFailed,
+ *                  SendMessageContext context, DefaultMQProducerImpl producer)
+ *      拦截器：org.apache.skywalking.apm.plugin.rocketMQ.v5.MessageSendInterceptor
+ * 增强方法：void updateNameServerAddressList(String addrs)
+ *      拦截器：org.apache.skywalking.apm.plugin.rocketMQ.v5.UpdateNameServerInterceptor
+ * </pre>
+ */
 public class MQClientAPIImplInstrumentation extends AbstractRocketMQInstrumentation {
 
     private static final String ENHANCE_CLASS = "org.apache.rocketmq.client.impl.MQClientAPIImpl";

@@ -27,6 +27,16 @@ import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
+/**
+ * <pre>
+ * 增强类：org.apache.rocketmq.client.consumer.DefaultMQPushConsumer
+ * 增强方法：
+ *          void registerMessageListener(MessageListener messageListener)
+ *          void registerMessageListener(MessageListenerConcurrently messageListener)
+ *          void registerMessageListener(MessageListenerOrderly messageListener)
+ *      拦截器：org.apache.skywalking.apm.plugin.rocketMQ.v5.RegisterMessageListenerInterceptor
+ * </pre>
+ */
 public class DefaultMQPushConsumerInstrumentation extends AbstractRocketMQInstrumentation {
 
     private static final String ENHANCE_CLASS = "org.apache.rocketmq.client.consumer.DefaultMQPushConsumer";

@@ -26,15 +26,37 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceM
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.apache.skywalking.apm.plugin.rocketMQ.v5.define.ConsumerEnhanceInfos;
 
+/**
+ * <pre>
+ * 增强类：org.apache.rocketmq.client.consumer.DefaultMQPushConsumer
+ * 增强方法：
+ *          void registerMessageListener(MessageListener messageListener)
+ *          void registerMessageListener(MessageListenerConcurrently messageListener)
+ *          void registerMessageListener(MessageListenerOrderly messageListener)
+ *          （MessageListener 是 MessageListenerConcurrently 和 MessageListenerOrderly 的父类）
+ * </pre>
+ */
 public class RegisterMessageListenerInterceptor implements InstanceMethodsAroundInterceptor {
+
+    /**
+     * @param objInst
+     * @param method registerMessageListener
+     * @param allArguments
+     * @param argumentsTypes [MessageListenerConcurrently] 或 [MessageListenerOrderly]
+     * @param result change this result, if you want to truncate the method.
+     * @throws Throwable
+     */
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
         DefaultMQPushConsumer defaultMQPushConsumer = (DefaultMQPushConsumer) objInst;
         String namesrvAddr = defaultMQPushConsumer.getNamesrvAddr();
+        // 创建 动态增强域 对象
         ConsumerEnhanceInfos consumerEnhanceInfos = new ConsumerEnhanceInfos(namesrvAddr);
 
+        // 如果 第一个参数 messageListener 是被增强过的
         if (allArguments[0] instanceof EnhancedInstance) {
             EnhancedInstance enhancedMessageListener = (EnhancedInstance) allArguments[0];
+            // 将 增强的messageListener 的 动态增强域 的值 设置为 consumerEnhanceInfos
             enhancedMessageListener.setSkyWalkingDynamicField(consumerEnhanceInfos);
         }
     }
