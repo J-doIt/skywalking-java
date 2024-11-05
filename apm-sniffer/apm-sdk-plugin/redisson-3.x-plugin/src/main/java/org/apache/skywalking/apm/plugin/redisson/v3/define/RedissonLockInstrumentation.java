@@ -31,6 +31,22 @@ import org.apache.skywalking.apm.agent.core.plugin.match.logical.LogicalMatchOpe
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static org.apache.skywalking.apm.agent.core.plugin.bytebuddy.ArgumentTypeNameMatch.takesArgumentWithType;
 
+/**
+ * <pre>
+ * 增强类：
+ *      org.redisson.RedissonLock 及其子类
+ *      或
+ *      org.redisson.RedissonSpinLock
+ * 增强方法：
+ *      RedissonSpinLock：
+ *          ≤T> RFuture≤T> tryLockInnerAsync(long leaseTime, TimeUnit unit, long threadId, RedisStrictCommand≤T> command)
+ *      拦截器：org.apache.skywalking.apm.plugin.redisson.v3.RedissonLockInterceptor
+ * 增强方法：
+ *      RedissonLock：
+ *          ≤T> RFuture≤T> tryLockInnerAsync(long waitTime, long leaseTime, TimeUnit unit, long threadId, RedisStrictCommand≤T> command)
+ *      拦截器：org.apache.skywalking.apm.plugin.redisson.v3.RedissonHighLevelLockInterceptor
+ * </pre>
+ */
 public class RedissonLockInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
     private static final String REDISSON_LOCK_CLASS = "org.redisson.RedissonLock";
@@ -43,7 +59,10 @@ public class RedissonLockInstrumentation extends ClassInstanceMethodsEnhancePlug
 
     @Override
     protected ClassMatch enhanceClass() {
-        return LogicalMatchOperation.or(HierarchyMatch.byHierarchyMatch(REDISSON_LOCK_CLASS), MultiClassNameMatch.byMultiClassMatch(REDISSON_LOCK_CLASS, REDISSON_SPIN_LOCK_CLASS));
+        return LogicalMatchOperation.or( // “或”，满足任何一个条件，则匹配成功
+                HierarchyMatch.byHierarchyMatch(REDISSON_LOCK_CLASS), // 匹配 RedissonLock 类及其子类
+                MultiClassNameMatch.byMultiClassMatch(REDISSON_LOCK_CLASS, REDISSON_SPIN_LOCK_CLASS) // 匹配 RedissonLock 和 RedissonSpinLock 具体类
+        );
     }
 
     @Override

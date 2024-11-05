@@ -28,6 +28,13 @@ import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
+/**
+ * <pre>
+ * 增强类：org.redisson.connection.MasterSlaveConnectionManager
+ * 增强方法：RedisClient createClient(NodeType type, ...)
+ *      拦截器：org.apache.skywalking.apm.plugin.redisson.v3.ConnectionManagerInterceptor
+ * </pre>
+ */
 public class ConnectionManagerInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
     private static final String ENHANCE_CLASS = "org.redisson.connection.MasterSlaveConnectionManager";

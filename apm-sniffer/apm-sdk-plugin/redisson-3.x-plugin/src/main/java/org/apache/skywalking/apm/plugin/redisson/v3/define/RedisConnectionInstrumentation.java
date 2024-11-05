@@ -29,6 +29,19 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
 import static org.apache.skywalking.apm.agent.core.plugin.bytebuddy.ArgumentTypeNameMatch.takesArgumentWithType;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
+/**
+ * <pre>
+ * 增强类：org.redisson.client.RedisConnection
+ * 增强构造函数：
+ *          ≤C> RedisConnection(RedisClient redisClient, Channel channel, CompletableFuture≤C> connectionPromise)
+ *          RedisConnection(RedisClient redisClient)
+ *      拦截器：org.apache.skywalking.apm.plugin.redisson.v3.RedisConnectionMethodInterceptor
+ * 增强方法：
+ *          ChannelFuture send(CommandsData data)
+ *          ≤T, R> ChannelFuture send(CommandData≤T, R> data)
+ *      拦截器：org.apache.skywalking.apm.plugin.redisson.v3.RedisConnectionMethodInterceptor
+ * </pre>
+ */
 public class RedisConnectionInstrumentation extends ClassInstanceMethodsEnhancePluginDefineV2 {
 
     private static final String ENHANCE_CLASS = "org.redisson.client.RedisConnection";

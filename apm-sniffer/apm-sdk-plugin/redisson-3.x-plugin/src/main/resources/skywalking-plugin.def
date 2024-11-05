@@ -14,7 +14,25 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# 增强 MasterSlaveConnectionManager
+#       增强 RedisClient createClient(NodeType type, ...)
+#           afterMethod 中，为 ret（RedisClient）的 增强域 赋值（peer）
 redisson-3.x=org.apache.skywalking.apm.plugin.redisson.v3.define.ConnectionManagerInstrumentation
+# 增强 RedisClient
+#       增强 构造函数：RedisClient(RedisClientConfig config)
+#           onConstruct 中，无操作
 redisson-3.x=org.apache.skywalking.apm.plugin.redisson.v3.define.RedisConnectionInstrumentation
+# 增强 RedisConnection
+#       增强 构造函数：RedisConnection(RedisClient redisClient)
+#           onConstruct 中，将 objInst（RedisConnection）的 增强域 的值设置为 参数RedisClient的增强域的值
+#       增强 send(CommandsData data)
+#       增强 send(CommandData data)
+#           beforeMethod 中：创建 exit span（无carrier参数），
+#           afterMethod 中：结束 active span。
 redisson-3.x=org.apache.skywalking.apm.plugin.redisson.v3.define.RedisClientInstrumentation
+# 增强 org.redisson.RedissonLock 及其子类 或 RedissonSpinLock
+#       beforeMethod 中：创建 local span
+#       afterMethod 中：
+#           在当前线程执行 该 localSpan.prepareForAsync()
+#           在异步线程执行 该 localSpan.asyncFinish()
 redisson-3.x=org.apache.skywalking.apm.plugin.redisson.v3.define.RedissonLockInstrumentation

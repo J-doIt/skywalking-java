@@ -24,6 +24,11 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceC
 /**
  * RedisClient is the link between RedisConnection and ConnectionManager. to enhance RedisClient for bring peer(the
  * cluster configuration information) in ConnectionManager to RedisConnection.
+ *
+ * <pre>
+ * 增强类：org.redisson.client.RedisClient
+ * 增强构造函数：private RedisClient(RedisClientConfig config)
+ * </pre>
  */
 public class RedisClientConstructorInterceptor implements InstanceConstructorInterceptor {
 

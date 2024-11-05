@@ -28,6 +28,13 @@ import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 import static net.bytebuddy.matcher.ElementMatchers.any;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
+/**
+ * <pre>
+ * 增强类：org.redisson.client.RedisClient
+ * 增强构造函数：private RedisClient(RedisClientConfig config)
+ *      拦截器：org.apache.skywalking.apm.plugin.redisson.v3.RedisClientConstructorInterceptor
+ * </pre>
+ */
 public class RedisClientInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
     private static final String ENHANCE_CLASS = "org.redisson.client.RedisClient";

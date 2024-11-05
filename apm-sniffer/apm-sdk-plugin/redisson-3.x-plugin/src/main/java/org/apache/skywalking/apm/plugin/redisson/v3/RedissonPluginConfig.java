@@ -30,6 +30,7 @@ public class RedissonPluginConfig {
         public static class Redisson {
             /**
              * If set to true, the parameters of the Redis command would be collected.
+             * （如果设置为 true，则会收集 Redis 命令的参数。）
              */
             public static boolean TRACE_REDIS_PARAMETERS = false;
             /**
@@ -38,20 +39,31 @@ public class RedissonPluginConfig {
              * characters would be collected.
              * <p>
              * Set a negative number to save specified length of parameter string to the tag.
+             *
+             * <pre>
+             * (为了性能，SkyWalking 不会将 Redis 参数字符串保存到 tag 中。如果 TRACE_REDIS_PARAMETERS 设置为 true，则将收集前 REDIS_PARAMETER_MAX_LENGTH 个参数字符。
+             * 设置负数，将指定长度的参数字符串保存到标签中。)
+             * </pre>
              */
             public static int REDIS_PARAMETER_MAX_LENGTH = 128;
             /**
              * If set to true, the PING command would be collected.
+             * （如果设置为 true，则将收集 PING 命令。）
              */
             public static boolean SHOW_PING_COMMAND = false;
             /**
              * If set to true, the detail of the Redis batch commands would be collected.
+             * (如果设置为 true，则将收集 Redis 批处理命令的详细信息。)
              */
             public static boolean SHOW_BATCH_COMMANDS = false;
 
             /**
              * Operation represent a cache span is "write" or "read" action , and "op"(operation) is tagged with key "cache.op" usually
              * This config term define which command should be converted to write Operation .
+             *
+             * <pre>
+             * cache span 的 写操作
+             * </pre>
              *
              * @see org.apache.skywalking.apm.agent.core.context.tag.Tags#CACHE_OP
              * @see RedisConnectionMethodInterceptor#parseOperation(String)
@@ -121,6 +133,12 @@ public class RedissonPluginConfig {
             /**
              * Operation represent a cache span is "write" or "read" action , and "op"(operation) is tagged with key "cache.op" usually
              * This config term define which command should be converted to write Operation .
+             *
+             * <pre>
+             * (表示 cache span 的操作是 “write” 或 “read” action，而 “op”（operation） 则使用键 “cache.op“ 通常这个配置术语定义应该将哪个命令转换为 write Operation 。)
+             *
+             * cache span 的 读操作
+             * </pre>
              *
              * @see org.apache.skywalking.apm.agent.core.context.tag.Tags#CACHE_OP
              * @see RedisConnectionMethodInterceptor#parseOperation(String)

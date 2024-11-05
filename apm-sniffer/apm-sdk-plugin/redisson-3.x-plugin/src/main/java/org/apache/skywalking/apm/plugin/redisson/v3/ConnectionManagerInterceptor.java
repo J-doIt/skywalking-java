@@ -34,6 +34,12 @@ import java.util.Collection;
 import org.redisson.connection.MasterSlaveConnectionManager;
 import org.redisson.connection.ServiceManager;
 
+/**
+ * <pre>
+ * 增强类：org.redisson.connection.MasterSlaveConnectionManager
+ * 增强方法：RedisClient createClient(NodeType type, ...)
+ * </pre>
+ */
 public class ConnectionManagerInterceptor implements InstanceMethodsAroundInterceptor {
 
     private static final ILog LOGGER = LogManager.getLogger(ConnectionManagerInterceptor.class);
@@ -48,10 +54,15 @@ public class ConnectionManagerInterceptor implements InstanceMethodsAroundInterc
                               Object ret) throws Throwable {
         try {
             Config config = getConfig(objInst);
+            // 单服务器配置
             Object singleServerConfig = null;
+            // 哨兵服务器配置
             Object sentinelServersConfig = null;
+            // 主从服务器配置
             Object masterSlaveServersConfig = null;
+            // 集群服务器配置
             Object clusterServersConfig = null;
+            // QFTODO：备份？服务器配置
             Object replicatedServersConfig = null;
             if (Objects.nonNull(config)) {
                 singleServerConfig = ClassUtil.getObjectField(config, "singleServerConfig");
@@ -62,8 +73,10 @@ public class ConnectionManagerInterceptor implements InstanceMethodsAroundInterc
             }
 
             StringBuilder peer = new StringBuilder();
+            // RedisClient 类型
             EnhancedInstance retInst = (EnhancedInstance) ret;
 
+            // 将 RedisClient 增强对象 的 动态增强域 的值设置为 redis node addrs
             if (singleServerConfig != null) {
                 Object singleAddress = ClassUtil.getObjectField(singleServerConfig, "address");
                 peer.append(getPeer(singleAddress));
