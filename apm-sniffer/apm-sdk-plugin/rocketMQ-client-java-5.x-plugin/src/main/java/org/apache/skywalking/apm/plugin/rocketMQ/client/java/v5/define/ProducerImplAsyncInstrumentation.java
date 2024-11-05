@@ -29,6 +29,13 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
 import static org.apache.skywalking.apm.agent.core.plugin.bytebuddy.ArgumentTypeNameMatch.takesArgumentWithType;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
+/**
+ * <pre>
+ * 增强类：org.apache.rocketmq.client.java.impl.producer.ProducerImpl
+ * 增强方法：（重写参数）CompletableFuture<SendReceipt> sendAsync(Message message)
+ *      拦截器：org.apache.skywalking.apm.plugin.rocketMQ.client.java.v5.MessageSendAsyncInterceptor
+ * </pre>
+ */
 public class ProducerImplAsyncInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
     private static final String ENHANCE_CLASS = "org.apache.rocketmq.client.java.impl.producer.ProducerImpl";
     private static final String ENHANCE_METHOD = "sendAsync";

@@ -29,6 +29,16 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
 import static net.bytebuddy.matcher.ElementMatchers.takesArguments;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
+/**
+ * <pre>
+ * 增强类：org.apache.rocketmq.client.java.impl.consumer.SimpleConsumerImpl
+ * 增强构造函数：SimpleConsumerImpl(ClientConfiguration clientConfiguration, String consumerGroup,
+ *                  Duration awaitDuration, Map<String, FilterExpression> subscriptionExpressions)
+ *      拦截器：org.apache.skywalking.apm.plugin.rocketMQ.client.java.v5.SimpleConsumerImplInterceptor
+ * 增强方法：List<MessageView> receive(int maxMessageNum, Duration invisibleDuration)
+ *      拦截器：org.apache.skywalking.apm.plugin.rocketMQ.client.java.v5.SimpleConsumerImplInterceptor
+ * </pre>
+ */
 public class SimpleConsumerImplInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
     private static final String ENHANCE_CLASS = "org.apache.rocketmq.client.java.impl.consumer.SimpleConsumerImpl";
     private static final String ENHANCE_METHOD = "receive";

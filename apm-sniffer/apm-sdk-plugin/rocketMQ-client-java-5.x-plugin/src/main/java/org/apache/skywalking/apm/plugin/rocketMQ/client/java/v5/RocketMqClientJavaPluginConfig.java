@@ -26,10 +26,12 @@ public class RocketMqClientJavaPluginConfig {
         public static class Rocketmqclient {
             /**
              * This config item controls that whether the RocketMqClientJava plugin should collect the keys of the message.
+             * （该配置项控制 RocketMqClientJava 插件 是否收集消息的 keys。）
              */
             public static boolean COLLECT_MESSAGE_KEYS = false;
             /**
              * This config item controls that whether the RocketMqClientJava plugin should collect the tags of the message.
+             * （该配置项控制 RocketMqClientJava 插件 是否收集消息的 tags。）
              */
             public static boolean COLLECT_MESSAGE_TAGS = false;
         }

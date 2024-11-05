@@ -28,6 +28,14 @@ import java.util.Map;
 
 /**
  * {@link PushConsumerImplInterceptor} create exit span when the method {@link org.apache.rocketmq.client.java.impl.consumer.PushConsumerImpl#PushConsumerImpl(ClientConfiguration, String, Map, MessageListener, int, int, int)} execute.
+ *
+ * <pre>
+ * 增强类：org.apache.rocketmq.client.java.impl.consumer.PushConsumerImpl
+ * 增强构造函数：PushConsumerImpl(ClientConfiguration clientConfiguration, String consumerGroup,
+ *                  Map<String, FilterExpression> subscriptionExpressions,
+ *                  MessageListener messageListener, int maxCacheMessageCount,
+ *                  int maxCacheMessageSizeInBytes, int consumptionThreadCount)
+ * </pre>
  */
 public class PushConsumerImplInterceptor implements InstanceConstructorInterceptor {
 
@@ -35,10 +43,14 @@ public class PushConsumerImplInterceptor implements InstanceConstructorIntercept
     public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
         ClientConfiguration clientConfiguration = (ClientConfiguration) allArguments[0];
         String namesrvAddr = clientConfiguration.getEndpoints();
+        // 创建 动态增强域 对象
         ConsumerEnhanceInfos consumerEnhanceInfos = new ConsumerEnhanceInfos(namesrvAddr);
 
+        // 如果 第4个参数 messageListener 是被增强过的
         if (allArguments[3] instanceof EnhancedInstance) {
             EnhancedInstance enhancedMessageListener = (EnhancedInstance) allArguments[3];
+
+            // 将 增强的messageListener 的 动态增强域 的值 设置为 consumerEnhanceInfos
             enhancedMessageListener.setSkyWalkingDynamicField(consumerEnhanceInfos);
         }
     }

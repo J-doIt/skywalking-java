@@ -28,6 +28,13 @@ import org.apache.skywalking.apm.agent.core.plugin.match.HierarchyMatch;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
 
+/**
+ * <pre>
+ * 增强类：org.apache.rocketmq.client.apis.consumer.MessageListener 及其子类
+ * 增强方法：ConsumeResult consume(MessageView var1)
+ *      拦截器：org.apache.skywalking.apm.plugin.rocketMQ.client.java.v5.MessageListenerInterceptor
+ * </pre>
+ */
 public class MessageListenerInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
     private static final String ENHANCE_CLASS = "org.apache.rocketmq.client.apis.consumer.MessageListener";

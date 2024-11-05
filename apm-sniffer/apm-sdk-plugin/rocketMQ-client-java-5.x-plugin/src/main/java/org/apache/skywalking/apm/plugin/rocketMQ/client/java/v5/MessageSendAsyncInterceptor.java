@@ -45,6 +45,12 @@ import org.apache.skywalking.apm.util.StringUtil;
 /**
  * {@link MessageSendAsyncInterceptor} create exit span when the method {@link org.apache.rocketmq.client.java.impl.producer.ProducerImpl#sendAsync(org.apache.rocketmq.client.apis.message.Message)}
  * execute
+ *
+ * <pre>
+ * 增强类：org.apache.rocketmq.client.java.impl.producer.ProducerImpl
+ *      ProducerImpl 继承了 ClientImpl
+ * 增强方法：（重写参数）CompletableFuture<SendReceipt> sendAsync(Message message)
+ * </pre>
  */
 public class MessageSendAsyncInterceptor implements InstanceMethodsAroundInterceptor {
 
@@ -62,28 +68,36 @@ public class MessageSendAsyncInterceptor implements InstanceMethodsAroundInterce
         Message message = (Message) allArguments[0];
         ClientImpl producerImpl = (ClientImpl) objInst;
 
+        // 创建 跨进程传输载体
         ContextCarrier contextCarrier = new ContextCarrier();
         String namingServiceAddress = producerImpl.getClientConfiguration().getEndpoints();
+        // 创建 exit span，并将 当前的 TracerContext 和 该 exit span 的相关信息 注入 到 ContextCarrier 中
         AbstractSpan span = ContextManager.createExitSpan(
             buildOperationName(message.getTopic()), contextCarrier, namingServiceAddress);
         span.setComponent(ComponentsDefine.ROCKET_MQ_PRODUCER);
         Tags.MQ_BROKER.set(span, namingServiceAddress);
         Tags.MQ_TOPIC.set(span, message.getTopic());
+        // 判断 是否收集消息的 keys
         if (RocketMqClientJavaPluginConfig.Plugin.Rocketmqclient.COLLECT_MESSAGE_KEYS) {
             Collection<String> keys = message.getKeys();
             if (!CollectionUtil.isEmpty(keys)) {
+                // 将 消息的keys 设置到 exit span 的 mq.message.keys 标签
                 span.tag(MQ_MESSAGE_KEYS, String.join(",", keys));
             }
         }
+        // 判断 是否收集消息的 tags
         if (RocketMqClientJavaPluginConfig.Plugin.Rocketmqclient.COLLECT_MESSAGE_TAGS) {
             Optional<String> tag = message.getTag();
+            // 如果 tag 存在值，将 消息的tags 设置到 exit span 的 mq.message.tags 标签
             tag.ifPresent(s -> span.tag(MQ_MESSAGE_TAGS, s));
         }
 
+        // 将 当前时间 注入 ExtensionContext
         contextCarrier.extensionInjector().injectSendingTimestamp();
         SpanLayer.asMQ(span);
 
         Map<String, String> properties = message.getProperties();
+        // 将 当前 的 链路信息（contextCarrier） 放入到 Message.properties 中传递给 下游
         CarrierItem next = contextCarrier.items();
         while (next.hasNext()) {
             next = next.next();
@@ -92,6 +106,7 @@ public class MessageSendAsyncInterceptor implements InstanceMethodsAroundInterce
             }
         }
 
+        // 为了替代 参数1，重新构建 Message
         MessageBuilder messageBuilder = new MessageBuilderImpl();
         messageBuilder.setTopic(message.getTopic());
         if (message.getTag().isPresent()) {
@@ -110,6 +125,7 @@ public class MessageSendAsyncInterceptor implements InstanceMethodsAroundInterce
         }
 
         properties.forEach(messageBuilder::addProperty);
+        // 替代 参数1（Message）
         allArguments[0] = messageBuilder.build();
     }
 
@@ -120,8 +136,11 @@ public class MessageSendAsyncInterceptor implements InstanceMethodsAroundInterce
                               Class<?>[] argumentsTypes,
                               Object ret) throws Throwable {
         CompletableFuture<SendReceipt> future = (CompletableFuture<SendReceipt>) ret;
+        // 获取 当前tracingContext 中的 active span
         AbstractSpan span = ContextManager.activeSpan();
+        // 为 当前tracingContext 开启异步模式
         span.prepareForAsync();
+        // 结束 active span
         ContextManager.stopSpan();
         return future.whenCompleteAsync((sendReceipt, throwable) -> {
             if (null != throwable) {
@@ -135,6 +154,7 @@ public class MessageSendAsyncInterceptor implements InstanceMethodsAroundInterce
                 return;
             }
             span.tag(MQ_MESSAGE_ID, sendReceipt.getMessageId().toString());
+            // 异步span 结束，完成此上下文（异步span非当前span）
             span.asyncFinish();
         });
     }
@@ -145,6 +165,7 @@ public class MessageSendAsyncInterceptor implements InstanceMethodsAroundInterce
                                       Object[] allArguments,
                                       Class<?>[] argumentsTypes,
                                       Throwable t) {
+        // 设置 active span 的 log 为 t
         ContextManager.activeSpan().log(t);
     }
 

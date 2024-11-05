@@ -28,6 +28,16 @@ import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 import static net.bytebuddy.matcher.ElementMatchers.takesArguments;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
+/**
+ * <pre>
+ * 增强类：org.apache.rocketmq.client.java.impl.consumer.PushConsumerImpl
+ * 增强构造函数：PushConsumerImpl(ClientConfiguration clientConfiguration, String consumerGroup,
+ *                  Map<String, FilterExpression> subscriptionExpressions,
+ *                  MessageListener messageListener, int maxCacheMessageCount,
+ *                  int maxCacheMessageSizeInBytes, int consumptionThreadCount)
+ *      拦截器：org.apache.skywalking.apm.plugin.rocketMQ.client.java.v5.PushConsumerImplInterceptor
+ * </pre>
+ */
 public class PushConsumerImplInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
     private static final String ENHANCE_CLASS = "org.apache.rocketmq.client.java.impl.consumer.PushConsumerImpl";
     private static final String CONSTRUCTOR_METHOD_INTERCEPTOR = "org.apache.skywalking.apm.plugin.rocketMQ.client.java.v5.PushConsumerImplInterceptor";

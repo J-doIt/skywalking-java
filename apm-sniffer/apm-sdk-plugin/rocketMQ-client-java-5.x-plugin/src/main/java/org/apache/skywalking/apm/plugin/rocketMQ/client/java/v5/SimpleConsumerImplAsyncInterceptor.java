@@ -42,6 +42,13 @@ import org.apache.skywalking.apm.plugin.rocketMQ.client.java.v5.define.ConsumerE
 /**
  * {@link SimpleConsumerImplAsyncInterceptor} create local span when the method {@link
  * org.apache.rocketmq.client.java.impl.consumer.SimpleConsumerImpl#receiveAsync(int, Duration)} execute.
+ *
+ * <pre>
+ * 增强类：org.apache.rocketmq.client.java.impl.consumer.SimpleConsumerImpl
+ * 增强构造函数：SimpleConsumerImpl(ClientConfiguration clientConfiguration, String consumerGroup,
+ *                  Duration awaitDuration, Map<String, FilterExpression> subscriptionExpressions)
+ * 增强方法：CompletableFuture<List<MessageView>> receiveAsync(int maxMessageNum, Duration invisibleDuration)
+ * </pre>
  */
 public class SimpleConsumerImplAsyncInterceptor implements InstanceMethodsAroundInterceptor, InstanceConstructorInterceptor {
     public static final String CONSUMER_OPERATION_NAME_PREFIX = "RocketMQ/";
@@ -57,28 +64,37 @@ public class SimpleConsumerImplAsyncInterceptor implements InstanceMethodsAround
                               Object ret) throws Throwable {
         CompletableFuture<List<MessageView>> futureList = (CompletableFuture<List<MessageView>>) ret;
         ContextSnapshot capture = null;
+        // 如果 当前tracingContext 不为空
         if (ContextManager.isActive()) {
+            // 捕获 当前tracingContext 快照
             capture = ContextManager.capture();
         }
         final ContextSnapshot finalCapture = capture;
         return futureList.whenCompleteAsync((messages, throwable) -> {
             String topics = messages.stream().map(MessageView::getTopic).distinct().collect(Collectors.joining(","));
+            // 异步线程中 创建 entry span ，参数 contextCarrier 传 null
             AbstractSpan span = ContextManager.createEntrySpan(
                 CONSUMER_OPERATION_NAME_PREFIX + topics + "/Consumer", null);
             if (finalCapture != null) {
+                // 在异步线程中 执行 continued 继续
                 ContextManager.continued(finalCapture);
             }
             if (null != throwable) {
+                // 如果异步接收失败，则 设置 该 span 的 log 为 throwable
                 span.log(throwable);
+                // 设置 该 span 的 errorOccurred 标志位为 true
                 span.errorOccurred();
+                // 结束 active span
                 ContextManager.stopSpan();
                 return;
             }
             if (messages.isEmpty()) {
+                // 如果 接收的 messages 为空，结束 active span
                 ContextManager.stopSpan();
                 return;
             }
             String namesrvAddr = "";
+            // 从 SimpleConsumerImpl 增强对象 的 动态增强域 取值（namesrv）
             Object skyWalkingDynamicField = objInst.getSkyWalkingDynamicField();
             if (skyWalkingDynamicField != null) {
                 ConsumerEnhanceInfos consumerEnhanceInfos = (ConsumerEnhanceInfos) objInst.getSkyWalkingDynamicField();
@@ -91,9 +107,12 @@ public class SimpleConsumerImplAsyncInterceptor implements InstanceMethodsAround
             span.setComponent(ComponentsDefine.ROCKET_MQ_CONSUMER);
 
             for (MessageView messageView : messages) {
+                // 将上游的链路信息提取到新创建的carrier
                 ContextCarrier contextCarrier = getContextCarrierFromMessage(messageView);
+                // 从 contextCarrier 中 提取 追踪信息 到 当前tracingContext
                 ContextManager.extract(contextCarrier);
             }
+            // 结束 active span
             ContextManager.stopSpan();
         });
     }
@@ -101,6 +120,7 @@ public class SimpleConsumerImplAsyncInterceptor implements InstanceMethodsAround
     @Override
     public final void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
                                             Class<?>[] argumentsTypes, Throwable t) {
+        // 设置 active span 的 log 为 t
         ContextManager.activeSpan().log(t);
     }
 
@@ -108,10 +128,16 @@ public class SimpleConsumerImplAsyncInterceptor implements InstanceMethodsAround
     public void onConstruct(final EnhancedInstance objInst, final Object[] allArguments) throws Throwable {
         ClientConfiguration clientConfiguration = (ClientConfiguration) allArguments[0];
         String namesrvAddr = clientConfiguration.getEndpoints();
+        // 创建 动态增强域 对象
         ConsumerEnhanceInfos consumerEnhanceInfos = new ConsumerEnhanceInfos(namesrvAddr);
+        // 将 增强的SimpleConsumerImpl 的 动态增强域 的值 设置为 consumerEnhanceInfos
         objInst.setSkyWalkingDynamicField(consumerEnhanceInfos);
     }
 
+    /**
+     * 创建 ContextCarrier，并将 MessageView.Properties sw-key 对应的 value 设置到 该carrier。
+     * （将上游的链路信息提取到新创建的carrier）
+     */
     private ContextCarrier getContextCarrierFromMessage(MessageView message) {
         ContextCarrier contextCarrier = new ContextCarrier();
 

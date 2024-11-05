@@ -35,6 +35,12 @@ import org.apache.skywalking.apm.plugin.rocketMQ.client.java.v5.define.ConsumerE
 
 import java.lang.reflect.Method;
 
+/**
+ * <pre>
+ * 增强类：org.apache.rocketmq.client.apis.consumer.MessageListener 及其子类
+ * 增强方法：ConsumeResult consume(MessageView var1)
+ * </pre>
+ */
 public class MessageListenerInterceptor implements InstanceMethodsAroundInterceptor {
 
     public static final String CONSUMER_OPERATION_NAME_PREFIX = "RocketMQ/";
@@ -44,12 +50,15 @@ public class MessageListenerInterceptor implements InstanceMethodsAroundIntercep
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
         MessageView messageView = (MessageView) allArguments[0];
 
+        // 将上游的链路信息提取到新创建的carrier
         ContextCarrier contextCarrier = getContextCarrierFromMessage(messageView);
 
+        // 创建 entry span ，并从 contextCarrier 中 提取 追踪信息 到 当前tracingContext
         AbstractSpan span = ContextManager.createEntrySpan(CONSUMER_OPERATION_NAME_PREFIX + messageView.getTopic()
                 + "/Consumer", contextCarrier);
         Tags.MQ_TOPIC.set(span, messageView.getTopic());
         span.tag(MQ_MESSAGE_ID, messageView.getMessageId().toString());
+        // 获取 MessageListener 增强对象 的 增强域
         Object skyWalkingDynamicField = objInst.getSkyWalkingDynamicField();
         if (skyWalkingDynamicField != null) {
             ConsumerEnhanceInfos consumerEnhanceInfos = (ConsumerEnhanceInfos) skyWalkingDynamicField;
@@ -64,20 +73,29 @@ public class MessageListenerInterceptor implements InstanceMethodsAroundIntercep
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, Object ret) throws Throwable {
         ConsumeResult status = (ConsumeResult) ret;
+        // 如果消费结果是失败
         if (ConsumeResult.FAILURE.equals(status)) {
             AbstractSpan activeSpan = ContextManager.activeSpan();
+            // 标志位 active span 的 errorOccurred 标志位为 true
             activeSpan.errorOccurred();
+            // 设置 active span 的 mq_status 标签
             Tags.MQ_STATUS.set(activeSpan, status.name());
         }
+        // 结束 active span
         ContextManager.stopSpan();
         return ret;
     }
 
     @Override
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, Throwable t) {
+        // 设置 active span 的 log 为 t
         ContextManager.activeSpan().log(t);
     }
 
+    /**
+     * 创建 ContextCarrier，并将 MessageView.Properties sw-key 对应的 value 设置到 该carrier。
+     * （将上游的链路信息提取到新创建的carrier）
+     */
     private ContextCarrier getContextCarrierFromMessage(MessageView message) {
         ContextCarrier contextCarrier = new ContextCarrier();
 

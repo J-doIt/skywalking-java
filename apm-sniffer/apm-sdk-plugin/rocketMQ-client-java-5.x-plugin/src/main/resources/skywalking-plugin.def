@@ -14,9 +14,25 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# 增强_消息业务监听器 MessageListener及其子类.consume()，
+#       创建 entry span，从 MessageView.Properties 中的 提取 上游的 链路信息 到 新carrier
 rocketMQ-client-java-5.x=org.apache.skywalking.apm.plugin.rocketMQ.client.java.v5.define.MessageListenerInstrumentation
+# 增强_ProducerImpl.send()，
+#       创建 exit span，将 当前 的 链路信息 放入到 Message.properties 中传递给 下游，并替代 send() 的参数1（Message）
 rocketMQ-client-java-5.x=org.apache.skywalking.apm.plugin.rocketMQ.client.java.v5.define.ProducerImplInstrumentation
+# 增强_PushConsumerImpl.PushConsumerImpl()，
+#       将 ConsumerEnhanceInfos(namesrvAddr) 设置到 参数3-messageListener 的 动态增强域
 rocketMQ-client-java-5.x=org.apache.skywalking.apm.plugin.rocketMQ.client.java.v5.define.PushConsumerImplInstrumentation
+# 增强_SimpleConsumerImpl
+#       增强 SimpleConsumerImpl(...)，将 ConsumerEnhanceInfos(namesrvAddr) 设置到 objInst 的 动态增强域
+#       增强 receive()，创建 entry span，参数 carrier 传 null，循环 messageView，将上游的链路信息提取到新创建的carrier
 rocketMQ-client-java-5.x=org.apache.skywalking.apm.plugin.rocketMQ.client.java.v5.define.SimpleConsumerImplInstrumentation
+# 增强_ProducerImpl.sendAsync()
+#       创建 exit span，将 当前 的 链路信息 放入到 Message.properties 中传递给 下游，并替代 sendAsync() 的参数1（Message）
+#       在当前线程执行 该 exitSpan.prepareForAsync()
+#       在异步线程执行 该 exitSpan.asyncFinish()
 rocketMQ-client-java-5.x=org.apache.skywalking.apm.plugin.rocketMQ.client.java.v5.define.ProducerImplAsyncInstrumentation
+# 增强_SimpleConsumerImpl
+#       增强 SimpleConsumerImpl(...)，将 ConsumerEnhanceInfos(namesrvAddr) 设置到 objInst 的 动态增强域
+#       增强 receiveAsync()，afterMethod 中，捕获 当前tracingContext 快照，在异步线程中 创建 entry span，并执行 continued 继续链路
 rocketMQ-client-java-5.x=org.apache.skywalking.apm.plugin.rocketMQ.client.java.v5.define.SimpleConsumerImplAsyncInstrumentation
