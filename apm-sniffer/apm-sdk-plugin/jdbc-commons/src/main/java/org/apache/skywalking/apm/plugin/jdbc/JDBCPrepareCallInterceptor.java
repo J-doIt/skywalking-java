@@ -30,6 +30,17 @@ import org.apache.skywalking.apm.plugin.jdbc.trace.ConnectionInfo;
 /**
  * {@link JDBCPrepareCallInterceptor} return {@link SWCallableStatement} instance that wrapper the real CallStatement
  * instance when the client call <code>prepareCall</code> method.
+ *
+ * <pre>
+ * (JDBCPrepareCallInterceptor 返回 SWCallableStatement 实例，
+ * 该SWCallableStatement实例 在 客户端 调用 prepareCall() 方法时 包装 真实的 CallStatement 实例。)
+ *
+ * 增强类：java.sql.Connection 的实现类
+ * 增强方法：
+ *          CallableStatement prepareCall(String sql)
+ *          CallableStatement prepareCall(String sql, int resultSetType, int resultSetConcurrency)
+ *          CallableStatement prepareCall(String sql, int resultSetType, int resultSetConcurrency, int resultSetHoldability)
+ * </pre>
  */
 public class JDBCPrepareCallInterceptor implements InstanceMethodsAroundInterceptor {
     @Override
@@ -41,9 +52,11 @@ public class JDBCPrepareCallInterceptor implements InstanceMethodsAroundIntercep
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         Object ret) throws Throwable {
+        // 如果 java.sql.Connection 的实现类 的 增强域（ConnectionInfo） 为空，则不扩展 ret（CallableStatement）
         if (objInst.getSkyWalkingDynamicField() == null) {
             return ret;
         }
+        // 将 ret（CallableStatement）替换为 SWCallableStatement 对象
         return new SWCallableStatement((Connection) objInst, (CallableStatement) ret, (ConnectionInfo) objInst.getSkyWalkingDynamicField(), (String) allArguments[0]);
     }
 

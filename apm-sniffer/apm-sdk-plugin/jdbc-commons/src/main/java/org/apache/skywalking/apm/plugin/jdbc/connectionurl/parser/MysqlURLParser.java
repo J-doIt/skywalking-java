@@ -24,12 +24,14 @@ import org.apache.skywalking.apm.plugin.jdbc.trace.ConnectionInfo;
 
 /**
  * {@link MysqlURLParser} parse connection url of mysql.
+ * （MysqlURLParser 解析 mysql 的 连接url。）
  */
 public class MysqlURLParser extends AbstractURLParser {
 
     private static final int DEFAULT_PORT = 3306;
     private int defaultPort = DEFAULT_PORT;
     private String dbType = "Mysql";
+    /** 官方组件：mysql-connector-java */
     private OfficialComponent component = ComponentsDefine.MYSQL_JDBC_DRIVER;
 
     public MysqlURLParser(String url) {

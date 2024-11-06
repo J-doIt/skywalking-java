@@ -31,22 +31,47 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInt
 /**
  * {@link JDBCDriverInterceptor} set <code>ConnectionInfo</code> to {@link Connection} object when {@link
  * java.sql.Driver} to create connection, instead of the  {@link Connection} instance.
+ *
+ * <pre>
+ * (JDBCDriverInterceptor 在 java.sql.Driver 创建连接时，将 ConnectionInfo 设置为 "Connection对象" ，而不是 "Connection实例" 。)
+ *
+ * QFTODO：Connection对象？Connection实例？
+ *
+ * 增强类：java.sql.Driver 的实现类（具体的实现类见各数据库插件）
+ * 增强方法：Connection connect(String url, java.util.Properties info)
+ * </pre>
  */
 public class JDBCDriverInterceptor implements InstanceMethodsAroundInterceptor {
 
+    /**
+     * @param objInst java.sql.Driver 的实现类 的增强类实例
+     * @param method connect()
+     * @param allArguments [url, info]
+     * @param argumentsTypes [String, Properties]
+     */
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         MethodInterceptResult result) throws Throwable {
+        // 动态配置观察器（关注 plugin.jdbc.trace_sql_parameters 配置）
         TraceSqlParametersWatcher traceSqlParametersWatcher = new TraceSqlParametersWatcher("plugin.jdbc.trace_sql_parameters");
         ConfigurationDiscoveryService configurationDiscoveryService = ServiceManager.INSTANCE.findService(
                 ConfigurationDiscoveryService.class);
+        // 注册动态配置观察器
         configurationDiscoveryService.registerAgentConfigChangeWatcher(traceSqlParametersWatcher);
     }
 
+    /**
+     * @param objInst java.sql.Driver 的实现类 的增强类实例
+     * @param method connect()
+     * @param allArguments [url, info]
+     * @param argumentsTypes [String, Properties]
+     * @param ret Connection 对象
+     */
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         Object ret) throws Throwable {
         if (ret != null && ret instanceof EnhancedInstance) {
+            // 将 解析后的参数url（ConnectionInfo类型） 设置为 Connection 的 增强域
             ((EnhancedInstance) ret).setSkyWalkingDynamicField(URLParser.parser((String) allArguments[0]));
         }
 

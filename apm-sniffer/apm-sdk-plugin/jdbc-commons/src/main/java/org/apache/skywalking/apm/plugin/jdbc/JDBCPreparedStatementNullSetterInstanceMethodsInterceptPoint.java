@@ -25,6 +25,16 @@ import org.apache.skywalking.apm.plugin.jdbc.define.Constants;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
 
+/**
+ * <pre>
+ * JDBCPreparedStatement NullSetter实例方法 匹配器
+ *
+ * 增强方法：
+ *          void setNull(int parameterIndex, int sqlType)
+ *      拦截器：
+ *          org.apache.skywalking.apm.plugin.jdbc.JDBCPreparedStatementNullSetterInterceptor
+ * </pre>
+ */
 public final class JDBCPreparedStatementNullSetterInstanceMethodsInterceptPoint implements InstanceMethodsInterceptPoint {
     @Override
     public ElementMatcher<MethodDescription> getMethodsMatcher() {

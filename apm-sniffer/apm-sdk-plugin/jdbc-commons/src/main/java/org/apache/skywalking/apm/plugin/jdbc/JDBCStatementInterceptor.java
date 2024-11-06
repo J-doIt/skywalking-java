@@ -29,6 +29,16 @@ import org.apache.skywalking.apm.plugin.jdbc.trace.SWStatement;
 /**
  * {@link JDBCStatementInterceptor} return {@link SWStatement} instance that wrapper the real Statement instance when
  * the client call <code>createStatement</code> method.
+ *
+ * <pre>
+ * (JDBCStatementInterceptor 返回 SWStatement 实例，该实例在客户端调用 createStatement() 时包装了真实的 Statement 实例。)
+ *
+ * 增强类：java.sql.Connection 的实现类
+ * 增强方法：
+ *          Statement createStatement()
+ *          Statement createStatement(int resultSetType, int resultSetConcurrency)
+ *          Statement createStatement(int resultSetType, int resultSetConcurrency, int resultSetHoldability)
+ * </pre>
  */
 public class JDBCStatementInterceptor implements InstanceMethodsAroundInterceptor {
     @Override
@@ -40,9 +50,11 @@ public class JDBCStatementInterceptor implements InstanceMethodsAroundIntercepto
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         Object ret) throws Throwable {
+        // 如果 java.sql.Connection 的实现类 的 增强域（ConnectionInfo） 为空，则不扩展 ret（PreparedStatement）
         if (objInst.getSkyWalkingDynamicField() == null) {
             return ret;
         }
+        // 将 ret（Statement）替换为 SWStatement 对象
         return new SWStatement((Connection) objInst, (java.sql.Statement) ret, (ConnectionInfo) objInst.getSkyWalkingDynamicField());
     }
 

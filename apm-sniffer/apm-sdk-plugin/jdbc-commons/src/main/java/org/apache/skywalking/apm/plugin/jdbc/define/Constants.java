@@ -44,11 +44,17 @@ public class Constants {
     public static final String CLOSE_METHOD_NAME = "close";
 
     public static final String RELEASE_SAVE_POINT_METHOD_NAME = "releaseSavepoint";
+    /** SQL 参数占位符 */
     public static final String SQL_PARAMETER_PLACEHOLDER = "?";
+
+    /** PrepareStatement 中不可忽略的 Setter 方法们 */
     public static final Set<String> PS_SETTERS = new HashSet<String>(Arrays.asList("setArray", "setBigDecimal", "setBoolean", "setByte", "setDate", "setDouble", "setFloat", "setInt", "setLong", "setNString", "setObject", "setRowId", "setShort", "setString", "setTime", "setTimestamp", "setURL"));
+    /** PrepareStatement 中可忽略的 Setter 方法们 */
     public static final Set<String> PS_IGNORABLE_SETTERS = new HashSet<String>(Arrays.asList("setAsciiStream", "setBinaryStream", "setBlob", "setBytes", "setCharacterStream", "setClob", "setNCharacterStream", "setNClob", "setRef", "setSQLXML", "setUnicodeStream"));
 
+    /** PrepareStatement 中不可忽略的 Setter 方法们的拦截器 */
     public static final String PREPARED_STATEMENT_SETTER_METHODS_INTERCEPTOR = "org.apache.skywalking.apm.plugin.jdbc.JDBCPreparedStatementSetterInterceptor";
     public static final String PREPARED_STATEMENT_NULL_SETTER_METHODS_INTERCEPTOR = "org.apache.skywalking.apm.plugin.jdbc.JDBCPreparedStatementNullSetterInterceptor";
+    /** PrepareStatement 中可忽略的 Setter 方法们的拦截器 */
     public static final String PREPARED_STATEMENT_IGNORABLE_SETTER_METHODS_INTERCEPTOR = "org.apache.skywalking.apm.plugin.jdbc.JDBCPreparedStatementIgnorableSetterInterceptor";
 }

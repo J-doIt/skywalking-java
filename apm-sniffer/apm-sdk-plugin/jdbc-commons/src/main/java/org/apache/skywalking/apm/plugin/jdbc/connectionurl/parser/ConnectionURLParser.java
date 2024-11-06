@@ -20,11 +20,13 @@ package org.apache.skywalking.apm.plugin.jdbc.connectionurl.parser;
 
 import org.apache.skywalking.apm.plugin.jdbc.trace.ConnectionInfo;
 
+/** 数据库连接的URL解析器 */
 public interface ConnectionURLParser {
     /**
      * {@link ConnectionURLParser} parses database name and the database host(s) from connection url.
+     * （ConnectionURLParser 从 连接url 解析 数据库名称 和 数据库主机。）
      *
-     * @return connection info.
+     * @return jdbc连接信息
      */
     ConnectionInfo parse();
 }

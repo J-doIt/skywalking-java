@@ -25,13 +25,23 @@ import org.apache.skywalking.apm.plugin.jdbc.define.StatementEnhanceInfos;
 
 import java.lang.reflect.Method;
 
+/**
+ * <pre>
+ *
+ * 增强类：java.sql.PreparedStatement、其实现类
+ * 增强方法：
+ *          void setNull(int parameterIndex, int sqlType)
+ * </pre>
+ */
 public class JDBCPreparedStatementNullSetterInterceptor implements InstanceMethodsAroundInterceptor {
     @Override
     public final void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
         final StatementEnhanceInfos statementEnhanceInfos = (StatementEnhanceInfos) objInst.getSkyWalkingDynamicField();
+        // 如果 objInst 的 增强域 不为空
         if (statementEnhanceInfos != null) {
           final int index = (Integer) allArguments[0];
+          // 将 "NULL" 放入到 statementEnhanceInfos.parameters[index-1]
           statementEnhanceInfos.setParameter(index, "NULL");
         }
     }

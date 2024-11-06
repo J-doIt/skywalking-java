@@ -24,6 +24,12 @@ import org.apache.skywalking.apm.plugin.jdbc.trace.ConnectionInfo;
 /**
  * {@link StatementEnhanceInfos} contain the {@link ConnectionInfo} and
  * <code>sql</code> for trace mysql.
+ *
+ * <pre>
+ * (StatementEnhanceInfos 包含 ConnectionInfo 和 用于跟踪 mysql 的 sql。)
+ *
+ * java.sql.PreparedStatement或其实现类 的 增强对象的 增强域 类型
+ * </pre>
  */
 public class StatementEnhanceInfos {
     private ConnectionInfo connectionInfo;
@@ -50,15 +56,22 @@ public class StatementEnhanceInfos {
         return statementName;
     }
 
+    /**
+     * 将 parameter 放入到 this.parameters[] 的指定空间，this.parameters[] 空间不足则申请更大空间的数组
+     * @param index 从1开始
+     * @param parameter SQL字段的参数
+     */
     public void setParameter(int index, final Object parameter) {
         maxIndex = maxIndex > index ? maxIndex : index;
         index--; // start from 1
+        // 初始化 this.parameters[]，并填充 null。
         if (parameters == null) {
             final int initialSize = Math.max(16, maxIndex);
             parameters = new Object[initialSize];
             Arrays.fill(parameters, null);
         }
         int length = parameters.length;
+        // 如果 index 超过范围，则扩长
         if (index >= length) {
             int newSize = Math.max(index + 1, length * 2);
             Object[] newParameters = new Object[newSize];
@@ -66,6 +79,7 @@ public class StatementEnhanceInfos {
             Arrays.fill(newParameters, length, newSize, null);
             parameters = newParameters;
         }
+        // 将 parameter 放入指定空间
         parameters[index] = parameter;
     }
 

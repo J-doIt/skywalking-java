@@ -27,7 +27,7 @@ public class JDBCPluginConfig {
             /**
              * If set to true, the parameters of the sql (typically {@link java.sql.PreparedStatement}) would be
              * collected.
-             * （如果设置为 true，则将收集 sql 的参数（通常为 PreparedStatement）。）
+             * （如果设置为 true，则将收集 sql 的参数（通常为PreparedStatement）。）
              */
             public static volatile boolean TRACE_SQL_PARAMETERS = false;
             /**
@@ -35,6 +35,11 @@ public class JDBCPluginConfig {
              * the first {@code SQL_PARAMETERS_MAX_LENGTH} characters.
              * <p>
              * Set a negative number to save the complete parameter string to the tag.
+             *
+             * <pre>
+             * (出于性能考虑，SkyWalking 不会将整个参数字符串保存到标记中，而只保存第一个SQL_PARAMETERS_MAX_LENGTH字符。
+             *  设置一个负数，表示 将完整的参数字符串保存到标签中。)
+             * </pre>
              */
             public static int SQL_PARAMETERS_MAX_LENGTH = 512;
             /**

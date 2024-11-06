@@ -28,6 +28,7 @@ public abstract class AbstractURLParser implements ConnectionURLParser {
 
     /**
      * Fetch the index range that database host and port from connection url.
+     * （从 connection url 中 获取 数据库 主机 和 端口 的 索引范围。）
      *
      * @return index range that database hosts.
      */
@@ -35,6 +36,7 @@ public abstract class AbstractURLParser implements ConnectionURLParser {
 
     /**
      * Fetch the index range that database name from connection url.
+     * （从 connection url 中 获取 数据库名称 的索引范围。）
      *
      * @return index range that database name.
      */
@@ -42,6 +44,7 @@ public abstract class AbstractURLParser implements ConnectionURLParser {
 
     /**
      * Fetch database host(s) from connection url.
+     * （从 connection URL 获取 数据库主机(s)。）
      *
      * @return database host(s).
      */
@@ -52,6 +55,7 @@ public abstract class AbstractURLParser implements ConnectionURLParser {
 
     /**
      * Fetch database name from connection url.
+     * （从 connection URL 获取 数据库名称。）
      *
      * @return database name.
      */
@@ -62,6 +66,7 @@ public abstract class AbstractURLParser implements ConnectionURLParser {
 
     /**
      * Fetch database name from connection url.
+     * （从 connection URL 获取 数据库名称。）
      *
      * @return database name.
      */

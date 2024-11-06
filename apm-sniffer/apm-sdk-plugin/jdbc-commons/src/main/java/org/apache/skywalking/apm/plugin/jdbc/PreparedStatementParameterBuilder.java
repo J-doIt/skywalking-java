@@ -38,9 +38,13 @@ public class PreparedStatementParameterBuilder {
             return EMPTY_LIST;
         }
 
+        // 获取参数字符串
         return getParameterString();
     }
 
+    /**
+     * 将 this.parameters[] 中的 参数用 "," 分隔，得到的字符串用"[]"包裹，超过 this.maxIndex 时截取。
+     */
     private String getParameterString() {
         StringBuilder stringBuilder = new StringBuilder();
         boolean first = true;

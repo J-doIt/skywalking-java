@@ -31,6 +31,21 @@ import org.apache.skywalking.apm.plugin.jdbc.trace.ConnectionInfo;
 /**
  * {@link ConnectionServiceMethodInterceptor} create an exit span when the following methods execute: 1. close 2.
  * rollback 3. releaseSavepoint 4. commit
+ *
+ * <pre>
+ * (ConnectionServiceMethodInterceptor 在执行以下方法时创建一个 exit span：
+ *      1. close
+ *      2. rollback
+ *      3. releaseSavepoint
+ *      4. commit
+ * )
+ * 增强类：java.sql.Connection 的实现类
+ * 增强方法：
+ *      void close()
+ *      void rollback()、void rollback(Savepoint savepoint)
+ *      void releaseSavepoint(Savepoint savepoint)
+ *      void commit()
+ * </pre>
  */
 public class ConnectionServiceMethodInterceptor implements InstanceMethodsAroundInterceptor {
 
@@ -38,11 +53,16 @@ public class ConnectionServiceMethodInterceptor implements InstanceMethodsAround
     public final void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
         ConnectionInfo connectInfo = (ConnectionInfo) objInst.getSkyWalkingDynamicField();
+        // 如果 java.sql.Connection 的实现类 的 增强域（ConnectionInfo） 不为空
         if (connectInfo != null) {
+            // 创建 exit span
             AbstractSpan span = ContextManager.createExitSpan(connectInfo.getDBType() + "/JDBC/Connection/" + method.getName(), connectInfo
                 .getDatabasePeer());
+            // 设置 exit span 的 db.type 标签
             Tags.DB_TYPE.set(span, connectInfo.getDBType());
+            // 设置 exit span 的 db.instance 标签
             Tags.DB_INSTANCE.set(span, connectInfo.getDatabaseName());
+            // 设置 exit span 的 db.statement 标签
             Tags.DB_STATEMENT.set(span, "");
             span.setComponent(connectInfo.getComponent());
             SpanLayer.asDB(span);
@@ -53,7 +73,9 @@ public class ConnectionServiceMethodInterceptor implements InstanceMethodsAround
     public final Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Object ret) throws Throwable {
         ConnectionInfo connectInfo = (ConnectionInfo) objInst.getSkyWalkingDynamicField();
+        // 如果 java.sql.Connection 的实现类 的 增强域（ConnectionInfo） 不为空
         if (connectInfo != null) {
+            // 结束 active span
             ContextManager.stopSpan();
         }
         return ret;
@@ -62,6 +84,7 @@ public class ConnectionServiceMethodInterceptor implements InstanceMethodsAround
     @Override
     public final void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Throwable t) {
+        // 设置 active span 的 log 为 t
         ContextManager.activeSpan().log(t);
     }
 

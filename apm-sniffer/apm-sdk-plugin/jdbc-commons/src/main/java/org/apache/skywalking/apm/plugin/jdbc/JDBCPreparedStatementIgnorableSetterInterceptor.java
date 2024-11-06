@@ -26,13 +26,22 @@ import org.apache.skywalking.apm.plugin.jdbc.define.StatementEnhanceInfos;
 
 import java.lang.reflect.Method;
 
+/**
+ * <pre>
+ * 增强类：java.sql.PreparedStatement、其实现类
+ * 增强方法：
+ *          {@link org.apache.skywalking.apm.plugin.jdbc.define.Constants#PS_IGNORABLE_SETTERS}
+ * </pre>
+ */
 public class JDBCPreparedStatementIgnorableSetterInterceptor implements InstanceMethodsAroundInterceptor {
     @Override
     public final void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
         final StatementEnhanceInfos statementEnhanceInfos = (StatementEnhanceInfos) objInst.getSkyWalkingDynamicField();
+        // 如果 objInst 的 增强域 不为空
         if (statementEnhanceInfos != null) {
           final int index = (Integer) allArguments[0];
+          // 将 占位符 放入到 statementEnhanceInfos.parameters[index-1]
           statementEnhanceInfos.setParameter(index, Constants.SQL_PARAMETER_PLACEHOLDER);
         }
     }

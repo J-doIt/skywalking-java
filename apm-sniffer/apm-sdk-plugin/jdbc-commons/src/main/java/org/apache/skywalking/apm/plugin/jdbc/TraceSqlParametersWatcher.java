@@ -22,10 +22,11 @@ import org.apache.skywalking.apm.agent.core.conf.dynamic.AgentConfigChangeWatche
 
 /**
  * 动态配置观察器（关注 plugin.jdbc.trace_sql_parameters 配置。
- * 默认值为 JDBCPluginConfig.Plugin.JDBC.TRACE_SQL_PARAMETERS。
+ * 默认值为 JDBCPluginConfig.Plugin.JDBC.TRACE_SQL_PARAMETERS：false。
  */
 public class TraceSqlParametersWatcher extends AgentConfigChangeWatcher {
     
+    /** 开关：收集sql的参数，默认为 false */
     private final boolean defaultValue;
     
     public TraceSqlParametersWatcher(String propertyKey) {

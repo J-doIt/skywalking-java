@@ -18,8 +18,11 @@
 
 package org.apache.skywalking.apm.plugin.jdbc.connectionurl.parser;
 
+/** 数据库连接url 的 主机 和 端口 的 索引范围 */
 public class URLLocation {
+    /** URL主机和端口的起始索引  */
     private final int startIndex;
+    /** URL主机和端口的截止索引  */
     private final int endIndex;
 
     public URLLocation(int startIndex, int endIndex) {

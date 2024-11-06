@@ -23,6 +23,11 @@ import org.apache.skywalking.apm.plugin.jdbc.trace.ConnectionInfo;
 /**
  * {@link URLParser#parser(String)} support parse the connection url, such as Mysql, Oracle, H2 Database. But there are
  * some url cannot be parsed, such as Oracle connection url with multiple host.
+ *
+ * <pre>
+ * (parser(String) 支持解析 连接 url，比如 Mysql、Oracle、H2 Database。
+ * 但是有一些 url 无法解析，比如 Oracle 连接 url 有多个主机。)
+ * </pre>
  */
 public class URLParser {
 
@@ -44,7 +49,9 @@ public class URLParser {
 
     public static ConnectionInfo parser(String url) {
         ConnectionURLParser parser = null;
+        // url字符转换为小写
         String lowerCaseUrl = url.toLowerCase();
+        // 初始化对应的解析器
         if (lowerCaseUrl.startsWith(MYSQL_JDBC_URL_PREFIX)) {
             parser = new MysqlURLParser(url);
         } else if (lowerCaseUrl.startsWith(ORACLE_JDBC_URL_PREFIX)) {
@@ -76,6 +83,7 @@ public class URLParser {
         } else if (lowerCaseUrl.startsWith(OCEANBASE_JDBC_URL_PREFIX)) {
             parser = new OceanBaseURLParser(url);
         }
+        // 解析url
         return parser.parse();
     }
 }

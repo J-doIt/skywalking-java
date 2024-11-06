@@ -21,8 +21,11 @@ package org.apache.skywalking.apm.plugin.jdbc.trace;
 import org.apache.skywalking.apm.network.trace.component.OfficialComponent;
 
 /**
- * {@link ConnectionInfo} stored the jdbc connection info, the connection info contains db type, host, port, database
- * name.
+ * {@link ConnectionInfo} stored the jdbc connection info, the connection info contains db type, host, port, database name.
+ *
+ * <pre>
+ * jdbc 连接信息
+ * </pre>
  */
 public class ConnectionInfo {
     /**
@@ -36,9 +39,7 @@ public class ConnectionInfo {
 
     private String databasePeer;
 
-    /**
-     * Component
-     */
+    /** 官方组件 */
     private final OfficialComponent component;
 
     public ConnectionInfo(OfficialComponent component, String dbType, String host, int port, String databaseName) {

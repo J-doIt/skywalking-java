@@ -26,6 +26,13 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInst
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
 
+/**
+ * <pre>
+ * 增强类：java.sql.Driver 的实现类（具体的实现类见各数据库插件）
+ * 增强方法：Connection connect(String url, java.util.Properties info)
+ *      拦截器：org.apache.skywalking.apm.plugin.jdbc.JDBCDriverInterceptor
+ * </pre>
+ */
 public abstract class AbstractDriverInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
     private static final String DRIVER_INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.jdbc.JDBCDriverInterceptor";
