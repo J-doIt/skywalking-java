@@ -30,15 +30,32 @@ import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 import java.lang.reflect.Method;
 import org.apache.skywalking.apm.util.StringUtil;
 
+/**
+ * <pre>
+ * 增强类：redis.clients.jedis.Pipeline
+ * 增强方法：
+ *          void sync()
+ *          List≤Object> syncAndReturnAll()
+ * </pre>
+ *
+ * <pre>
+ * 增强类：redis.clients.jedis.Transaction
+ * 增强方法：
+ *          List≤Object> exec()
+ *          String discard()
+ * </pre>
+ */
 public class JedisMethodInterceptor implements InstanceMethodsAroundInterceptor {
     private static final StringTag TAG_ARGS = new StringTag("actual_target");
 
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
                              MethodInterceptResult result) throws Throwable {
+        // 从 Pipeline、Transaction 增强对象 的 增强域 取值（ConnectionInformation）
         final ConnectionInformation connectionData = (ConnectionInformation) objInst.getSkyWalkingDynamicField();
         // Use cluster information to adapt Virtual Cache if exists, otherwise use real server host
         String peer =  StringUtil.isBlank(connectionData.getClusterNodes()) ? connectionData.getActualTarget() : connectionData.getClusterNodes();
+        // 创建 exit span
         AbstractSpan span = ContextManager.createExitSpan("Jedis/" + method.getName(), peer);
         span.setComponent(ComponentsDefine.JEDIS);
         SpanLayer.asCache(span);
@@ -50,6 +67,7 @@ public class JedisMethodInterceptor implements InstanceMethodsAroundInterceptor 
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
                               Object ret) throws Throwable {
+        // 结束 active span
         ContextManager.stopSpan();
         return ret;
     }
@@ -58,6 +76,7 @@ public class JedisMethodInterceptor implements InstanceMethodsAroundInterceptor 
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
                                       Class<?>[] argumentsTypes, Throwable t) {
         AbstractSpan span = ContextManager.activeSpan();
+        // 设置 active span 的 log 为 t
         span.log(t);
     }
 }

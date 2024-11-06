@@ -28,6 +28,17 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
 
 import static org.apache.skywalking.apm.agent.core.plugin.bytebuddy.ArgumentTypeNameMatch.takesArgumentWithType;
 
+/**
+ * <pre>
+ * 增强类：redis.clients.jedis.Connection
+ * 增强构造函数：
+ *          Connection(JedisSocketFactory socketFactory, ...)
+ *      拦截器：org.apache.skywalking.apm.plugin.jedis.v4.ConnectionConstructorInterceptor
+ * 增强方法：
+ *          ≤T> T executeCommand(CommandObject≤T> commandObject)
+ *      拦截器：org.apache.skywalking.apm.plugin.jedis.v4.ConnectionExecuteInterceptor
+ * </pre>
+ */
 public class ConnectionInstrumentation extends AbstractWitnessInstrumentation {
 
     private static final String ENHANCE_CLASS = "redis.clients.jedis.Connection";

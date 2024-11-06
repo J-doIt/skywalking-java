@@ -30,6 +30,7 @@ public class JedisPluginConfig {
         public static class Jedis {
             /**
              * If set to true, the parameters of the Redis command would be collected.
+             * （如果设置为 true，则会收集 Redis 命令的参数。）
              */
             public static boolean TRACE_REDIS_PARAMETERS = true;
             /**
@@ -38,12 +39,16 @@ public class JedisPluginConfig {
              * characters would be collected.
              * <p>
              * Set a negative number to save specified length of parameter string to the tag.
+             * （收集 Redis 命令的参数 的最大长度）
              */
             public static int REDIS_PARAMETER_MAX_LENGTH = 128;
 
             /**
              * Operation represent a cache span is "write" or "read" action , and "op"(operation) is tagged with key "cache.op" usually
              * This config term define which command should be converted to write Operation .
+             * <pre>
+             * cache span 的 写操作
+             * </pre>
              *
              * @see org.apache.skywalking.apm.agent.core.context.tag.Tags#CACHE_OP
              * @see AbstractConnectionInterceptor#parseOperation(String)
@@ -113,6 +118,9 @@ public class JedisPluginConfig {
             /**
              * Operation represent a cache span is "write" or "read" action , and "op"(operation) is tagged with key "cache.op" usually
              * This config term define which command should be converted to write Operation .
+             * <pre>
+             * cache span 的 读操作
+             * </pre>
              *
              * @see org.apache.skywalking.apm.agent.core.context.tag.Tags#CACHE_OP
              * @see AbstractConnectionInterceptor#parseOperation(String)

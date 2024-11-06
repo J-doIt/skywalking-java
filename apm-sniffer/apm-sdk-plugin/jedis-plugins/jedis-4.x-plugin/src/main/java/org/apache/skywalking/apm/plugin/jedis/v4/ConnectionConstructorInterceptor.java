@@ -22,12 +22,20 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceC
 import redis.clients.jedis.DefaultJedisSocketFactory;
 import redis.clients.jedis.HostAndPort;
 
+/**
+ * <pre>
+ * 增强类：redis.clients.jedis.Connection
+ * 增强构造函数：
+ *          Connection(JedisSocketFactory socketFactory, ...)
+ * </pre>
+ */
 public class ConnectionConstructorInterceptor implements InstanceConstructorInterceptor {
     @Override
     public void onConstruct(EnhancedInstance objInst, Object[] allArguments) throws Throwable {
         HostAndPort hostAndPort = ((DefaultJedisSocketFactory) allArguments[0]).getHostAndPort();
         ConnectionInformation connectionData = new ConnectionInformation();
         connectionData.setActualTarget(hostAndPort.toString());
+        // 将 Connection 增强对象 的 增强域 的值设置为 ConnectionInformation(hostAndPort)
         objInst.setSkyWalkingDynamicField(connectionData);
     }
 }

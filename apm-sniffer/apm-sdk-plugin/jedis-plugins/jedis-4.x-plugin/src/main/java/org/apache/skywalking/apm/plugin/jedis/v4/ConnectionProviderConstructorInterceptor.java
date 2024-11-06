@@ -23,13 +23,25 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceC
 import org.apache.skywalking.apm.util.StringUtil;
 import redis.clients.jedis.HostAndPort;
 
+/**
+ * <pre>
+ * 增强类：redis.clients.jedis.providers.ConnectionProvider 及其子类
+ * 增强构造函数：
+ *          ClusterConnectionProvider(Set≤HostAndPort> clusterNodes, ...)
+ *          PooledConnectionProvider(HostAndPort hostAndPort, ...)
+ *          ShardedConnectionProvider(List≤HostAndPort> shards, ...)
+ * </pre>
+ */
 public class ConnectionProviderConstructorInterceptor implements InstanceConstructorInterceptor {
     @Override
     public void onConstruct(final EnhancedInstance objInst, final Object[] allArguments) throws Throwable {
+        // 从 ConnectionProvider 增强对象 的 增强域 取值
         if (objInst.getSkyWalkingDynamicField() != null) {
             return;
         }
+        // 参数1：HostAndPort 或者 List≤HostAndPort> 类型
         Object arg = allArguments[0];
+        // 将 ConnectionProvider 增强对象 的 增强域 的值设置为 第一个参数（hostAndPort）
         if (arg instanceof Collection) {
             Collection<?> collection = (Collection<?>) arg;
             final String[] array = collection.stream().map(Object::toString).toArray(String[]::new);

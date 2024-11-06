@@ -34,6 +34,14 @@ import java.lang.reflect.Method;
 import java.util.Iterator;
 import java.util.Optional;
 
+/**
+ * <pre>
+ * 增强类：redis.clients.jedis.Connection
+ * 增强构造函数：
+ *          Connection(JedisSocketFactory socketFactory, ...)
+ *      拦截器：org.apache.skywalking.apm.plugin.jedis.v4.ConnectionExecuteInterceptor
+ * </pre>
+ */
 public abstract class AbstractConnectionInterceptor implements InstanceMethodsAroundInterceptor {
 
     private static final String UNKNOWN = "unknown";
@@ -44,7 +52,9 @@ public abstract class AbstractConnectionInterceptor implements InstanceMethodsAr
 
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
+        // 获取 redis命令的参数 的迭代器
         Iterator<Rawable> iterator = getCommands(allArguments);
+        // redis协议命令
         String protocolCommand = null;
         if (iterator.hasNext()) {
             protocolCommand = iterator.next().toString();
@@ -55,6 +65,7 @@ public abstract class AbstractConnectionInterceptor implements InstanceMethodsAr
         ConnectionInformation connectionData = (ConnectionInformation) objInst.getSkyWalkingDynamicField();
         // Use cluster information to adapt Virtual Cache if exists, otherwise use real server host
         String peer =  StringUtil.isBlank(connectionData.getClusterNodes()) ? connectionData.getActualTarget() : connectionData.getClusterNodes();
+        // 创建 exit span
         AbstractSpan span = ContextManager.createExitSpan("Jedis/" + cmd, peer);
         span.setComponent(ComponentsDefine.JEDIS);
         readKeyIfNecessary(iterator).ifPresent(key -> Tags.CACHE_KEY.set(span, key));
@@ -78,13 +89,17 @@ public abstract class AbstractConnectionInterceptor implements InstanceMethodsAr
 
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, Object ret) throws Throwable {
+        // 结束 active span
         ContextManager.stopSpan();
         return ret;
     }
 
     @Override
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, Throwable t) {
+        // 设置 active span 的 log 为 t
+        // 设置 active span 的 errorOccurred 标志位为 true
         AbstractSpan span = ContextManager.activeSpan().log(t).errorOccurred();
+        // 结束 active span
         ContextManager.stopSpan(span);
     }
 

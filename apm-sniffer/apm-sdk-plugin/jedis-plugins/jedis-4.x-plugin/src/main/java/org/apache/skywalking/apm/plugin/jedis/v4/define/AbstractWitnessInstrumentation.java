@@ -35,6 +35,7 @@ public abstract class AbstractWitnessInstrumentation extends ClassInstanceMethod
 
     @Override
     protected List<WitnessMethod> witnessMethods() {
+        // 见证方法：一个参数的 Pipeline.persist 方法
         return Collections.singletonList(new WitnessMethod(
                 "redis.clients.jedis.Pipeline",
                 named("persist").and(takesArguments(1))));

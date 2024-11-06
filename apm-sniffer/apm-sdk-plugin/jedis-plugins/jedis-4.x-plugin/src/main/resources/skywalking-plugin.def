@@ -14,7 +14,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# 增强 Connection
+#       增强 构造函数，将 objInst（Connection）的 增强域 的值设置为 new ConnectionInformation(hostAndPort)
+#       增强 executeCommand()，创建 exit span
 jedis-4.x=org.apache.skywalking.apm.plugin.jedis.v4.define.ConnectionInstrumentation
+# 增强 Pipeline
+#       增强 构造函数，将 objInst（Pipeline、Transaction）的 增强域 的值设置为 第一个参数（Connection）的增强对象的增强域（ConnectionInformation）
+#       增强 sync()、syncAndReturnAll()，创建 exit span
 jedis-4.x=org.apache.skywalking.apm.plugin.jedis.v4.define.PipelineInstrumentation
+# 增强 Transaction，同 增强 Pipeline
+#       增强 构造函数、exec()、discard()
 jedis-4.x=org.apache.skywalking.apm.plugin.jedis.v4.define.TransactionConstructorInstrumentation
+# 增强 ConnectionProvider 及其子类
+#       增强 构造函数，将 objInst（ConnectionProvider） 的 增强域 的值设置为 第一个参数（hostAndPort）
+#       增强 getConnection()，afterMethod 中，将 ret（Connection）的 增强域 的 ConnectionInformation.clusterNodes 设置为 objInst（ConnectionProvider）的 增强域的值
 jedis-4.x=org.apache.skywalking.apm.plugin.jedis.v4.define.ConnectionProviderInstrumentation

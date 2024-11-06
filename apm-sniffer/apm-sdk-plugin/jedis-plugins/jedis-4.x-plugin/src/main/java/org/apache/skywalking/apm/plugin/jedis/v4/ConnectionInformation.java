@@ -21,6 +21,8 @@ import lombok.Data;
 
 @Data
 public class ConnectionInformation {
+    /** ConnectionProvider 的 增强域的值（hostAndPort） */
     private String clusterNodes;
+    /** DefaultJedisSocketFactory.HostAndPort */
     private String actualTarget;
 }

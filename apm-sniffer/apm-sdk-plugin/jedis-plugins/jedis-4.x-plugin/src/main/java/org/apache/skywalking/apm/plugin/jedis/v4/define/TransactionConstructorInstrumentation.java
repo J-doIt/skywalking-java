@@ -27,6 +27,19 @@ import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
+/**
+ * <pre>
+ * 增强类：redis.clients.jedis.Transaction
+ * 增强构造函数：
+ *          Transaction(Connection connection, ...)
+ *          Transaction(Jedis jedis)
+ *      拦截器：org.apache.skywalking.apm.plugin.jedis.v4.JedisConstructorInterceptor
+ * 增强方法：
+ *          List≤Object> exec()
+ *          String discard()
+ *      拦截器：org.apache.skywalking.apm.plugin.jedis.v4.JedisMethodInterceptor
+ * </pre>
+ */
 public class TransactionConstructorInstrumentation extends AbstractWitnessInstrumentation {
 
     private static final String ENHANCE_CLASS = "redis.clients.jedis.Transaction";

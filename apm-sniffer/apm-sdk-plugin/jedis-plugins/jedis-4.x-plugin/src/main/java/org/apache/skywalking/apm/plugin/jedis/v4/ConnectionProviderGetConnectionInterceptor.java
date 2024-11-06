@@ -22,6 +22,13 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedI
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 
+/**
+ * <pre>
+ * 增强类：redis.clients.jedis.providers.ConnectionProvider 及其子类
+ * 增强方法：
+ *          Connection getConnection(...)
+ * </pre>
+ */
 public class ConnectionProviderGetConnectionInterceptor implements InstanceMethodsAroundInterceptor {
     @Override
     public void beforeMethod(final EnhancedInstance objInst,
@@ -38,10 +45,13 @@ public class ConnectionProviderGetConnectionInterceptor implements InstanceMetho
                               final Object[] allArguments,
                               final Class<?>[] argumentsTypes,
                               final Object ret) throws Throwable {
+        // 如果 Connection 是被增强了的
         if (ret instanceof EnhancedInstance) {
             EnhancedInstance connection = (EnhancedInstance) ret;
+            // 从 Connection 增强对象 的 动态增强域 取值（ConnectionInformation）
             if (connection.getSkyWalkingDynamicField() != null
                 && connection.getSkyWalkingDynamicField() instanceof ConnectionInformation) {
+                // 将 Connection 增强对象 的 增强域 的 ConnectionInformation.clusterNodes 设置为 objInst（ConnectionProvider）的 增强域的值
                 ((ConnectionInformation) connection.getSkyWalkingDynamicField()).setClusterNodes(
                     (String) objInst.getSkyWalkingDynamicField());
             }

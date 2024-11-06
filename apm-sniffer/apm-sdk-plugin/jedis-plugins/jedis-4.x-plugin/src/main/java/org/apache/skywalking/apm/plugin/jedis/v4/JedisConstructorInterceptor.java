@@ -22,6 +22,21 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceC
 import redis.clients.jedis.Connection;
 import redis.clients.jedis.Jedis;
 
+/**
+ * <pre>
+ * 增强类：redis.clients.jedis.Pipeline
+ * 增强构造函数：
+ *          Pipeline(Connection connection)
+ *          Pipeline(Jedis jedis)
+ * </pre>
+ *
+ * <pre>
+ * 增强类：redis.clients.jedis.Transaction
+ * 增强构造函数：
+ *          Transaction(Connection connection, ...)
+ *          Transaction(Jedis jedis)
+ * </pre>
+ */
 public class JedisConstructorInterceptor implements InstanceConstructorInterceptor {
     @Override
     public void onConstruct(EnhancedInstance objInst, Object[] allArguments) throws Throwable {
@@ -32,6 +47,7 @@ public class JedisConstructorInterceptor implements InstanceConstructorIntercept
             connection = (Connection) allArguments[0];
         }
         if (connection instanceof EnhancedInstance) {
+            // 将 Pipeline、Transaction 增强对象 的 增强域 的值设置为 第一个参数（Connection）的增强对象的增强域（ConnectionInformation）
             objInst.setSkyWalkingDynamicField(((EnhancedInstance) connection).getSkyWalkingDynamicField());
         }
     }

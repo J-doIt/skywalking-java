@@ -22,6 +22,13 @@ import redis.clients.jedis.args.Rawable;
 
 import java.util.Iterator;
 
+/**
+ * <pre>
+ * 增强类：redis.clients.jedis.Connection
+ * 增强方法：
+ *          ≤T> T executeCommand(CommandObject≤T> commandObject)
+ * </pre>
+ */
 public class ConnectionExecuteInterceptor extends AbstractConnectionInterceptor {
 
     @Override

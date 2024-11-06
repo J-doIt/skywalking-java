@@ -28,6 +28,19 @@ import static net.bytebuddy.matcher.ElementMatchers.hasSuperType;
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static org.apache.skywalking.apm.agent.core.plugin.match.HierarchyMatch.byHierarchyMatch;
 
+/**
+ * <pre>
+ * 增强类：redis.clients.jedis.providers.ConnectionProvider 及其子类
+ * 增强构造函数：
+ *          ClusterConnectionProvider(Set≤HostAndPort> clusterNodes, ...)
+ *          PooledConnectionProvider(HostAndPort hostAndPort, ...)
+ *          ShardedConnectionProvider(List≤HostAndPort> shards, ...)
+ *      拦截器：org.apache.skywalking.apm.plugin.jedis.v4.ConnectionProviderConstructorInterceptor
+ * 增强方法：
+ *          Connection getConnection(...)
+ *      拦截器：org.apache.skywalking.apm.plugin.jedis.v4.ConnectionProviderGetConnectionInterceptor
+ * </pre>
+ */
 public class ConnectionProviderInstrumentation extends AbstractWitnessInstrumentation {
 
     private static final String ENHANCE_INTERFACE = "redis.clients.jedis.providers.ConnectionProvider";
