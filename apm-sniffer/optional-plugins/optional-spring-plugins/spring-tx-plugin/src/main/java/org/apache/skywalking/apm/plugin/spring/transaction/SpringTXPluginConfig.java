@@ -27,6 +27,7 @@ public class SpringTXPluginConfig {
 
             /**
              * If true, the transaction definition name will be simplified
+             * (如果为 true，则 TransactionDefinition 的名称将被简化)
              */
             public static boolean SIMPLIFY_TRANSACTION_DEFINITION_NAME = false;
         }

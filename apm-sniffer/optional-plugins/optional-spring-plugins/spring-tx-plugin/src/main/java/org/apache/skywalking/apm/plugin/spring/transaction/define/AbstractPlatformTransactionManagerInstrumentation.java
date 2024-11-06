@@ -27,6 +27,18 @@ import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
+/**
+ * <pre>
+ * 增强类：org.springframework.transaction.support.AbstractPlatformTransactionManager
+ * 增强方法：
+ *          TransactionStatus getTransaction(@Nullable TransactionDefinition definition)
+ *      拦截器：org.apache.skywalking.apm.plugin.spring.transaction.GetTransactionMethodInterceptor
+ * 增强方法：
+ *          void commit(TransactionStatus status)
+ *          void rollback(TransactionStatus status)
+ *      拦截器：org.apache.skywalking.apm.plugin.spring.transaction.EndTransactionMethodInterceptor
+ * </pre>
+ */
 public class AbstractPlatformTransactionManagerInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
     @Override

@@ -29,15 +29,28 @@ import org.springframework.transaction.TransactionStatus;
 
 import java.lang.reflect.Method;
 
+/**
+ * <pre>
+ * 增强类：org.springframework.transaction.support.AbstractPlatformTransactionManager
+ * 增强方法：
+ *          void commit(TransactionStatus status)
+ *          void rollback(TransactionStatus status)
+ * </pre>
+ */
 public class EndTransactionMethodInterceptor implements InstanceMethodsAroundInterceptor {
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         MethodInterceptResult result) throws Throwable {
+        // 创建 操作名为 TX/methodName 的 local span
         AbstractSpan span = ContextManager.createLocalSpan(Constants.OPERATION_NAME_SPRING_TRANSACTION_PREFIX + method.getName());
         TransactionStatus status = (TransactionStatus) allArguments[0];
+        // 设置 span 的 isNewTransaction 标签
         span.tag(Constants.TAG_SPRING_TRANSACTION_IS_NEW_TRANSACTION, String.valueOf(status.isNewTransaction()));
+        // 设置 span 的 hasSavepoint 标签
         span.tag(Constants.TAG_SPRING_TRANSACTION_HAS_SAVEPOINT, String.valueOf(status.hasSavepoint()));
+        // 设置 span 的 rollbackOnly 标签
         span.tag(Constants.TAG_SPRING_TRANSACTION_ROLLBACK_ONLY, String.valueOf(status.isRollbackOnly()));
+        // 设置 span 的 isCompleted 标签
         span.tag(Constants.TAG_SPRING_TRANSACTION_IS_COMPLETED, String.valueOf(status.isCompleted()));
         span.setComponent(ComponentsDefine.SPRING_TX);
     }
@@ -45,6 +58,7 @@ public class EndTransactionMethodInterceptor implements InstanceMethodsAroundInt
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         Object ret) throws Throwable {
+        // 结束 active span
         ContextManager.stopSpan();
         return ret;
     }
@@ -52,6 +66,7 @@ public class EndTransactionMethodInterceptor implements InstanceMethodsAroundInt
     @Override
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Throwable t) {
+        // 设置 active span 的 log 为 t
         ContextManager.activeSpan().log(t);
     }
 }

@@ -14,4 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# 增强 AbstractPlatformTransactionManager
+#       增强方法 getTransaction()，创建 操作名为 TX/get/xxx 的 local span
+#       增强方法 commit()、rollback()，创建 操作名为 TX/methodName 的 local span
 spring-tx=org.apache.skywalking.apm.plugin.spring.transaction.define.AbstractPlatformTransactionManagerInstrumentation

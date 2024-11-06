@@ -28,23 +28,35 @@ import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 import org.apache.skywalking.apm.plugin.spring.transaction.context.Constants;
 import org.springframework.transaction.TransactionDefinition;
 
+/**
+ * <pre>
+ * 增强类：org.springframework.transaction.support.AbstractPlatformTransactionManager
+ * 增强方法：
+ *          TransactionStatus getTransaction(@Nullable TransactionDefinition definition)
+ * </pre>
+ */
 public class GetTransactionMethodInterceptor implements InstanceMethodsAroundInterceptor {
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
                              MethodInterceptResult result) throws Throwable {
         if (allArguments[0] == null) {
+            // 创建 操作名为 TX/get/noTransactionDefinitionGiven 的 local span
             AbstractSpan span = ContextManager.createLocalSpan(
                 Constants.OPERATION_NAME_SPRING_TRANSACTION_NO_TRANSACTION_DEFINITION_GIVEN);
             span.setComponent(ComponentsDefine.SPRING_TX);
             return;
         }
         TransactionDefinition definition = (TransactionDefinition) allArguments[0];
+        // 创建 操作名为 TX/get/xxx 的 local span
         AbstractSpan span = ContextManager.createLocalSpan(
             Constants.OPERATION_NAME_SPRING_TRANSACTION_GET_TRANSACTION_METHOD + buildOperationName(definition
                                                                                                         .getName()));
+        // 设置 span 的 isolationLevel 标签（事务的隔离级别）
         span.tag(Constants.TAG_SPRING_TRANSACTION_ISOLATION_LEVEL, String.valueOf(definition.getIsolationLevel()));
+        // 设置 span 的 propagationBehavior 标签（事务传播行为）
         span.tag(
             Constants.TAG_SPRING_TRANSACTION_PROPAGATION_BEHAVIOR, String.valueOf(definition.getPropagationBehavior()));
+        // 设置 span 的 timeout 标签（事务的超时时间）
         span.tag(Constants.TAG_SPRING_TRANSACTION_TIMEOUT, String.valueOf(definition.getTimeout()));
         span.setComponent(ComponentsDefine.SPRING_TX);
     }
@@ -52,6 +64,7 @@ public class GetTransactionMethodInterceptor implements InstanceMethodsAroundInt
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
                               Object ret) throws Throwable {
+        // 结束 active span
         ContextManager.stopSpan();
         return ret;
     }
@@ -59,10 +72,12 @@ public class GetTransactionMethodInterceptor implements InstanceMethodsAroundInt
     @Override
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
                                       Class<?>[] argumentsTypes, Throwable t) {
+        // 设置 active span 的 log 为 t
         ContextManager.activeSpan().log(t);
     }
 
     private String buildOperationName(String transactionDefinitionName) {
+        // 判断 TransactionDefinition的名称 是否需要被简化
         if (!SpringTXPluginConfig.Plugin.SpringTransaction.SIMPLIFY_TRANSACTION_DEFINITION_NAME) {
             return transactionDefinitionName;
         }
