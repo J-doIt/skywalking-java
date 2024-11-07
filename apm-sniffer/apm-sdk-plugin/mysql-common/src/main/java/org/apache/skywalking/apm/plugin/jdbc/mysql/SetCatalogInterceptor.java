@@ -25,12 +25,20 @@ import org.apache.skywalking.apm.plugin.jdbc.trace.ConnectionInfo;
 
 import java.lang.reflect.Method;
 
+/**
+ * <pre>
+ * 增强类：com.mysql.cj.jdbc.ConnectionImpl（继承了 java.sql.Connection）
+ * 增强方法：
+ *          void setCatalog(final String catalog)
+ * </pre>
+ */
 public class SetCatalogInterceptor implements InstanceMethodsAroundInterceptor {
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         MethodInterceptResult result) throws Throwable {
         Object dynamicField = objInst.getSkyWalkingDynamicField();
         if (dynamicField instanceof ConnectionInfo) {
+            // 设置 objInst（ConnectionImpl）增强域（ConnectionInfo）的 DatabaseName 为 var1
             ((ConnectionInfo) dynamicField).setDatabaseName(String.valueOf(allArguments[0]));
         }
     }

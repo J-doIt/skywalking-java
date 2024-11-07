@@ -27,6 +27,14 @@ import org.apache.skywalking.apm.plugin.jdbc.trace.ConnectionInfo;
 
 import java.lang.reflect.Method;
 
+/**
+ * <pre>
+ * 增强类：com.mysql.cj.jdbc.ConnectionImpl
+ * 增强方法：static com.mysql.cj.jdbc.JdbcConnection getInstance(HostInfo hostInfo)
+ *
+ * com.mysql.cj.jdbc.JdbcConnection 继承了 java.sql.Connection
+ * </pre>
+ */
 public class ConnectionCreateInterceptor implements StaticMethodsAroundInterceptor {
 
     @Override
@@ -35,12 +43,22 @@ public class ConnectionCreateInterceptor implements StaticMethodsAroundIntercept
 
     }
 
+    /**
+     * @param clazz com.mysql.cj.jdbc.ConnectionImpl 的 增强类
+     * @param method getInstance
+     * @param allArguments [hostInfo]
+     * @param parameterTypes [HostInfo]
+     * @param ret JdbcConnection 实例（可能是被增强过的）
+     */
     @Override
     public Object afterMethod(Class clazz, Method method, Object[] allArguments, Class<?>[] parameterTypes,
         Object ret) {
+        // 如果 ret-JdbcConnection 是被增强过的
         if (ret instanceof EnhancedInstance) {
             final HostInfo hostInfo = (HostInfo) allArguments[0];
+            // 从 ConnectionCache 中拿到 该连接的 ConnectionInfo
             ConnectionInfo connectionInfo = ConnectionCache.get(hostInfo.getHostPortPair(), hostInfo.getDatabase());
+            // 设置 ret 的 动态增强域 的值为 connectionInfo
             ((EnhancedInstance) ret).setSkyWalkingDynamicField(connectionInfo);
         }
         return ret;

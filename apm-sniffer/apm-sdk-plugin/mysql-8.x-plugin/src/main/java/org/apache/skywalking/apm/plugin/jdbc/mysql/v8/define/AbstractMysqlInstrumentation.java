@@ -42,6 +42,7 @@ public abstract class AbstractMysqlInstrumentation extends ClassEnhancePluginDef
 
     @Override
     protected String[] witnessClasses() {
+        // 见证类：com.mysql.cj.interceptors.QueryInterceptor
         return new String[] {Constants.WITNESS_MYSQL_8X_CLASS};
     }
 }

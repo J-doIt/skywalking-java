@@ -31,6 +31,14 @@ import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName
 /**
  * interceptor the method {@link com.mysql.cj.jdbc.ConnectionImpl#getInstance(com.mysql.cj.conf.HostInfo)} instead of
  * {@link com.mysql.cj.jdbc.Driver#connect(String, Properties)}
+ *
+ * <pre>
+ * (拦截 ConnectionImpl.getInstance(HostInfo)方法，而不是 Driver.connect(String, Properties))
+ *
+ * 增强类：com.mysql.cj.jdbc.ConnectionImpl
+ * 增强方法：static JdbcConnection getInstance(HostInfo hostInfo)
+ *      拦截器：org.apache.skywalking.apm.plugin.jdbc.mysql.v8.ConnectionCreateInterceptor
+ * </pre>
  */
 public class ConnectionImplCreateInstrumentation extends AbstractMysqlInstrumentation {
 

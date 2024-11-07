@@ -28,6 +28,20 @@ import org.apache.skywalking.apm.plugin.jdbc.mysql.Constants;
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static org.apache.skywalking.apm.agent.core.plugin.match.MultiClassNameMatch.byMultiClassMatch;
 
+/**
+ * <pre>
+ * 增强类：
+ *      com.mysql.cj.jdbc.ClientPreparedStatement
+ *      com.mysql.cj.jdbc.ServerPreparedStatement（继承了 ClientPreparedStatement）
+ * 增强方法：
+ *      ClientPreparedStatement 的：
+ *          boolean execute()
+ *          ResultSet executeQuery()
+ *          int executeUpdate()
+ *          long executeLargeUpdate()
+ *      拦截器：org.apache.skywalking.apm.plugin.jdbc.mysql.PreparedStatementExecuteMethodsInterceptor
+ * </pre>
+ */
 public class PreparedStatementInstrumentation extends AbstractMysqlInstrumentation {
 
     private static final String PREPARED_STATEMENT_CLASS_NAME = "com.mysql.cj.jdbc.ClientPreparedStatement";

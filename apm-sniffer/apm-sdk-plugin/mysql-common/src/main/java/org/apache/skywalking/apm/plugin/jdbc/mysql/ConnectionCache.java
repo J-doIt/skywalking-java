@@ -23,7 +23,14 @@ import org.apache.skywalking.apm.util.StringUtil;
 
 import java.util.concurrent.ConcurrentHashMap;
 
+/** 数据库连接缓存 */
 public class ConnectionCache {
+    /**
+     * <pre>
+     * ≤ hostPortPair/databaseName, ConnectionInfo ≥
+     * eg: localhost:3306/shopping_users - ConnectionInfo  ?
+     * </pre>
+     */
     private static final ConcurrentHashMap<String, ConnectionInfo> CONNECTIONS_MAP = new ConcurrentHashMap<String, ConnectionInfo>();
 
     private static final String CONNECTION_SPLIT_STR = ",";

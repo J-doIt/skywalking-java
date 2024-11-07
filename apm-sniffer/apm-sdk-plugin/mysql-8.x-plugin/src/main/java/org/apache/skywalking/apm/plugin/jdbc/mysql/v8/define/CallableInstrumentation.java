@@ -27,6 +27,16 @@ import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
+/**
+ * <pre>
+ * 增强类：com.mysql.cj.jdbc.CallableStatement
+ * 增强方法：
+ *          boolean execute()
+ *          ResultSet executeQuery()
+ *          int executeUpdate()
+ *      拦截器：org.apache.skywalking.apm.plugin.jdbc.mysql.PreparedStatementExecuteMethodsInterceptor
+ * </pre>
+ */
 public class CallableInstrumentation extends AbstractMysqlInstrumentation {
     private static final String ENHANCE_CLASS = "com.mysql.cj.jdbc.CallableStatement";
     private static final String SERVICE_METHOD_INTERCEPTOR = org.apache.skywalking.apm.plugin.jdbc.mysql.Constants.PREPARED_STATEMENT_EXECUTE_METHODS_INTERCEPTOR;

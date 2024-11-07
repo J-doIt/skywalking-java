@@ -33,11 +33,33 @@ import org.apache.skywalking.apm.plugin.jdbc.trace.ConnectionInfo;
 
 import java.lang.reflect.Method;
 
+/**
+ * <pre>
+ * 增强类：com.mysql.cj.jdbc.CallableStatement
+ * 增强方法：
+ *          boolean execute()
+ *          ResultSet executeQuery()
+ *          int executeUpdate()
+ * </pre>
+ *
+ * <pre>
+ * 增强类：
+ *      com.mysql.cj.jdbc.ClientPreparedStatement
+ *      com.mysql.cj.jdbc.ServerPreparedStatement（继承了 ClientPreparedStatement）
+ * 增强方法：
+ *      ClientPreparedStatement 的：
+ *          boolean execute()
+ *          ResultSet executeQuery()
+ *          int executeUpdate()
+ *          long executeLargeUpdate()
+ * </pre>
+ */
 public class PreparedStatementExecuteMethodsInterceptor implements InstanceMethodsAroundInterceptor {
 
     @Override
     public final void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
                                    Class<?>[] argumentsTypes, MethodInterceptResult result) {
+        // 获取 objInst（CallableStatement、ClientPreparedStatement、ServerPreparedStatement）增强域的值
         StatementEnhanceInfos cacheObject = (StatementEnhanceInfos) objInst.getSkyWalkingDynamicField();
         /**
          * For avoid NPE. In this particular case, Execute sql inside the {@link com.mysql.jdbc.ConnectionImpl} constructor,
@@ -48,6 +70,7 @@ public class PreparedStatementExecuteMethodsInterceptor implements InstanceMetho
          */
         if (cacheObject != null && cacheObject.getConnectionInfo() != null) {
             ConnectionInfo connectInfo = cacheObject.getConnectionInfo();
+            // 创建 exit span
             AbstractSpan span = ContextManager.createExitSpan(
                 buildOperationName(connectInfo, method.getName(), cacheObject
                     .getStatementName()), connectInfo.getDatabasePeer());
@@ -56,11 +79,13 @@ public class PreparedStatementExecuteMethodsInterceptor implements InstanceMetho
             Tags.DB_STATEMENT.set(span, SqlBodyUtil.limitSqlBodySize(cacheObject.getSql()));
             span.setComponent(connectInfo.getComponent());
 
+            // 判断是否需要收集sql的参数
             if (JDBCPluginConfig.Plugin.JDBC.TRACE_SQL_PARAMETERS) {
                 final Object[] parameters = cacheObject.getParameters();
                 if (parameters != null && parameters.length > 0) {
                     int maxIndex = cacheObject.getMaxIndex();
                     String parameterString = getParameterString(parameters, maxIndex);
+                    // 设置 exit span 的 db.sql.parameters 标签
                     Tags.SQL_PARAMETERS.set(span, parameterString);
                 }
             }
@@ -73,7 +98,9 @@ public class PreparedStatementExecuteMethodsInterceptor implements InstanceMetho
     public final Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
                                     Class<?>[] argumentsTypes, Object ret) {
         StatementEnhanceInfos cacheObject = (StatementEnhanceInfos) objInst.getSkyWalkingDynamicField();
+        // 如果 objInst（CallableStatement）增强域的 ConnectionInfo 不为空
         if (cacheObject != null && cacheObject.getConnectionInfo() != null) {
+            // 结束 active span
             ContextManager.stopSpan();
         }
         return ret;

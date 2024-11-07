@@ -26,6 +26,13 @@ import org.apache.skywalking.apm.plugin.jdbc.trace.ConnectionInfo;
 
 import java.lang.reflect.Method;
 
+/**
+ * <pre>
+ * 增强类：com.mysql.cj.jdbc.ConnectionImpl（继承了 java.sql.Connection）
+ * 增强方法：
+ *          Statement createStatement(int resultSetType, int resultSetConcurrency)
+ * </pre>
+ */
 public class CreateStatementInterceptor implements InstanceMethodsAroundInterceptor {
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
@@ -36,7 +43,9 @@ public class CreateStatementInterceptor implements InstanceMethodsAroundIntercep
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         Object ret) throws Throwable {
+        // 如果 ret（Statement） 是被增强过的
         if (ret instanceof EnhancedInstance) {
+            // 将 ret（Statement） 增强域的值设置为 new StatementEnhanceInfos(objInst（ConnectionImpl）的增强域的值, ...)
             ((EnhancedInstance) ret).setSkyWalkingDynamicField(new StatementEnhanceInfos((ConnectionInfo) objInst.getSkyWalkingDynamicField(), "", "Statement"));
         }
         return ret;

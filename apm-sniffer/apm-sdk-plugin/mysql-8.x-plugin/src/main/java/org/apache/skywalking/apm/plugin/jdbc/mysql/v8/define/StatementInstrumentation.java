@@ -27,6 +27,21 @@ import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
+/**
+ * <pre>
+ * 增强类：com.mysql.cj.jdbc.StatementImpl
+ * 增强方法：
+ *          boolean execute(String sql, ...)
+ *          ResultSet executeQuery(String sql)
+ *          int executeUpdate(String sql, ...)
+ *          long executeLargeUpdate(String sql, ...)
+ *          long[] executeBatchInternal()
+ *          long executeUpdateInternal(String sql, boolean isBatch, boolean returnGeneratedKeys)
+ *          ResultSet executeQuery(String sql)
+ *          int[] executeBatch()
+ *      拦截器：org.apache.skywalking.apm.plugin.jdbc.mysql.StatementExecuteMethodsInterceptor
+ * </pre>
+ */
 public class StatementInstrumentation extends AbstractMysqlInstrumentation {
     private static final String SERVICE_METHOD_INTERCEPTOR = org.apache.skywalking.apm.plugin.jdbc.mysql.Constants.STATEMENT_EXECUTE_METHODS_INTERCEPTOR;
     public static final String MYSQL8_STATEMENT_CLASS_NAME = "com.mysql.cj.jdbc.StatementImpl";

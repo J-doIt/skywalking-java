@@ -32,10 +32,25 @@ import org.apache.skywalking.apm.util.StringUtil;
 
 import java.lang.reflect.Method;
 
+/**
+ * <pre>
+ * 增强类：com.mysql.cj.jdbc.StatementImpl
+ * 增强方法：
+ *          boolean execute(String sql, ...)
+ *          ResultSet executeQuery(String sql)
+ *          int executeUpdate(String sql, ...)
+ *          long executeLargeUpdate(String sql, ...)
+ *          long[] executeBatchInternal()
+ *          long executeUpdateInternal(String sql, boolean isBatch, boolean returnGeneratedKeys)
+ *          ResultSet executeQuery(String sql)
+ *          int[] executeBatch()
+ * </pre>
+ */
 public class StatementExecuteMethodsInterceptor implements InstanceMethodsAroundInterceptor {
     @Override
     public final void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
+        // 获取 objInst（StatementImpl）增强域的值
         StatementEnhanceInfos cacheObject = (StatementEnhanceInfos) objInst.getSkyWalkingDynamicField();
         ConnectionInfo connectInfo = cacheObject.getConnectionInfo();
         /**
@@ -47,6 +62,7 @@ public class StatementExecuteMethodsInterceptor implements InstanceMethodsAround
          */
         if (connectInfo != null) {
 
+            // 创建 exit span
             AbstractSpan span = ContextManager.createExitSpan(buildOperationName(connectInfo, method.getName(), cacheObject
                 .getStatementName()), connectInfo.getDatabasePeer());
             Tags.DB_TYPE.set(span, connectInfo.getDBType());
@@ -75,7 +91,9 @@ public class StatementExecuteMethodsInterceptor implements InstanceMethodsAround
     public final Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Object ret) throws Throwable {
         StatementEnhanceInfos cacheObject = (StatementEnhanceInfos) objInst.getSkyWalkingDynamicField();
+        // 如果 objInst（StatementImpl）增强域的 ConnectionInfo 不为空
         if (cacheObject.getConnectionInfo() != null) {
+            // 结束 active span
             ContextManager.stopSpan();
         }
         return ret;

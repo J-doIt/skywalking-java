@@ -28,6 +28,35 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
 import static net.bytebuddy.matcher.ElementMatchers.takesArguments;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
+/**
+ * <pre>
+ * 增强类：com.mysql.cj.jdbc.ConnectionImpl（继承了 java.sql.Connection）
+ *
+ * 增强方法：
+ *          PreparedStatement prepareStatement(String sql, ...)
+ *      拦截器：org.apache.skywalking.apm.plugin.jdbc.mysql.CreatePreparedStatementInterceptor
+ * 增强方法：
+ *          java.sql.CallableStatement prepareCall(String sql, ...)
+ *      拦截器：org.apache.skywalking.apm.plugin.jdbc.mysql.CreateCallableStatementInterceptor
+ * 增强方法：
+ *          Statement createStatement(int resultSetType, int resultSetConcurrency)
+ *              （方法签名：createStatement(II)Ljava/sql/Statement;）
+ *      拦截器：org.apache.skywalking.apm.plugin.jdbc.mysql.CreateStatementInterceptor
+ * 增强方法：
+ *          void commit()
+ *          void rollback()
+ *          void rollback(final Savepoint savepoint)
+ *          void close()
+ *          void releaseSavepoint(Savepoint arg0)
+ *      拦截器：org.apache.skywalking.apm.plugin.jdbc.ConnectionServiceMethodInterceptor
+ * 增强方法：
+ *          void setCatalog(final String catalog)
+ *      拦截器：org.apache.skywalking.apm.plugin.jdbc.mysql.SetCatalogInterceptor
+ * 增强方法：
+ *          setDatabase() QFTODO:没找到
+ *      拦截器：org.apache.skywalking.apm.plugin.jdbc.mysql.SetCatalogInterceptor
+ * </pre>
+ */
 public class ConnectionInstrumentation extends AbstractMysqlInstrumentation {
 
     @Override

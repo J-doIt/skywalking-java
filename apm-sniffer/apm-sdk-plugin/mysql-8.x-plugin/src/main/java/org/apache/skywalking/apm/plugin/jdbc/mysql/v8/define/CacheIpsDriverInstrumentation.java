@@ -28,6 +28,14 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
 import static org.apache.skywalking.apm.agent.core.plugin.match.MultiClassNameMatch.byMultiClassMatch;
 import static org.apache.skywalking.apm.plugin.jdbc.mysql.Constants.DRIVER_CONNECT_INTERCEPTOR;
 
+/**
+ * <pre>
+ * 增强类：com.mysql.cj.jdbc.NonRegisteringDriver
+ * 增强方法：
+ *          Connection connect(String url, Properties info)
+ *      拦截器：org.apache.skywalking.apm.plugin.jdbc.mysql.DriverConnectInterceptor
+ * </pre>
+ */
 public class CacheIpsDriverInstrumentation extends AbstractMysqlInstrumentation {
 
     private static final String ENHANCE_CLASS_NON_REG = "com.mysql.cj.jdbc.NonRegisteringDriver";

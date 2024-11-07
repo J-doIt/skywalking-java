@@ -14,12 +14,50 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# 增强 ConnectionImpl（继承了 java.sql.Connection）
+#       getInstance()
+#           afterMethod：设置 ret（JdbcConnection） 的增强域的值为 ConnectionCache中映射的connectionInfo
 mysql-8.x=org.apache.skywalking.apm.plugin.jdbc.mysql.v8.define.ConnectionImplCreateInstrumentation
+# 增强 ConnectionImpl（继承了 java.sql.Connection）
+#       prepareStatement()
+#           afterMethod：将 ret（PreparedStatement） 增强域的值设置为 new StatementEnhanceInfos(objInst（ConnectionImpl）的增强域的值, ...)
+#       prepareCall()
+#           afterMethod：将 ret（CallableStatement） 增强域的值设置为 new StatementEnhanceInfos(objInst（ConnectionImpl）的增强域的值, ...)
+#       createStatement()
+#           afterMethod：将 ret（Statement） 增强域的值设置为 new StatementEnhanceInfos(objInst（ConnectionImpl）的增强域的值, ...)
+#       commit()、rollback(...)、close()、releaseSavepoint()
+#           beforeMethod：获取 objInst（ConnectionImpl）增强域（ConnectionInfo）的值，创建 exit span
+#       setCatalog()
+#           beforeMethod：设置 objInst（ConnectionImpl）增强域（ConnectionInfo）的 DatabaseName 为 var1
+#       setDatabase()
+#           beforeMethod：设置 objInst（ConnectionImpl）增强域（ConnectionInfo）的 DatabaseName 为 var1
 mysql-8.x=org.apache.skywalking.apm.plugin.jdbc.mysql.v8.define.ConnectionInstrumentation
+# 增强  CallableStatement
+#       execute()、executeQuery()、executeUpdate()
+#           beforeMethod：获取 objInst（CallableStatement）增强域（StatementEnhanceInfos）的值，创建 exit span
 mysql-8.x=org.apache.skywalking.apm.plugin.jdbc.mysql.v8.define.CallableInstrumentation
+# 增强 ClientPreparedStatement、ServerPreparedStatement
+#       execute()、executeQuery()、executeUpdate()、executeLargeUpdate()
+#           beforeMethod：获取 objInst（ClientPreparedStatement、ServerPreparedStatement）增强域（StatementEnhanceInfos）的值，创建 exit span
 mysql-8.x=org.apache.skywalking.apm.plugin.jdbc.mysql.v8.define.PreparedStatementInstrumentation
+# 增强 StatementImpl
+#       execute()、executeQuery()、executeUpdate()、executeLargeUpdate()、executeBatchInternal()、executeUpdateInternal()、executeQuery()、executeBatch()
+#           beforeMethod：获取 objInst（StatementImpl）增强域（StatementEnhanceInfos）的值，创建 exit span
 mysql-8.x=org.apache.skywalking.apm.plugin.jdbc.mysql.v8.define.StatementInstrumentation
+# 增强 ClientPreparedStatement、ServerPreparedStatement
+#       setXxx()
+#           beforeMethod：将 parameter 放到 objInst 的增强域（StatementEnhanceInfos）
 mysql-8.x=org.apache.skywalking.apm.plugin.jdbc.mysql.v8.define.PreparedStatementSetterInstrumentation
+# 增强 ClientPreparedStatement、ServerPreparedStatement
+#       setNull()
+#           beforeMethod：将 "NULL" 放到 objInst 的增强域（StatementEnhanceInfos）
 mysql-8.x=org.apache.skywalking.apm.plugin.jdbc.mysql.v8.define.PreparedStatementNullSetterInstrumentation
+# 增强 ClientPreparedStatement、ServerPreparedStatement
+#       忽略的 setXxx()
+#           beforeMethod：将 占位符 放到 objInst 的增强域（StatementEnhanceInfos）
 mysql-8.x=org.apache.skywalking.apm.plugin.jdbc.mysql.v8.define.PreparedStatementIgnoredSetterInstrumentation
+# 增强 NonRegisteringDriver
+#       connect()
+#           beforeMethod：解析url并保存到ConnectionCache，注册动态配置观察器（plugin.jdbc.trace_sql_parameters）
+#           afterMethod：将 ConnectionInfo(解析url) 加入到 objInst（NonRegisteringDriver）的 增强域
 mysql-8.x=org.apache.skywalking.apm.plugin.jdbc.mysql.v8.define.CacheIpsDriverInstrumentation

@@ -21,11 +21,21 @@ package org.apache.skywalking.apm.plugin.jdbc.mysql.v8.define;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
 import org.apache.skywalking.apm.plugin.jdbc.JDBCPreparedStatementNullSetterInstanceMethodsInterceptPoint;
 
+/**
+ * <pre>
+ * 增强类：
+ *      com.mysql.cj.jdbc.ClientPreparedStatement
+ *      com.mysql.cj.jdbc.ServerPreparedStatement（继承了 ClientPreparedStatement）
+ * 增强方法、拦截器：
+ *      {@link org.apache.skywalking.apm.plugin.jdbc.JDBCPreparedStatementNullSetterInstanceMethodsInterceptPoint}
+ * </pre>
+ */
 public class PreparedStatementNullSetterInstrumentation extends PreparedStatementInstrumentation {
 
     @Override
     public final InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
         return new InstanceMethodsInterceptPoint[] {
+            // 创建 JDBCPreparedStatement NullSetter方法 匹配器
             new JDBCPreparedStatementNullSetterInstanceMethodsInterceptPoint()
         };
     }
