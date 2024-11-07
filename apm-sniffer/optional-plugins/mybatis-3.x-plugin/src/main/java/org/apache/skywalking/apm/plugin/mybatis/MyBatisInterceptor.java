@@ -28,25 +28,44 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInt
 import org.apache.skywalking.apm.agent.core.util.MethodUtil;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 
+/**
+ * <pre>
+ * 增强类：org.apache.ibatis.session.defaults.DefaultSqlSession
+ * 增强方法：
+ *          void select(String statement, Object parameter, RowBounds rowBounds, ResultHandler handler)
+ *          ≤E> List≤E> selectList(String statement, Object parameter, RowBounds rowBounds)
+ *          int update(String statement, Object parameter)
+ *
+ *
+ * 上面这些方法，直接调用的 DefaultSqlSession.executor.query()、update()）
+ * </pre>
+ *
+ */
 public class MyBatisInterceptor implements InstanceMethodsAroundInterceptor {
 
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
                              MethodInterceptResult result) throws Throwable {
         String operationName;
+        // 如果 当前tracingContext 的 RuntimeContext 中的 mybatis_shell_method_name 值 不为空
         if (ContextManager.getRuntimeContext().get(Constants.MYBATIS_SHELL_METHOD_NAME) != null) {
+            // 使用 上层调用 生成方法签名
             operationName = String.valueOf(ContextManager.getRuntimeContext().get(Constants.MYBATIS_SHELL_METHOD_NAME));
         } else {
+            // 生成方法签名
             operationName = MethodUtil.generateOperationName(method);
         }
+        // 创建 local span
         AbstractSpan span = ContextManager.createLocalSpan(operationName);
         span.setComponent(ComponentsDefine.MYBATIS);
+        // 设置 local span 的 mybatis.mapper 标签 为 var1（statement）
         Tags.MYBATIS_MAPPER.set(span, (String) allArguments[0]);
     }
 
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
                               Object ret) throws Throwable {
+        // 结束 active span
         ContextManager.stopSpan();
         return ret;
     }
@@ -54,6 +73,7 @@ public class MyBatisInterceptor implements InstanceMethodsAroundInterceptor {
     @Override
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
                                       Class<?>[] argumentsTypes, Throwable t) {
+        // 设置 active span 的 log 为 t
         ContextManager.activeSpan().log(t);
     }
 }

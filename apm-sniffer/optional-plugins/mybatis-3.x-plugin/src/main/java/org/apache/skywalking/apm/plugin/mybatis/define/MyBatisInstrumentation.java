@@ -28,6 +28,16 @@ import org.apache.skywalking.apm.plugin.mybatis.MyBatisMethodMatch;
 
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
+/**
+ * <pre>
+ * 增强类：org.apache.ibatis.session.defaults.DefaultSqlSession
+ * 增强方法：
+ *          void select(String statement, Object parameter, RowBounds rowBounds, ResultHandler handler)
+ *          ≤E> List≤E> selectList(String statement, Object parameter, RowBounds rowBounds)
+ *          int update(String statement, Object parameter)
+ *      拦截器：org.apache.skywalking.apm.plugin.mybatis.MyBatisInterceptor
+ * </pre>
+ */
 public class MyBatisInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
     @Override

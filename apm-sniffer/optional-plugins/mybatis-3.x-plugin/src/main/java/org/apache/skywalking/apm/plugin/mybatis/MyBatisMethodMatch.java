@@ -24,15 +24,35 @@ import net.bytebuddy.matcher.ElementMatcher;
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static net.bytebuddy.matcher.ElementMatchers.takesArguments;
 
+/**
+ * <pre>
+ * 方法匹配器
+ * </pre>
+ */
 public enum MyBatisMethodMatch {
     INSTANCE;
 
+    /**
+     *  4 个参数的 select 方法
+     *  或者
+     *  3 个参数的 selectList 方法
+     *  或者
+     *  2 个参数的 update 方法
+     */
     public ElementMatcher<MethodDescription> getMyBatisMethodMatcher() {
         return named("select").and(takesArguments(4))
                               .or(named("selectList").and(takesArguments(3)))
                               .or(named("update").and(takesArguments(2)));
     }
 
+    /**
+     * 名为：selectOne、selectMap、insert、delete
+     * 或者：2个参数的 select
+     * 或者：3个参数的 select
+     * 或者：1个参数的 selectList
+     * 或者：2个参数的 selectList
+     * 或者：1个参数的 update
+     */
     public ElementMatcher<MethodDescription> getMyBatisShellMethodMatcher() {
         return named("selectOne").or(named("selectMap"))
                                  .or(named("insert"))

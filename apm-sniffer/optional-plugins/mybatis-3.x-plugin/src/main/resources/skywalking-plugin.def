@@ -14,5 +14,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# 增强 DefaultSqlSession
+#       select()、selectList()、update()
+#           deforeMethod：获取 当前tracingContext.RuntimeContext中的 mybatis_shell_method_name，创建 local span
 mybatis-3.x=org.apache.skywalking.apm.plugin.mybatis.define.MyBatisInstrumentation
+# 增强 DefaultSqlSession
+#       selectOne()、selectMap()、selectList()、select()、update()、insert()、delete()
+#           deforeMethod：如果 当前tracingContext.RuntimeContext中的 mybatis_shell_method_name 为空，则 put 值，并设置 MethodInvocationContext 的附加信息（COLLECTED_FLAG）。
+#           afterMethod：如果 MethodInvocationContext 的附加信息（COLLECTED_FLAG）不为空，则 remove 当前tracingContext.RuntimeContext中的 mybatis_shell_method_name。
 mybatis-3.x=org.apache.skywalking.apm.plugin.mybatis.define.MyBatisShellMethodInstrumentation
