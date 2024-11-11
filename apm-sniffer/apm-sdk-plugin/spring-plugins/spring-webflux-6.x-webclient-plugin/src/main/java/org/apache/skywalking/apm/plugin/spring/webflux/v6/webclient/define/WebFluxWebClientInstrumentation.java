@@ -33,6 +33,14 @@ import java.util.List;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
 
+/**
+ * <pre>
+ * 增强类：org.springframework.web.reactive.function.client.ExchangeFunctions$DefaultExchangeFunction
+ * 增强方法：
+ *          Mono≤ClientResponse> exchange(ClientRequest clientRequest)
+ *      拦截器：org.apache.skywalking.apm.plugin.spring.webflux.v6.webclient.WebFluxWebClientInterceptor
+ * </pre>
+ */
 public class WebFluxWebClientInstrumentation extends ClassInstanceMethodsEnhancePluginDefineV2 {
     private static final String ENHANCE_CLASS = "org.springframework.web.reactive.function.client.ExchangeFunctions$DefaultExchangeFunction";
     private static final String INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.spring.webflux.v6.webclient.WebFluxWebClientInterceptor";
@@ -78,6 +86,7 @@ public class WebFluxWebClientInstrumentation extends ClassInstanceMethodsEnhance
 
     @Override
     protected List<WitnessMethod> witnessMethods() {
+        // 见证方法：reactor.core.publisher.Mono 的 名为 deferContextual 的方法
         return Collections.singletonList(
             new WitnessMethod(WEBFLUX_CONTEXT_WRITE_CLASS, named(WEBFLUX_CONTEXT_WRITE_METHOD)));
     }

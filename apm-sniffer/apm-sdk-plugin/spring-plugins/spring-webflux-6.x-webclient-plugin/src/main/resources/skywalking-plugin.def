@@ -14,5 +14,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# 增强 DefaultClientRequestBuilder$BodyInserterRequest.writeTo() // 将此请求写入给定的 ClientHttpRequest。
+#       beforeMethod：
+#               拿到 var1（ClientHttpRequest）的增强域的值（ContextCarrier）
+#               将 当前的链路信息（ContextCarrier） 放入到 request.headers 中传递给 下游
 spring-webflux-6.x-webclient=org.apache.skywalking.apm.plugin.spring.webflux.v6.webclient.define.BodyInserterRequestInstrumentation
+# 增强 ExchangeFunctions$DefaultExchangeFunction.exchange() // 将请求转换为 Mono<ClientResponse>
+#       afterMethod：
+#               return 定义的一个 Mono提供者：
+#                   创建 exit span；
+#                   如果 contextualMonoFactory 的 ContextView 中存在 上下文快照（key："SKYWALKING_CONTEXT_SNAPSHOT"），则 执行 continued 继续；
+#                   设置 span；
+#                   将 当前tracingContext 注入到 new 的 上下文载体（ContextCarrier）；
+#                   将 ClientRequest 的 增强域 的值 设置为 new 的上下文载体（ContextCarrier）；
+#                   span.prepareForAsync（该span准备进入异步模式）；
+#                   ContextManager.stopSpan（结束 active span）；
+#                   为 ret 定义  doOnSuccess 函数 和 doOnError 函数，并返回；
+#                       doOnSuccess：设置 span 的 http.status_code 标签 // monoReturn.doFinally 最终是在 spring-webflux-x.x-plugin 的 DispatcherHandlerHandleMethodInterceptor.handle 的 afterMethod 时定义的
+#                       doOnError：span.asyncFinish
 spring-webflux-6.x-webclient=org.apache.skywalking.apm.plugin.spring.webflux.v6.webclient.define.WebFluxWebClientInstrumentation

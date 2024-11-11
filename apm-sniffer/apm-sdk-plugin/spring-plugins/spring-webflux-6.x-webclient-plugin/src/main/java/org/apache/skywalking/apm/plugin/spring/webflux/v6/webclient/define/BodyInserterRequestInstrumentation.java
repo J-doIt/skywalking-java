@@ -29,6 +29,14 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
 import static org.apache.skywalking.apm.agent.core.plugin.bytebuddy.ArgumentTypeNameMatch.takesArgumentWithType;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
+/**
+ * <pre>
+ * 增强类：org.springframework.web.reactive.function.client.DefaultClientRequestBuilder$BodyInserterRequest
+ * 增强方法：
+ *          Mono≤Void> writeTo(ClientHttpRequest request, final ExchangeStrategies strategies)
+ *      拦截器：org.apache.skywalking.apm.plugin.spring.webflux.v6.webclient.BodyInserterRequestInterceptor
+ * </pre>
+ */
 public class BodyInserterRequestInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
     @Override

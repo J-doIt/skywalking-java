@@ -37,6 +37,13 @@ import java.lang.reflect.Method;
 import java.net.URI;
 import java.util.Optional;
 
+/**
+ * <pre>
+ * 增强类：org.springframework.web.reactive.function.client.ExchangeFunctions$DefaultExchangeFunction
+ * 增强方法：
+ *          Mono≤ClientResponse> exchange(ClientRequest clientRequest)
+ * </pre>
+ */
 public class WebFluxWebClientInterceptor implements InstanceMethodsAroundInterceptorV2 {
 
     @Override
@@ -60,17 +67,20 @@ public class WebFluxWebClientInterceptor implements InstanceMethodsAroundInterce
             return ret;
         }
         Mono<ClientResponse> ret1 = (Mono<ClientResponse>) ret;
-        return Mono.deferContextual(ctx -> {
-
+        // 定义一个 参数为 Function<ContextView, ? extends Mono<? extends T>> 的 Mono提供者，并返回
+        return Mono.deferContextual(ctx/* Function<ContextView, Mono<T>> */ -> {
             ClientRequest request = (ClientRequest) allArguments[0];
             URI uri = request.url();
             final String operationName = getRequestURIString(uri);
             final String remotePeer = getIPAndPort(uri);
+            // 创建 exit span
             AbstractSpan span = ContextManager.createExitSpan(operationName, remotePeer);
 
             // get ContextSnapshot from reactor context,  the snapshot is set to reactor context by any other plugin
             // such as DispatcherHandlerHandleMethodInterceptor in spring-webflux-5.x-plugin
+            // QFTODO："SKYWALKING_CONTEXT_SNAPSHOT" 是在 spring-webflux-x.x-plugin 的 DispatcherHandlerHandleMethodInterceptor.handle 的 afterMethod 时设置的
             final Optional<Object> optional = ctx.getOrEmpty("SKYWALKING_CONTEXT_SNAPSHOT");
+            // 如果 ctx的 ContextView 中 存在 上下文快照，则 执行 continued 继续
             optional.ifPresent(snapshot -> ContextManager.continued((ContextSnapshot) snapshot));
 
             //set components name
@@ -80,23 +90,32 @@ public class WebFluxWebClientInterceptor implements InstanceMethodsAroundInterce
             SpanLayer.asHttp(span);
 
             final ContextCarrier contextCarrier = new ContextCarrier();
+            // 将 当前tracingContext 注入到 new 的 上下文载体（ContextCarrier）
             ContextManager.inject(contextCarrier);
             if (request instanceof EnhancedInstance) {
+                // 将 ClientRequest 的 增强域 的值 设置为 new 的上下文载体（ContextCarrier）
                 ((EnhancedInstance) request).setSkyWalkingDynamicField(contextCarrier);
             }
 
             //user async interface
+            // 该span准备进入异步模式
             span.prepareForAsync();
+            // 结束 active span
             ContextManager.stopSpan();
+
+            // 定义 ret1（Mono<ClientResponse>） 的 doOnSuccess 函数：在 Success 时 处理Span
+            // 定义 ret1（Mono<ClientResponse>） 的 doOnError 函数：在 Error 时 结束 span
             return ret1.doOnSuccess(clientResponse -> {
                 HttpStatusCode httpStatus = clientResponse.statusCode();
                 if (httpStatus != null) {
+                    // 设置 span 的 http.status_code 标签
                     Tags.HTTP_RESPONSE_STATUS_CODE.set(span, httpStatus.value());
                     if (httpStatus.isError()) {
                         span.errorOccurred();
                     }
                 }
             }).doOnError(span::log).doFinally(s -> {
+                // 异步结束 span
                 span.asyncFinish();
             });
         });

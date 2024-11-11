@@ -27,14 +27,24 @@ import org.springframework.http.client.reactive.ClientHttpRequest;
 
 import java.lang.reflect.Method;
 
+/**
+ * <pre>
+ * 增强类：org.springframework.web.reactive.function.client.DefaultClientRequestBuilder$BodyInserterRequest
+ * 增强方法：
+ *          Mono≤Void> writeTo(ClientHttpRequest request, final ExchangeStrategies strategies)
+ * </pre>
+ */
 public class BodyInserterRequestInterceptor implements InstanceMethodsAroundInterceptor {
 
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
                              MethodInterceptResult result) throws Throwable {
+
         ClientHttpRequest clientHttpRequest = (ClientHttpRequest) allArguments[0];
+        // 增强域 是在 WebFluxWebClientInterceptor.afterMethod 中被设置的
         ContextCarrier contextCarrier = (ContextCarrier) objInst.getSkyWalkingDynamicField();
         CarrierItem next = contextCarrier.items();
+        // 将 当前 的 链路信息 放入到 request.headers 中传递给 下游
         while (next.hasNext()) {
             next = next.next();
             clientHttpRequest.getHeaders().set(next.getHeadKey(), next.getHeadValue());
