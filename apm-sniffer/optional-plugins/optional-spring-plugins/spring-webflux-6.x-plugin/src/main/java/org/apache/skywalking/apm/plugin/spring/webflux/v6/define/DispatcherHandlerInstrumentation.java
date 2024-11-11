@@ -32,6 +32,14 @@ import java.util.List;
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
+/**
+ * <pre>
+ * 增强类：org.springframework.web.reactive.DispatcherHandler
+ * 增强方法：
+ *          Mono≤Void> handle(ServerWebExchange exchange)
+ *      拦截器：org.apache.skywalking.apm.plugin.spring.webflux.v6.DispatcherHandlerHandleMethodInterceptor
+ * </pre>
+ */
 public class DispatcherHandlerInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
     private static final String WEBFLUX_CONTEXT_WRITE_CLASS = "reactor.core.publisher.Mono";
     private static final String WEBFLUX_CONTEXT_WRITE_METHOD = "contextWrite";
@@ -75,6 +83,7 @@ public class DispatcherHandlerInstrumentation extends ClassInstanceMethodsEnhanc
      */
     @Override
     protected List<WitnessMethod> witnessMethods() {
+        // 见证方法：reactor.core.publisher.Mono.contextWrite()
         return Collections.singletonList(
             new WitnessMethod(WEBFLUX_CONTEXT_WRITE_CLASS, named(WEBFLUX_CONTEXT_WRITE_METHOD)));
     }

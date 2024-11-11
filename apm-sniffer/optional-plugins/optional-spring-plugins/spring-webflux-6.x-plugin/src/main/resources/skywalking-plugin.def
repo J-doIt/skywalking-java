@@ -14,5 +14,25 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# 增强 reactive.DispatcherHandler.handle()
+#       beforeMethod：
+#               将 var1（ServerWebExchange）.request.headers 中的 链路信息 放到 new 的 carrier 中；
+#               创建 entry span ，并从 carrier 中 提取 追踪信息 到 当前tracingContext；
+#               如果 var1（ServerWebExchange）的增强域（tracing上下文快照）不为空，从 var1（ServerWebExchange）的增强域拿到 tracing上下文快照，并 ref 到 当前tracingContext；
+#               设置 span；
+#               将 var1（ServerWebExchange） 的增强域 设置为 new的当前tracing上下文快照；
+#               span.prepareForAsync（该span准备进入异步模式）；
+#               ContextManager.stopSpan（结束 active span）；
+#               将 该span 放入 var1（ServerWebExchange）的 attributes 中（key："SKYWALKING_SPAN"）；
+#       afterMethod：
+#               从 var1（ServerWebExchange）的 attributes 中拿到 span（key："SKYWALKING_SPAN"）；
+#               从 var1（ServerWebExchange）的增强域 取值（当前tracing上下文快照）；
+#               定义 ret（Mono<Void>） 的 MonoContextWrite 的 doOnContext 函数：
+#                       将 当前tracing上下文快照 添加到 ret（Mono<Void>） 上下文（reactor.util.context.Context）中；（key："SKYWALKING_CONTEXT_SNAPSHOT"）
+#               定义 ret（Mono<Void>） 的 doFinally 函数：
+#                       设置 span 的 http.status_code 标签
+#                       span.asyncFinish（异步结束 span）
 spring-webflux-6.x=org.apache.skywalking.apm.plugin.spring.webflux.v6.define.DispatcherHandlerInstrumentation
+# 增强 DefaultServerWebExchange 的 构造函数
+#       onConstruct：无操作
 spring-webflux-6.x=org.apache.skywalking.apm.plugin.spring.webflux.v6.define.ServerWebExchangeInstrumentation

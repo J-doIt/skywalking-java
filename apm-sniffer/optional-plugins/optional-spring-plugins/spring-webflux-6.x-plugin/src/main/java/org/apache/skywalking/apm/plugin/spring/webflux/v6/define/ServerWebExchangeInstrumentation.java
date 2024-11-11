@@ -28,6 +28,14 @@ import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 import static net.bytebuddy.matcher.ElementMatchers.any;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
+/**
+ * <pre>
+ * 增强类：org.springframework.web.server.adapter.DefaultServerWebExchange
+ * 增强构造函数：
+ *          DefaultServerWebExchange(...)
+ *      拦截器：org.apache.skywalking.apm.plugin.spring.webflux.v6.ServerWebExchangeConstructorInterceptor
+ * </pre>
+ */
 public class ServerWebExchangeInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
     private static final String WEBFLUX_CONSTRUCTOR_INTERCEPOR = "org.apache.skywalking.apm.plugin.spring.webflux.v6.ServerWebExchangeConstructorInterceptor";
     private static final String WEBFLUX_ENHANCE_CLASS = "org.springframework.web.server.adapter.DefaultServerWebExchange";
