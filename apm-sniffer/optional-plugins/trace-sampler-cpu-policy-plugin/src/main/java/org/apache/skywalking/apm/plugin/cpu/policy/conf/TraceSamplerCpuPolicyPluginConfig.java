@@ -24,6 +24,7 @@ public class TraceSamplerCpuPolicyPluginConfig {
     public static class Plugin {
         @PluginConfig(root = TraceSamplerCpuPolicyPluginConfig.class)
         public static class CpuPolicy {
+            /** CPU 使用率百分比限制 */
             public static double SAMPLE_CPU_USAGE_PERCENT_LIMIT = -1;
         }
     }
