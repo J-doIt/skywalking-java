@@ -59,6 +59,7 @@ public class TraceSamplerCpuPolicyExtendService extends SamplingService {
 
     @Override
     public boolean trySampling(final String operationName) {
+        //
         if (cpuUsagePercentLimitOn) {
             double cpuUsagePercent = jvmService.getCpuUsagePercent();
             if (cpuUsagePercent > TraceSamplerCpuPolicyPluginConfig.Plugin.CpuPolicy.SAMPLE_CPU_USAGE_PERCENT_LIMIT) {

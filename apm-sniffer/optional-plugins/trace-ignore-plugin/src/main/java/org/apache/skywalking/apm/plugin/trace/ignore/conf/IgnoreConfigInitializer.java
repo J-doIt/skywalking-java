@@ -45,21 +45,36 @@ public class IgnoreConfigInitializer {
      * start with {@link #ENV_KEY_PREFIX}. e.g. in env `skywalking.trace.ignore_path=your_path` to override
      * `trace.ignore_path` in apm-trace-ignore-plugin.config file.
      * <p>
+     *
+     * <pre>
+     * (
+     * 尝试找到 “apm-trace-ignore-plugin.config”，
+     *      它应该位于代理软件包的 /optional-plugins/apm-trace-ignore-plugin/ 字典中。
+     * 此外，尝试通过 system.env 和 system.properties 覆盖配置。
+     *      这两个位置的所有键都应以 {@link #ENV_KEY_PREFIX} 开头。
+     *      例如，在 env 'skywalking.trace.ignore_path=your_path' 中覆盖 apm-trace-ignore-plugin.config 文件中的 'trace.ignore_path'。)
+     * </pre>
      */
     public static void initialize() {
+        // 得到 apm-trace-ignore-plugin.config
         try (final InputStream configFileStream = loadConfigFromAgentFolder()) {
             Properties properties = new Properties();
+            // 从输入流中加载配置文件
             properties.load(configFileStream);
+            // 遍历所有配置项，替换其中的占位符
             for (String key : properties.stringPropertyNames()) {
                 String value = (String) properties.get(key);
+                // 替换配置项中的占位符
                 properties.put(key, PropertyPlaceholderHelper.INSTANCE.replacePlaceholders(value, properties));
             }
+            // 根据 properties 初始化 IgnoreConfig 类
             ConfigInitializer.initialize(properties, IgnoreConfig.class);
         } catch (Exception e) {
             LOGGER.error(e, "Failed to read the config file, skywalking is going to run in default config.");
         }
 
         try {
+            // 通过系统属性覆盖配置
             overrideConfigBySystemProp();
         } catch (Exception e) {
             LOGGER.error(e, "Failed to read the system env.");
@@ -83,10 +98,14 @@ public class IgnoreConfigInitializer {
 
     /**
      * Load the config file, where the agent jar is.
+     * <pre>
+     * (加载 skywalking-agent.jar 所在的配置文件。)
+     * </pre>
      *
      * @return the config file {@link InputStream}, or null if not needEnhance.
      */
     private static InputStream loadConfigFromAgentFolder() throws AgentPackageNotFoundException, ConfigNotFoundException {
+        // '/skywalking-agent.jar 的父路径/config/apm-trace-ignore-plugin.config'
         File configFile = new File(AgentPackagePath.getPath(), CONFIG_FILE_NAME);
         if (configFile.exists() && configFile.isFile()) {
             try {

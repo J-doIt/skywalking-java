@@ -30,11 +30,15 @@ import org.apache.skywalking.apm.plugin.trace.ignore.matcher.FastPathMatcher;
 import org.apache.skywalking.apm.plugin.trace.ignore.matcher.TracePathMatcher;
 import org.apache.skywalking.apm.util.StringUtil;
 
+/**
+ * 重写 SamplingService
+ */
 @OverrideImplementor(SamplingService.class)
 public class TraceIgnoreExtendService extends SamplingService {
     private static final ILog LOGGER = LogManager.getLogger(TraceIgnoreExtendService.class);
     private static final String PATTERN_SEPARATOR = ",";
     private TracePathMatcher pathMatcher = new FastPathMatcher();
+    /** 'trace.ignore_path' 中的配置（分隔后） */
     private volatile String[] patterns = new String[] {};
     /** 动态配置观察器（观察 agent.trace.ignore_path 配置） */
     private TraceIgnorePatternWatcher traceIgnorePatternWatcher;
@@ -48,16 +52,20 @@ public class TraceIgnoreExtendService extends SamplingService {
     public void boot() {
         super.boot();
 
+        // 根据 apm-trace-ignore-plugin.config 初始化 IgnoreConfig 类。（system.env 和 system.properties 优先级高）
         IgnoreConfigInitializer.initialize();
+        // 如果 'trace.ignore_path' 配置不为空
         if (StringUtil.isNotEmpty(IgnoreConfig.Trace.IGNORE_PATH)) {
             patterns = IgnoreConfig.Trace.IGNORE_PATH.split(PATTERN_SEPARATOR);
         }
 
+        // 动态配置观察器：关注 ‘agent.trace.ignore_path’
         traceIgnorePatternWatcher = new TraceIgnorePatternWatcher("agent.trace.ignore_path", this);
         // 注册动态配置观察器
         ServiceManager.INSTANCE.findService(ConfigurationDiscoveryService.class)
                                .registerAgentConfigChangeWatcher(traceIgnorePatternWatcher);
 
+        // this.patterns 变化后的处理
         handleTraceIgnorePatternsChanged();
     }
 
@@ -72,7 +80,9 @@ public class TraceIgnoreExtendService extends SamplingService {
 
     @Override
     public boolean trySampling(final String operationName) {
+        // 如果 trace.ignore_path 不为空
         if (patterns.length > 0) {
+            // span 的 operationName 与之 任一 匹配，则忽略采样。
             for (String pattern : patterns) {
                 if (pathMatcher.match(pattern, operationName)) {
                     LOGGER.debug("operationName : " + operationName + " Ignore tracking");
@@ -80,6 +90,7 @@ public class TraceIgnoreExtendService extends SamplingService {
                 }
             }
         }
+        // super trySampling
         return super.trySampling(operationName);
     }
 

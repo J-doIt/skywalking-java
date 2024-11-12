@@ -25,6 +25,12 @@ public class IgnoreConfig {
          * If the operation name of the first span is matching, this segment should be ignored /path/?   Match any
          * single character /path/*   Match any number of characters /path/**  Match any number of characters and
          * support multilevel directories
+         * <pre>
+         * (如果第一个 span 的操作名是匹配的，这个 segment 应该被忽略。
+         *      /path/？：匹配任意单个字符
+         *      /path/* ：匹配任意数量的字符
+         *      /path/** ：匹配任意数量的字符并支持多级目录。)
+         * </pre>
          */
         public static String IGNORE_PATH = "";
     }

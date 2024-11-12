@@ -45,14 +45,17 @@ public class TraceIgnorePatternWatcher extends AgentConfigChangeWatcher {
         }
 
         this.traceIgnorePathPatterns.set(config);
+        // 配置（trace.ignore_path）变化后的处理
         traceIgnoreExtendService.handleTraceIgnorePatternsChanged();
     }
 
     @Override
     public void notify(final ConfigChangeEvent value) {
         if (EventType.DELETE.equals(value.getEventType())) {
+            // 如果是删除配置，则设置为默认值。
             activeSetting(getDefaultValue());
         } else {
+            // 设置为新值
             activeSetting(value.getNewValue());
         }
     }
