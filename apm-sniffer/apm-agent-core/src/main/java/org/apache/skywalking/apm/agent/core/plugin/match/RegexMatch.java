@@ -25,8 +25,12 @@ import static net.bytebuddy.matcher.ElementMatchers.nameMatches;
 
 /**
  * Match the class by given class name regex expression.
+ * <pre>
+ * (通过给定的类名正则表达式匹配类。)
+ * </pre>
  */
 public class RegexMatch implements IndirectMatch {
+    /** 任一匹配的正则表达式 */
     private String[] regexExpressions;
 
     private RegexMatch(String... regexExpressions) {

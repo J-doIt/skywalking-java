@@ -26,19 +26,20 @@ import net.bytebuddy.description.annotation.AnnotationList;
 import net.bytebuddy.description.type.TypeDescription;
 import net.bytebuddy.matcher.ElementMatcher;
 
-import static net.bytebuddy.matcher.ElementMatchers.isAnnotatedWith;
-import static net.bytebuddy.matcher.ElementMatchers.isInterface;
-import static net.bytebuddy.matcher.ElementMatchers.named;
-import static net.bytebuddy.matcher.ElementMatchers.not;
+import static net.bytebuddy.matcher.ElementMatchers.isAnnotatedWith; // 匹配带有指定注解的元素
+import static net.bytebuddy.matcher.ElementMatchers.isInterface; // 匹配接口
+import static net.bytebuddy.matcher.ElementMatchers.named; // 匹配名称与给定字符串相等的元素
+import static net.bytebuddy.matcher.ElementMatchers.not; // 匹配不满足给定条件的元素
 
 /**
  * Match the class by the given annotations in class.
  *
  * <pre>
- * 基于类注解进行匹配，可设置同时匹配多个。例如："@RequestMapping"。
+ * 基于 类的注解 进行匹配，可设置同时匹配多个（必须全部匹配）。例如："@RequestMapping"。
  * </pre>
  */
 public class ClassAnnotationMatch implements IndirectMatch {
+    /** 需要全部匹配的注解类 */
     private String[] annotations;
 
     private ClassAnnotationMatch(String[] annotations) {
@@ -48,6 +49,7 @@ public class ClassAnnotationMatch implements IndirectMatch {
         this.annotations = annotations;
     }
 
+    /** 匹配所有的 this.annotations，且 不是接口 */
     @Override
     public ElementMatcher.Junction buildJunction() {
         ElementMatcher.Junction junction = null;
@@ -62,6 +64,7 @@ public class ClassAnnotationMatch implements IndirectMatch {
         return junction;
     }
 
+    /** true：匹配所有的 this.annotations */
     @Override
     public boolean isMatch(TypeDescription typeDescription) {
         List<String> annotationList = new ArrayList<String>(Arrays.asList(annotations));

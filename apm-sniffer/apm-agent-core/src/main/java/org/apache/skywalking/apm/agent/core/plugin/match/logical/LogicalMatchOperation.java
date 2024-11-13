@@ -25,20 +25,29 @@ import org.apache.skywalking.apm.agent.core.plugin.match.IndirectMatch;
 
 /**
  * Util class to help to construct logical operations on {@link org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch}s
+ *
+ * <pre>
+ * (Util 类，以帮助在 ClassMatches 上构造 逻辑操作)
+ * </pre>
  */
 public class LogicalMatchOperation {
+
+    /** 逻辑且 匹配 */
     public static IndirectMatch and(final IndirectMatch... matches) {
         return new LogicalAndMatch(matches);
     }
 
+    /** 逻辑或 匹配 */
     public static IndirectMatch or(final IndirectMatch... matches) {
         return new LogicalOrMatch(matches);
     }
 
+    /** 逻辑非 匹配 */
     public static IndirectMatch not(final IndirectMatch match) {
         return new IndirectMatch() {
             @Override
             public ElementMatcher.Junction buildJunction() {
+                // NegatingMatcher（否定匹配器）：反转另一个匹配器的匹配结果。
                 return new NegatingMatcher(match.buildJunction());
             }
 

@@ -29,7 +29,16 @@ import net.bytebuddy.matcher.ElementMatcher;
  * </pre>
  */
 public interface IndirectMatch extends ClassMatch {
+
+    /**
+     * 构建多个匹配条件的逻辑组合
+     *
+     * ElementMatcher.Junction：Junction 允许以可读的方式 链接（chain） 不同的 ElementMatchers。
+     */
     ElementMatcher.Junction buildJunction();
 
+    /**
+     * @param typeDescription Java类的类型描述
+     */
     boolean isMatch(TypeDescription typeDescription);
 }

@@ -31,6 +31,12 @@ import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
  * <p>
  * Notice: this ignore mechanism may miss some instrumentations, but at most cases, it's same. If missing happens,
  * please pay attention to the WARNING logs.
+ *
+ * <pre>
+ * (在某些情况下，一些框架和库也使用一些二进制代码技术。从社区反馈来看，其中一些存在与 byte-buddy core 的兼容问题，从而触发 Can't resolve type description（无法解析类型描述）异常。
+ * 因此，我通过嵌套匹配器构建了这个保护盾。当源匹配器无法解析类型时，SkyWalking 代理将忽略此类型。
+ * 注意：此 ignore 机制可能会遗漏一些 instrumentation，但在大多数情况下，它是相同的。如果发生 MISSING 事件，请注意 WARNING 日志。)
+ * </pre>
  */
 public class ProtectiveShieldMatcher<T> extends ElementMatcher.Junction.AbstractBase<T> {
     private static final ILog LOGGER = LogManager.getLogger(ProtectiveShieldMatcher.class);

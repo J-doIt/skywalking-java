@@ -35,10 +35,11 @@ import static net.bytebuddy.matcher.ElementMatchers.not;
  * Match the class by the given super class or interfaces.
  *
  * <pre>
- * 基于父类 / 接口进行匹配，可设置同时匹配多个。
+ * 基于 父类/接口 进行匹配，可设置同时匹配多个（必须同时匹配）。
  * </pre>
  */
 public class HierarchyMatch implements IndirectMatch {
+    /** 需要同时匹配的父类/接口 */
     private String[] parentTypes;
 
     private HierarchyMatch(String[] parentTypes) {

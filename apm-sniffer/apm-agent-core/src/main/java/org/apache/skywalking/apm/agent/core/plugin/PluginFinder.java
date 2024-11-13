@@ -44,8 +44,16 @@ import static net.bytebuddy.matcher.ElementMatchers.not;
  * </pre>
  */
 public class PluginFinder {
+    /**
+     * 完整类名匹配.map。
+     * ≤ 类名, 插件定义list ≥
+     */
     private final Map<String, LinkedList<AbstractClassEnhancePluginDefine>> nameMatchDefine = new HashMap<String, LinkedList<AbstractClassEnhancePluginDefine>>();
+    /**
+     * 非NameMatch的匹配.list。
+     */
     private final List<AbstractClassEnhancePluginDefine> signatureMatchDefine = new ArrayList<AbstractClassEnhancePluginDefine>();
+    /** 增强的是由启动类加载器加载的类的插件定义.list */
     private final List<AbstractClassEnhancePluginDefine> bootstrapClassMatchDefine = new ArrayList<AbstractClassEnhancePluginDefine>();
     private static boolean IS_PLUGIN_INIT_COMPLETED = false;
 
@@ -74,6 +82,7 @@ public class PluginFinder {
                 signatureMatchDefine.add(plugin);
             }
 
+            // 如果增强的是由启动类加载器加载的类
             if (plugin.isBootstrapInstrumentation()) {
                 bootstrapClassMatchDefine.add(plugin);
             }
@@ -109,12 +118,15 @@ public class PluginFinder {
      * 获得全部插件的类匹配，多个插件的类匹配条件以 or 分隔
      */
     public ElementMatcher<? super TypeDescription> buildMatch() {
+        // ElementMatcher.Junction 表示多个匹配条件的逻辑组合
         ElementMatcher.Junction judge = new AbstractJunction<NamedElement>() {
             @Override
             public boolean matches(NamedElement target) {
+                // 包含于 nameMatchDefine 的 target 则匹配。
                 return nameMatchDefine.containsKey(target.getActualName());
             }
         };
+        // 根据 各IndirectMatch实现 构建的 ElementMatcher.Junction 进行 OR 操作。
         for (AbstractClassEnhancePluginDefine define : signatureMatchDefine) {
             ClassMatch match = define.enhanceClass();
             if (match instanceof IndirectMatch) {
@@ -122,6 +134,7 @@ public class PluginFinder {
             }
         }
         // Filter out all matchers returns to exclude pure interface types.
+        // （排除纯接口类型。）
         judge = not(isInterface()).and(judge);
         return new ProtectiveShieldMatcher(judge);
     }

@@ -26,6 +26,7 @@ package org.apache.skywalking.apm.agent.core.plugin.match;
  * </pre>
  */
 public class NameMatch implements ClassMatch {
+    /** 需要匹配的完整类名 */
     private String className;
 
     private NameMatch(String className) {

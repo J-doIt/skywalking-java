@@ -24,9 +24,13 @@ import net.bytebuddy.matcher.ElementMatchers;
 
 /**
  * Match classes by any one of the given {@link #prefixes}
+ * <pre>
+ * (用任意一个给定的前缀匹配类)
+ * </pre>
  */
 @SuppressWarnings("rawtypes")
 public class PrefixMatch implements IndirectMatch {
+    /** 任一匹配的前缀 */
     private String[] prefixes;
 
     private PrefixMatch(String... prefixes) {

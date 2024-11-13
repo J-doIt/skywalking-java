@@ -23,10 +23,16 @@ import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 /**
  * {@link SuccessCallbackMatch} match the class that inherited <code>org.springframework.util.concurrent.SuccessCallback</code>
  * and not inherited <code>org.springframework.util.concurrent.FailureCallback</code>
+ *
+ * <pre>
+ * (SuccessCallbackMatch 匹配 继承 org.springframework.util.concurrent.SuccessCallback 而不是继承 org.springframework.util.concurrent.FailureCallback 的类。)
+ * </pre>
  */
 public class SuccessCallbackMatch extends EitherInterfaceMatch {
 
+    /** 匹配的接口 */
     private static final String MATCH_INTERFACE = "org.springframework.util.concurrent.SuccessCallback";
+    /** 互斥的接口 */
     private static final String MUTEX_INTERFACE = "org.springframework.util.concurrent.FailureCallback";
 
     private SuccessCallbackMatch() {

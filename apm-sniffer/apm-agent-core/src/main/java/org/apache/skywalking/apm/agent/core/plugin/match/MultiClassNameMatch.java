@@ -27,9 +27,12 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
 
 /**
  * Match class with a given set of classes.
+ * （将类与一组给定的类匹配。）
+ * 匹配 this.matchClassNames 的其中一个就行
  */
 public class MultiClassNameMatch implements IndirectMatch {
 
+    /** 任一匹配的类名 */
     private List<String> matchClassNames;
 
     private MultiClassNameMatch(String[] classNames) {

@@ -30,6 +30,9 @@ import static net.bytebuddy.matcher.ElementMatchers.not;
 
 /**
  * {@link ListenableFutureCallbackMatch} match the class that inherited <code>org.springframework.util.concurrent.ListenableFutureCallback</code>.
+ * <pre>
+ * (ListenableFutureCallbackMatch 与 继承 ListenableFutureCallback 的类 匹配。)
+ * </pre>
  */
 public class ListenableFutureCallbackMatch implements IndirectMatch {
 
@@ -41,8 +44,8 @@ public class ListenableFutureCallbackMatch implements IndirectMatch {
 
     @Override
     public ElementMatcher.Junction buildJunction() {
-        return not(nameStartsWith("org.springframework")).
-                                                             and(hasSuperType(named(LISTENABLE_FUTURE_CALLBACK_CLASS_NAME)));
+        return not(nameStartsWith("org.springframework"))
+                .and(hasSuperType(named(LISTENABLE_FUTURE_CALLBACK_CLASS_NAME)));
     }
 
     @Override
@@ -59,19 +62,24 @@ public class ListenableFutureCallbackMatch implements IndirectMatch {
         }
     }
 
+    /** 匹配确切的类 */
     private boolean matchExactClass(TypeDescription.Generic clazz) {
+        // 如果 类的原始类型 是 springframework 的 ListenableFutureCallback，则匹配
         if (clazz.asRawType().getTypeName().equals(LISTENABLE_FUTURE_CALLBACK_CLASS_NAME)) {
             return true;
         }
 
         boolean isMatch = false;
+        // 递归匹配接口
         for (TypeDescription.Generic generic : clazz.getInterfaces()) {
             isMatch = isMatch || matchExactClass(generic);
         }
 
         if (!isMatch) {
             TypeDescription.Generic superClazz = clazz.getSuperClass();
+            // 如果父类不为空且不是 Object 类
             if (superClazz != null && !clazz.getTypeName().equals("java.lang.Object")) {
+                // 递归匹配父类
                 isMatch = isMatch || matchExactClass(superClazz);
             }
         }

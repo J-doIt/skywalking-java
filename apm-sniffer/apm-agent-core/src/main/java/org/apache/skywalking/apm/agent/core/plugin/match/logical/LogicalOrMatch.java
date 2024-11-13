@@ -24,12 +24,21 @@ import org.apache.skywalking.apm.agent.core.plugin.match.IndirectMatch;
 
 /**
  * Match classes by multiple criteria with OR conjunction
+ * <pre>
+ * (使用 OR 连词按多个条件匹配类（IndirectMatch）)
+ *
+ * 逻辑或 匹配
+ * </pre>
  */
 public class LogicalOrMatch implements IndirectMatch {
+    /** 任一匹配的 IndirectMatch */
     private final IndirectMatch[] indirectMatches;
 
     /**
      * Don't instantiate this class directly, use {@link LogicalMatchOperation} instead
+     * <pre>
+     * (不要直接实例化这个类，而是使用 LogicalMatchOperation)
+     * </pre>
      *
      * @param indirectMatches the matching criteria to conjunct with OR
      */

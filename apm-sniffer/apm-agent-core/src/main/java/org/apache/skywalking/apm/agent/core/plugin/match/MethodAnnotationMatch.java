@@ -37,10 +37,13 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
  * Match the class, which has methods with the certain annotations. This is a very complex match.
  *
  * <pre>
- * 基于方法注解进行匹配，可设置同时匹配多个。目前项目里主要用于匹配方法上的 org.skywalking.apm.toolkit.trace.@Trace 注解。
+ * （匹配类，类的方法带有特定的注释。这是一场非常复杂的匹配。）
+ *
+ * 基于方法注解进行匹配，可设置*同时*匹配多个。目前项目里主要用于匹配方法上的 org.skywalking.apm.toolkit.trace.@Trace 注解。
  * </pre>
  */
 public class MethodAnnotationMatch implements IndirectMatch {
+    /** 需要同时匹配的方法上的注解 */
     private String[] annotations;
 
     private MethodAnnotationMatch(String[] annotations) {

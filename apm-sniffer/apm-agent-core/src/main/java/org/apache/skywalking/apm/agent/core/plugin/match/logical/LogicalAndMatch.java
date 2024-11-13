@@ -24,12 +24,21 @@ import org.apache.skywalking.apm.agent.core.plugin.match.IndirectMatch;
 
 /**
  * Match classes by multiple criteria with AND conjunction
+ * <pre>
+ * (使用 AND 连词按多个条件匹配类（IndirectMatch）)
+ *
+ * 逻辑且 匹配
+ * </pre>
  */
 public class LogicalAndMatch implements IndirectMatch {
+    /** 需要全部匹配的 IndirectMatch */
     private final IndirectMatch[] indirectMatches;
 
     /**
      * Don't instantiate this class directly, use {@link LogicalMatchOperation} instead
+     * <pre>
+     * (不要直接实例化这个类，而是使用 LogicalMatchOperation)
+     * </pre>
      *
      * @param indirectMatches the matching criteria to conjunct with AND
      */
