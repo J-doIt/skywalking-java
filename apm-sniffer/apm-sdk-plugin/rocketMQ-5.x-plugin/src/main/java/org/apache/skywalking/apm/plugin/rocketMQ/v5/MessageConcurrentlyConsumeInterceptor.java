@@ -34,7 +34,7 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedI
  * <pre>
  * （MessageConcurrentlyConsumeInterceptor 在 MessageListenerConcurrently.consumeMessage(）方法执行后设置进程状态。）
  *
- * 增强类：org.apache.rocketmq.client.consumer.listener.MessageListenerConcurrently 及其子类
+ * 增强类：org.apache.rocketmq.client.consumer.listener.MessageListenerConcurrently 的子类或实现类
  * 增强方法：ConsumeConcurrentlyStatus consumeMessage(List<MessageExt> msgs, ConsumeConcurrentlyContext context)
  * </pre>
  */

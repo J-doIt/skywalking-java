@@ -29,7 +29,7 @@ import static org.apache.skywalking.apm.agent.core.plugin.match.HierarchyMatch.b
 
 /**
  * <pre>
- * 增强类：org.apache.rocketmq.client.consumer.listener.MessageListenerOrderly 及其子类
+ * 增强类：org.apache.rocketmq.client.consumer.listener.MessageListenerOrderly 的子类或实现类
  * 增强方法：ConsumeOrderlyStatus consumeMessage(List<MessageExt> msgs, ConsumeOrderlyContext context)
  *      拦截器：org.apache.skywalking.apm.plugin.rocketMQ.v5.MessageOrderlyConsumeInterceptor
  * </pre>

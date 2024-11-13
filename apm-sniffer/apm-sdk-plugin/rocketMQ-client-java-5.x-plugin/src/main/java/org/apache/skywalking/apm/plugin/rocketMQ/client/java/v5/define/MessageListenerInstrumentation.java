@@ -30,7 +30,7 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
 
 /**
  * <pre>
- * 增强类：org.apache.rocketmq.client.apis.consumer.MessageListener 及其子类
+ * 增强类：org.apache.rocketmq.client.apis.consumer.MessageListener 的子类或实现类
  * 增强方法：ConsumeResult consume(MessageView var1)
  *      拦截器：org.apache.skywalking.apm.plugin.rocketMQ.client.java.v5.MessageListenerInterceptor
  * </pre>

@@ -27,7 +27,7 @@ import java.lang.reflect.Method;
 
 /**
  * <pre>
- * 增强类 okhttp3.Callback 及其子类
+ * 增强类：okhttp3.Callback 的子类或实现类
  * 增强方法：fun onFailure(call: Call, e: IOException)
  * </pre>
  */

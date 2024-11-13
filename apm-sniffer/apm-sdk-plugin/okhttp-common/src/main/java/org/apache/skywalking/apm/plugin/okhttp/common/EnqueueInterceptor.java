@@ -53,7 +53,7 @@ public class EnqueueInterceptor implements InstanceMethodsAroundInterceptor, Ins
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         MethodInterceptResult result) throws Throwable {
-        // enqueue 方法的第一个参数 被增强过了（CallbackInstrumentation 中声明了要增强 okhttp3.Callback 及其子类）
+        // enqueue 方法的第一个参数 被增强过了（CallbackInstrumentation 中声明了要增强 okhttp3.Callback 的子类）
         EnhancedInstance callbackInstance = (EnhancedInstance) allArguments[0];
         Request request = (Request) objInst.getSkyWalkingDynamicField();
         // 创建 操作名 为 Async+uri 的 local span

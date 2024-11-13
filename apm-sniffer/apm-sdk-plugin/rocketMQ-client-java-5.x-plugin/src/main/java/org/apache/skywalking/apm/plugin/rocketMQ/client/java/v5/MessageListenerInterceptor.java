@@ -37,7 +37,7 @@ import java.lang.reflect.Method;
 
 /**
  * <pre>
- * 增强类：org.apache.rocketmq.client.apis.consumer.MessageListener 及其子类
+ * 增强类：org.apache.rocketmq.client.apis.consumer.MessageListener 的子类或实现类
  * 增强方法：ConsumeResult consume(MessageView var1)
  * </pre>
  */

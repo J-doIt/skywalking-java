@@ -29,7 +29,7 @@ import static org.apache.skywalking.apm.agent.core.plugin.match.HierarchyMatch.b
 
 /**
  * <pre>
- * 增强类 okhttp3.Callback 及其子类
+ * 增强类：okhttp3.Callback 的子类或实现类
  * 增强方法：fun onFailure(call: Call, e: IOException)
  *      拦截器：OnFailureInterceptor
  * 增强方法：fun onResponse(call: Call, response: Response)
@@ -82,7 +82,7 @@ public class CallbackInstrumentation extends AbstractOkhttpInstrumentation {
 
     @Override
     protected ClassMatch enhanceClass() {
-        // 匹配 okhttp3.Callback 及其子类
+        // okhttp3.Callback 的子类或实现类
         return byHierarchyMatch(new String[] {"okhttp3.Callback"});
     }
 }

@@ -32,7 +32,7 @@ import java.lang.reflect.Method;
  * <pre>
  * （OnResponseInterceptor 在 大于400 时验证响应代码。如果是这样的话。事务状态变为“error”，或者什么都不做。）
  *
- * 增强类 okhttp3.Callback 及其子类
+ * 增强类： okhttp3.Callback 的子类或实现类
  * 增强方法：fun onResponse(call: Call, response: Response)
  * </pre>
  */

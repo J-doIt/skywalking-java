@@ -24,7 +24,7 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInt
 
 /**
  * <pre>
- * 增强类：redis.clients.jedis.providers.ConnectionProvider 及其子类
+ * 增强类：redis.clients.jedis.providers.ConnectionProvider 的子类或实现类
  * 增强方法：
  *          Connection getConnection(...)
  * </pre>

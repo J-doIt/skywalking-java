@@ -34,7 +34,9 @@ import static org.apache.skywalking.apm.agent.core.plugin.bytebuddy.ArgumentType
 /**
  * <pre>
  * 增强类：
- *      org.redisson.RedissonLock 及其子类
+ *      org.redisson.RedissonLock 的子类或实现类
+ *      或
+ *      org.redisson.RedissonLock
  *      或
  *      org.redisson.RedissonSpinLock
  * 增强方法：
@@ -60,8 +62,8 @@ public class RedissonLockInstrumentation extends ClassInstanceMethodsEnhancePlug
     @Override
     protected ClassMatch enhanceClass() {
         return LogicalMatchOperation.or( // “或”，满足任何一个条件，则匹配成功
-                HierarchyMatch.byHierarchyMatch(REDISSON_LOCK_CLASS), // 匹配 RedissonLock 类及其子类
-                MultiClassNameMatch.byMultiClassMatch(REDISSON_LOCK_CLASS, REDISSON_SPIN_LOCK_CLASS) // 匹配 RedissonLock 和 RedissonSpinLock 具体类
+                HierarchyMatch.byHierarchyMatch(REDISSON_LOCK_CLASS), // RedissonLock 的子类或实现类
+                MultiClassNameMatch.byMultiClassMatch(REDISSON_LOCK_CLASS, REDISSON_SPIN_LOCK_CLASS) // 匹配 RedissonLock 或 RedissonSpinLock
         );
     }
 

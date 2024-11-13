@@ -36,7 +36,9 @@ import java.util.concurrent.TimeUnit;
 /**
  * <pre>
  * 增强类：
- *      org.redisson.RedissonLock 及其子类
+ *      org.redisson.RedissonLock 的子类或实现类
+ *      或
+ *      org.redisson.RedissonLock
  * 增强方法：
  *      ≤T> RFuture≤T> tryLockInnerAsync(long waitTime, long leaseTime, TimeUnit unit, long threadId, RedisStrictCommand≤T> command)
  * </pre>

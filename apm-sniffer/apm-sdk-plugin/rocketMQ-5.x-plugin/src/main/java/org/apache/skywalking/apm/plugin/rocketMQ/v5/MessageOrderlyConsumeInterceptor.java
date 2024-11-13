@@ -32,7 +32,7 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedI
  * org.apache.rocketmq.client.consumer.listener.ConsumeOrderlyContext)} method execute.
  *
  * <pre>
- * 增强类：org.apache.rocketmq.client.consumer.listener.MessageListenerOrderly 及其子类
+ * 增强类：org.apache.rocketmq.client.consumer.listener.MessageListenerOrderly 的子类或实现类
  * 增强方法：ConsumeOrderlyStatus consumeMessage(List<MessageExt> msgs, ConsumeOrderlyContext context)
  * </pre>
  */

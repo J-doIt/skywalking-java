@@ -30,7 +30,7 @@ import static org.apache.skywalking.apm.agent.core.plugin.match.HierarchyMatch.b
 
 /**
  * <pre>
- * 增强类：redis.clients.jedis.providers.ConnectionProvider 及其子类
+ * 增强类：redis.clients.jedis.providers.ConnectionProvider 的子类或实现类
  * 增强构造函数：
  *          ClusterConnectionProvider(Set≤HostAndPort> clusterNodes, ...)
  *          PooledConnectionProvider(HostAndPort hostAndPort, ...)
