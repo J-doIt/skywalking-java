@@ -23,6 +23,9 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+/**
+ * BootService 的默认实现，load 服务 的时候不会被重复 put 到 ServiceManager.bootedServices。
+ */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 public @interface DefaultImplementor {

@@ -23,8 +23,17 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+/**
+ * <pre>
+ * BootService 的重写实现，
+ * load 此服务 的时候，
+ *      如果 此服务的 targetService 不是 DefaultImplementor，
+ *          且 该targetService 已经被 put 到 ServiceManager.bootedServices，则抛出异常。
+ * </pre>
+ */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 public @interface OverrideImplementor {
+    /** 此服务的 targetService */
     Class<? extends BootService> value();
 }
