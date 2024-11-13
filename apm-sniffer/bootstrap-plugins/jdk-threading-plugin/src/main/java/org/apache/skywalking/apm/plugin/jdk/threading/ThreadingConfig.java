@@ -31,7 +31,9 @@ import static org.apache.skywalking.apm.agent.core.plugin.match.PrefixMatch.name
 public class ThreadingConfig {
     private static final ILog LOGGER = LogManager.getLogger(ThreadingConfig.class);
 
+    /** 匹配 任一 以 THREADING_CLASS_PREFIXES 中配置的字符为前缀的。 */
     public static IndirectMatch prefixesMatchesForJdkThreading() {
+        // 线程类前缀（以','分隔）
         final String jointPrefixes = JDKThreadingPluginConfig.Plugin.JdkThreading.THREADING_CLASS_PREFIXES;
 
         if (jointPrefixes == null || jointPrefixes.trim().isEmpty()) {
@@ -43,6 +45,7 @@ public class ThreadingConfig {
         final List<PrefixMatch> prefixMatches = new ArrayList<PrefixMatch>();
 
         for (final String prefix : prefixes) {
+            // 由于安全问题，如果配置了 'java.' 和 'javax.' ，直接忽略
             if (prefix.startsWith("java.") || prefix.startsWith("javax.")) {
                 LOGGER.warn("prefix {} is ignored", prefix);
                 continue;

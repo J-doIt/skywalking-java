@@ -34,6 +34,17 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
 import static net.bytebuddy.matcher.ElementMatchers.takesArguments;
 import static org.apache.skywalking.apm.agent.core.plugin.match.HierarchyMatch.byHierarchyMatch;
 
+/**
+ * <pre>
+ * 增强类：java.util.concurrent.Callable 以及子类，且配置在了 ‘plugin.jdkthreading.threading_class_prefixes’ 中的类
+ * 增强构造函数：
+ *          any
+ *      拦截器：ThreadingConstructorInterceptor
+ * 增强方法：
+ *          V call()
+ *      拦截器：ThreadingMethodInterceptor
+ * </pre>
+ */
 public class CallableInstrumentation extends ClassEnhancePluginDefine {
     private static final String CALLABLE_CLASS = "java.util.concurrent.Callable";
     private static final String CALLABLE_CLASS_INTERCEPTOR = "org.apache.skywalking.apm.plugin.jdk.threading.ThreadingConstructorInterceptor";
@@ -98,6 +109,7 @@ public class CallableInstrumentation extends ClassEnhancePluginDefine {
 
     @Override
     public boolean isBootstrapInstrumentation() {
+        // 被 启动类加载器 加载
         return true;
     }
 }

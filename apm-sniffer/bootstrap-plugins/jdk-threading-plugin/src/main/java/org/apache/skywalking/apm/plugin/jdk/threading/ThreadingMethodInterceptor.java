@@ -28,18 +28,32 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceM
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 
+/**
+ * <pre>
+ * 增强类：
+ *      java.util.concurrent.Callable 以及子类，且配置在了 ‘plugin.jdkthreading.threading_class_prefixes’ 中的类
+ *      or
+ *      java.lang.Runnable 以及子类，且配置在了 ‘plugin.jdkthreading.threading_class_prefixes’ 中的类
+ * 增强方法：
+ *          V call()
+ *          void run()
+ * </pre>
+ */
 public class ThreadingMethodInterceptor implements InstanceMethodsAroundInterceptor {
 
     @Override
     public void beforeMethod(final EnhancedInstance objInst, final Method method, final Object[] allArguments,
         final Class<?>[] argumentsTypes, final MethodInterceptResult result) {
 
+        // 创建 local span
         AbstractSpan span = ContextManager.createLocalSpan(generateOperationName(objInst, method));
         span.setComponent(ComponentsDefine.JDK_THREADING);
 
+        // 从 objInst（Callable、Runnable）获取增强域的值（tracingContext快照）
         final Object storedField = objInst.getSkyWalkingDynamicField();
         if (storedField != null) {
             final ContextSnapshot contextSnapshot = (ContextSnapshot) storedField;
+            // 从上游（上个线程） 获取 链路信息 后 ref 到当前 链路
             ContextManager.continued(contextSnapshot);
         }
 
@@ -48,6 +62,7 @@ public class ThreadingMethodInterceptor implements InstanceMethodsAroundIntercep
     @Override
     public Object afterMethod(final EnhancedInstance objInst, final Method method, final Object[] allArguments,
         final Class<?>[] argumentsTypes, final Object ret) {
+        // 结束 active span
         ContextManager.stopSpan();
         return ret;
     }
@@ -57,6 +72,7 @@ public class ThreadingMethodInterceptor implements InstanceMethodsAroundIntercep
         final Class<?>[] argumentsTypes, final Throwable t) {
 
         if (ContextManager.isActive()) {
+            // 设置 active span 的 log 为 t
             ContextManager.activeSpan().log(t);
         }
     }

@@ -34,6 +34,17 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
 import static net.bytebuddy.matcher.ElementMatchers.takesArguments;
 import static org.apache.skywalking.apm.agent.core.plugin.match.HierarchyMatch.byHierarchyMatch;
 
+/**
+ * <pre>
+ * 增强类：java.lang.Runnable 以及子类，且配置在了 ‘plugin.jdkthreading.threading_class_prefixes’ 中的类
+ * 增强构造函数：
+ *          any
+ *      拦截器：ThreadingConstructorInterceptor
+ * 增强方法：
+ *          void run()
+ *      拦截器：ThreadingMethodInterceptor
+ * </pre>
+ */
 public class RunnableInstrumentation extends ClassEnhancePluginDefine {
     private static final String RUNNABLE_CLASS = "java.lang.Runnable";
     private static final String RUNNABLE_CLASS_INTERCEPTOR = "org.apache.skywalking.apm.plugin.jdk.threading.ThreadingConstructorInterceptor";
@@ -43,6 +54,7 @@ public class RunnableInstrumentation extends ClassEnhancePluginDefine {
 
     @Override
     protected ClassMatch enhanceClass() {
+        // 匹配以 `plugin.jdkthreading.threading_class_prefixes` 为前缀的
         final IndirectMatch prefixMatches = ThreadingConfig.prefixesMatchesForJdkThreading();
 
         if (prefixMatches == null) {
@@ -98,6 +110,7 @@ public class RunnableInstrumentation extends ClassEnhancePluginDefine {
 
     @Override
     public boolean isBootstrapInstrumentation() {
+        // 被 启动类加载器 加载
         return true;
     }
 }

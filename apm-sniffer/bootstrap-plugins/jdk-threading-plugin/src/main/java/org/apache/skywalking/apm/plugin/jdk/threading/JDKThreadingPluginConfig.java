@@ -29,6 +29,12 @@ public class JDKThreadingPluginConfig {
              * Threading classes ({@link java.lang.Runnable} and {@link java.util.concurrent.Callable} and their
              * subclasses, including anonymous inner classes) whose name matches any one of the {@code
              * THREADING_CLASS_PREFIXES} (splitted by ,) will be instrumented
+             * <pre>
+             * 名称与任何一个 THREADING_CLASS_PREFIXES 匹配（由 ',' 拆分）的 线程类（Runnable 和 Callable 及其子类，包括匿名内部类）将被 instrumented。以确保仅指定您希望检测的窄前缀（narrow prefixes）。
+             * 由于安全问题，如果配置了 'java.' 和 'javax.' 也将被忽略。
+             *
+             * 线程类前缀
+             * </pre>
              */
             public static String THREADING_CLASS_PREFIXES = "";
         }
