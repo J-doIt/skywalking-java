@@ -24,22 +24,37 @@ import org.apache.skywalking.apm.plugin.wrapper.SwRunnableWrapper;
 
 import java.util.concurrent.Callable;
 
+/**
+ * <pre>
+ * 增强类：
+ *      java.util.concurrent.ThreadPoolExecutor 和 其子类或实现类
+ * 增强方法（重写参数）：
+ *          ≤T> Future≤T> submit(Callable≤T> task)
+ *          Future≤?> submit(Runnable task)
+ *          ≤T> Future≤T> submit(Runnable task, T result)
+ * </pre>
+ */
 public class ThreadPoolSubmitMethodInterceptor extends AbstractThreadingPoolInterceptor {
 
     @Override
     public Object wrap(Object param) {
+        // 如果 param 已经被包装过，返回 null 表示不再包装
         if (param instanceof SwRunnableWrapper || param instanceof SwCallableWrapper) {
             return null;
         }
 
+        // 如果 param 是 Callable
         if (param instanceof Callable) {
             Callable callable = (Callable) param;
-            return new SwCallableWrapper(callable, ContextManager.capture());
+            // 将 Callable 包装成 SwCallableWrapper，并返回
+            return new SwCallableWrapper(callable, ContextManager.capture()/* 捕获当前上下文的快照 */);
         }
 
+        // 如果 param 是 Runnable
         if (param instanceof Runnable) {
             Runnable runnable = (Runnable) param;
-            return new SwRunnableWrapper(runnable, ContextManager.capture());
+            // 将 Runnable 包装成 SwRunnableWrapper，并返回
+            return new SwRunnableWrapper(runnable, ContextManager.capture()/* 捕获当前上下文的快照 */);
         }
 
         return null;

@@ -14,4 +14,5 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# 增强 ThreadPoolExecutor 及其子类或实现类 的 execute() 和 submit()
 jdk-threadpool-plugin=org.apache.skywalking.apm.plugin.define.ThreadPoolExecutorInstrumentation

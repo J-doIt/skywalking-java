@@ -24,12 +24,21 @@ import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 import java.util.concurrent.Callable;
 
+/**
+ * 实现 Callable 接口
+ */
 public class SwCallableWrapper implements Callable {
 
+    /** 被包装的Callable对象 */
     private Callable callable;
 
+    /** 当前上下文的快照 */
     private ContextSnapshot contextSnapshot;
 
+    /**
+     * @param callable 被包装的Callable对象
+     * @param contextSnapshot 当前上下文的快照
+     */
     public SwCallableWrapper(Callable callable, ContextSnapshot contextSnapshot) {
         this.callable = callable;
         this.contextSnapshot = contextSnapshot;
@@ -37,8 +46,10 @@ public class SwCallableWrapper implements Callable {
 
     @Override
     public Object call() throws Exception {
+        // 创建 local span
         AbstractSpan span = ContextManager.createLocalSpan(getOperationName());
         span.setComponent(ComponentsDefine.JDK_THREADING);
+        // 将 this.contextSnapshot ref 到当前tracingContext 并继续
         ContextManager.continued(contextSnapshot);
         try {
             return callable.call();

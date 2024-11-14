@@ -23,12 +23,21 @@ import org.apache.skywalking.apm.agent.core.context.ContextSnapshot;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 
+/**
+ * 实现 Runnable 接口
+ */
 public class SwRunnableWrapper implements Runnable {
 
+    /** 被包装的Runnable对象 */
     private Runnable runnable;
 
+    /** 当前上下文的快照 */
     private ContextSnapshot contextSnapshot;
 
+    /**
+     * @param runnable 被包装的Runnable对象
+     * @param contextSnapshot 当前上下文的快照
+     */
     public SwRunnableWrapper(Runnable runnable, ContextSnapshot contextSnapshot) {
         this.runnable = runnable;
         this.contextSnapshot = contextSnapshot;
@@ -36,12 +45,16 @@ public class SwRunnableWrapper implements Runnable {
 
     @Override
     public void run() {
+        // 创建 local span
         AbstractSpan span = ContextManager.createLocalSpan(getOperationName());
         span.setComponent(ComponentsDefine.JDK_THREADING);
+        // 将 this.contextSnapshot ref 到当前tracingContext 并继续
         ContextManager.continued(contextSnapshot);
         try {
+            // run
             runnable.run();
         } finally {
+            // 结束 active span
             ContextManager.stopSpan();
         }
     }

@@ -29,6 +29,20 @@ import org.apache.skywalking.apm.agent.core.plugin.match.HierarchyMatch;
 import org.apache.skywalking.apm.agent.core.plugin.match.MultiClassNameMatch;
 import org.apache.skywalking.apm.agent.core.plugin.match.logical.LogicalMatchOperation;
 
+/**
+ * <pre>
+ * 增强类：
+ *      java.util.concurrent.ThreadPoolExecutor 和 其子类或实现类
+ * 增强方法（重写参数）：
+ *          void execute(Runnable command)
+ *      拦截器：org.apache.skywalking.apm.plugin.ThreadPoolExecuteMethodInterceptor
+ * 增强方法（重写参数）：
+ *          ≤T> Future≤T> submit(Callable≤T> task)
+ *          Future≤?> submit(Runnable task)
+ *          ≤T> Future≤T> submit(Runnable task, T result)
+ *      拦截器：org.apache.skywalking.apm.plugin.ThreadPoolSubmitMethodInterceptor
+ * </pre>
+ */
 public class ThreadPoolExecutorInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
     private static final String ENHANCE_CLASS = "java.util.concurrent.ThreadPoolExecutor";
@@ -43,12 +57,15 @@ public class ThreadPoolExecutorInstrumentation extends ClassInstanceMethodsEnhan
 
     @Override
     public boolean isBootstrapInstrumentation() {
+        // 被 启动类加载器 加载
         return true;
     }
 
     @Override
     protected ClassMatch enhanceClass() {
-        return LogicalMatchOperation.or(HierarchyMatch.byHierarchyMatch(ENHANCE_CLASS), MultiClassNameMatch.byMultiClassMatch(ENHANCE_CLASS));
+        return LogicalMatchOperation.or(
+                HierarchyMatch.byHierarchyMatch(ENHANCE_CLASS), // java.util.concurrent.ThreadPoolExecutor 的子类或实现类
+                MultiClassNameMatch.byMultiClassMatch(ENHANCE_CLASS)); // java.util.concurrent.ThreadPoolExecutor
     }
 
     @Override

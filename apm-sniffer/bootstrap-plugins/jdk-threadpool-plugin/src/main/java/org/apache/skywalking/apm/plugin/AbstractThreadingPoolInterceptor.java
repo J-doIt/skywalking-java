@@ -26,13 +26,18 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInt
 import java.lang.reflect.Method;
 
 public abstract class AbstractThreadingPoolInterceptor implements InstanceMethodsAroundInterceptor {
+
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
+
+        // 不需求增强时，直接返回
         if (notToEnhance(allArguments)) {
             return;
         }
 
+        // 包装 Callable 或 Runnable 对象
         Object wrappedObject = wrap(allArguments[0]);
+        // 替换 var1 为 wrappedObject
         if (wrappedObject != null) {
             allArguments[0] = wrappedObject;
         }
@@ -40,8 +45,12 @@ public abstract class AbstractThreadingPoolInterceptor implements InstanceMethod
 
     /**
      * wrap the Callable or Runnable object if needed
-     * @param param  Callable or Runnable object
-     * @return Wrapped object or null if not needed to wrap
+     * <pre>
+     * (如果需要，包装 Callable 或 Runnable 对象)
+     * </pre>
+     *
+     * @param param Callable 或 Runnable 对象
+     * @return Wrapped object 或 null（如果不需要换行）
      */
     public abstract Object wrap(Object param);
 
@@ -52,13 +61,20 @@ public abstract class AbstractThreadingPoolInterceptor implements InstanceMethod
 
     @Override
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, Throwable t) {
+        // 不需求增强时，直接返回
         if (notToEnhance(allArguments)) {
             return;
         }
 
+        // 设置 active span 的 log 为 t
         ContextManager.activeSpan().log(t);
     }
 
+    /**
+     * 当前tracingContext无active的span、方法参数为空、或者方法无参数、或者 var1 已被增强过，则不增强。
+     * @param allArguments
+     * @return true：不增强
+     */
     private boolean notToEnhance(Object[] allArguments) {
         if (!ContextManager.isActive()) {
             return true;
@@ -68,9 +84,11 @@ public abstract class AbstractThreadingPoolInterceptor implements InstanceMethod
             return true;
         }
 
+        // var1：Callable、Runnable
         Object argument = allArguments[0];
 
         // Avoid duplicate enhancement, such as the case where it has already been enhanced by RunnableWrapper or CallableWrapper with toolkit.
+        // （避免重复增强，例如已经通过 RunnableWrapper 或 CallableWrapper 和 toolkit（jdk-threading-plugin） 对其进行增强的情况。）
         return argument instanceof EnhancedInstance && ((EnhancedInstance) argument).getSkyWalkingDynamicField() instanceof ContextSnapshot;
     }
 }
