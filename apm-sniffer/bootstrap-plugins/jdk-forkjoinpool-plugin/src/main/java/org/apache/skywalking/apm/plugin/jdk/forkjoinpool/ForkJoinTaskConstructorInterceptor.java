@@ -22,12 +22,20 @@ import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstructorInterceptor;
 
+/**
+ * <pre>
+ * 增强类：java.util.concurrent.ForkJoinTask 的子类或实现类
+ * 增强构造函数：
+ *          any
+ * </pre>
+ */
 public class ForkJoinTaskConstructorInterceptor implements InstanceConstructorInterceptor {
 
     @Override
     public void onConstruct(EnhancedInstance objInst, Object[] allArguments) throws Throwable {
         if (ContextManager.isActive()) {
-            objInst.setSkyWalkingDynamicField(ContextManager.capture());
+            // 将 ForkJoinTask子类或实现类 的增强域设置为 当前上下文的快照
+            objInst.setSkyWalkingDynamicField(ContextManager.capture()/* 捕获当前上下文的快照 */);
         }
     }
 }

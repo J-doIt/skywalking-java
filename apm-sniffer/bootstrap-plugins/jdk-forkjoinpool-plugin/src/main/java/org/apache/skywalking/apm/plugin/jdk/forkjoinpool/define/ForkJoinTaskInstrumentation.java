@@ -28,6 +28,14 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInst
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 import org.apache.skywalking.apm.agent.core.plugin.match.HierarchyMatch;
 
+/**
+ * <pre>
+ * 增强类：java.util.concurrent.ForkJoinTask 的子类或实现类
+ * 增强构造函数：
+ *          any
+ *      拦截器：org.apache.skywalking.apm.plugin.jdk.forkjoinpool.ForkJoinTaskConstructorInterceptor
+ * </pre>
+ */
 public class ForkJoinTaskInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
     private static final String FORK_JOIN_TASK_CLASS = "java.util.concurrent.ForkJoinTask";
@@ -62,6 +70,7 @@ public class ForkJoinTaskInstrumentation extends ClassInstanceMethodsEnhancePlug
 
     @Override
     public boolean isBootstrapInstrumentation() {
+        // 被 启动类加载器 加载
         return true;
     }
 }

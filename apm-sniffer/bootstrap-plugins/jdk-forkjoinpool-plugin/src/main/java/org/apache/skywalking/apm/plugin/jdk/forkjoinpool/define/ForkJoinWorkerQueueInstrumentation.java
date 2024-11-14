@@ -28,6 +28,15 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.v2.InstanceMethod
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 import org.apache.skywalking.apm.agent.core.plugin.match.NameMatch;
 
+/**
+ * <pre>
+ * 增强类：java.util.concurrent.ForkJoinPool$WorkQueue
+ * 增强方法：
+ *          runTask() // QFTODO：没找到
+ *          void topLevelExec(ForkJoinTask<?> t, WorkQueue q, int n) // 运行给定的任务
+ *      拦截器：org.apache.skywalking.apm.plugin.jdk.forkjoinpool.ForkJoinWorkerQueueMethodInterceptor
+ * </pre>
+ */
 public class ForkJoinWorkerQueueInstrumentation extends ClassInstanceMethodsEnhancePluginDefineV2 {
 
     private static final String FORK_JOIN_WORKER_QUEUE_CLASS = "java.util.concurrent.ForkJoinPool$WorkQueue";
@@ -62,6 +71,7 @@ public class ForkJoinWorkerQueueInstrumentation extends ClassInstanceMethodsEnha
                 new InstanceMethodsInterceptV2Point() {
                     @Override
                     public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                        // 名称任一匹配 runTask，topLevelExec
                         return namedOneOf(FORK_JOIN_WORKER_QUEUE_RUN_TASK_METHOD, FORK_JOIN_WORKER_QUEUE_RUN_TASK_METHOD_JDK11);
                     }
 
@@ -80,6 +90,7 @@ public class ForkJoinWorkerQueueInstrumentation extends ClassInstanceMethodsEnha
 
     @Override
     public boolean isBootstrapInstrumentation() {
+        // 被 启动类加载器 加载
         return true;
     }
 }
